@@ -1,0 +1,220 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>kubectl get nodes 缓慢问题排查_执行速读慢？ | 码404</title><meta name="keywords" content="k8s,Kubernetes,kubectl,kubectl get nodes,执行速度慢,缓慢"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="问题描述 最近在某个 k8s 集群其中一个节点 (master1) 上执行 kubectl get nodes 大概需要 45s 的时间才有数据返回，而在另外的 master 上执行同样的命令却是很快返回。 通过 kube-apiserver 的日志来看，是无法连接上 metrics-server，从而导致超时。 进而发现这个 master 无法与其他节点的 flannel.1 的 IP 互相">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kubectl get nodes 缓慢问题排查_执行速读慢？">
+<meta property="og:url" content="http://code404.icu/2021/10/07/kubectl-get-nodes-%E7%BC%93%E6%85%A2%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5-%E6%89%A7%E8%A1%8C%E9%80%9F%E8%AF%BB%E6%85%A2%EF%BC%9F/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="问题描述 最近在某个 k8s 集群其中一个节点 (master1) 上执行 kubectl get nodes 大概需要 45s 的时间才有数据返回，而在另外的 master 上执行同样的命令却是很快返回。 通过 kube-apiserver 的日志来看，是无法连接上 metrics-server，从而导致超时。 进而发现这个 master 无法与其他节点的 flannel.1 的 IP 互相">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/10/image-3.png">
+<meta property="article:published_time" content="2021-10-07T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.858Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="Kubernetes">
+<meta property="article:tag" content="kubectl">
+<meta property="article:tag" content="kubectl get nodes">
+<meta property="article:tag" content="执行速度慢">
+<meta property="article:tag" content="缓慢">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/10/image-3.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/10/07/kubectl-get-nodes-%E7%BC%93%E6%85%A2%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5-%E6%89%A7%E8%A1%8C%E9%80%9F%E8%AF%BB%E6%85%A2%EF%BC%9F/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'kubectl get nodes 缓慢问题排查_执行速读慢？',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/10/image-3.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">kubectl get nodes 缓慢问题排查_执行速读慢？</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-10-07T00:30:00.000Z" title="发表于 2021-10-07 08:30:00">2021-10-07</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.858Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/">云原生</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/">k8s</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="kubectl get nodes 缓慢问题排查_执行速读慢？"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/10/image-3.png"></p>
+<h3 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h3><hr>
+<p>最近在某个 k8s 集群其中一个节点 (master1) 上执行 kubectl get nodes 大概需要 45s 的时间才有数据返回，而在另外的 master 上执行同样的命令却是很快返回。</p>
+<p>通过 kube-apiserver 的日志来看，是无法连接上 metrics-server，从而导致超时。</p>
+<p>进而发现这个 master 无法与其他节点的 flannel.1 的 IP 互相 ping 通。</p>
+<h3 id="排查结果"><a href="#排查结果" class="headerlink" title="排查结果"></a>排查结果</h3><hr>
+<p>因为我们的网络组件使用的 canal，跨主机通信时，通过 flannel (vxlan)。</p>
+<p>除 master1 以外，其他节点的 arp 中 master1 上的 flannel.1 对应的 mac 地址缺失，最后是通过重启 canal 组件解决。</p>
+<h3 id="排查过程"><a href="#排查过程" class="headerlink" title="排查过程"></a>排查过程</h3><hr>
+<p>环境信息<br><img src="https://img-blog.csdnimg.cn/0b758731d9fe4458b32d72c114f8e77f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>注：由于是 master1 有问题，其他节点无问题，因此以下拿 master1 与 master3 进行说明</p>
+<h4 id="1-在-master1-上执行-kubectl-get-nodes-大概需要-45s，如下："><a href="#1-在-master1-上执行-kubectl-get-nodes-大概需要-45s，如下：" class="headerlink" title="1. 在 master1 上执行 kubectl get nodes 大概需要 45s，如下："></a>1. 在 master1 上执行 kubectl get nodes 大概需要 45s，如下：</h4><hr>
+<p>[root@master1 ~]$ time kubectl get nodes<br>NAME     STATUS   ROLES    AGE    VERSION<br>master1   Ready    <none>   100d   v1.14.8<br>master2   Ready    <none>   100d   v1.14.8<br>master3   Ready    <none>   100d   v1.14.8<br>node1     Ready    <none>    100d  v1.14.8<br>node2     Ready    <none>   100d   v1.14.8</p>
+<p>real    0m45.0s</p>
+<p>同时在 master3 执行 kubectl get nodes，很快返回，如下：</p>
+<p>[root@master3 ~]$ time kubectl get nodes<br>NAME    STATUS   ROLES    AGE    VERSION<br>master1   Ready    <none>   100d   v1.14.8<br>master2   Ready    <none>   100d   v1.14.8<br>master3   Ready    <none>   100d   v1.14.8<br>node1     Ready    <none>    100d  v1.14.8<br>node2     Ready    <none>   100d   v1.14.8</p>
+<p>real    0m0.452s</p>
+<p>开始认为是 master1 资源的问题 (也不知道怎么想的)，检查了一下，都正常。</p>
+<h4 id="2-因为执行-kubectl-命令会经过-kube-apiserver，于是查看-master1-的-apiserver-的日志，"><a href="#2-因为执行-kubectl-命令会经过-kube-apiserver，于是查看-master1-的-apiserver-的日志，" class="headerlink" title="2. 因为执行 kubectl 命令会经过 kube-apiserver，于是查看 master1 的 apiserver 的日志，"></a>2. 因为执行 kubectl 命令会经过 kube-apiserver，于是查看 master1 的 apiserver 的日志，</h4><hr>
+<p>如下：</p>
+<p>E1124 11:40:21.145      1 available_controller.go:353] v1beta1.custom.metrics.k8s.io failed with: Get <a target="_blank" rel="noopener" href="https://10.68.225.236/">https://10.68.225.236:443</a>: net&#x2F;http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)</p>
+<p>E1124 11:40:22.237      1 available_controller.go:353] v1beta1.custom.metrics.k8s.io failed with: Get <a target="_blank" rel="noopener" href="https://10.68.225.236/">https://10.68.225.236:443</a>: net&#x2F;http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)</p>
+<p>E1124 11:40:23.358      1 available_controller.go:353] v1beta1.custom.metrics.k8s.io failed with: Get <a target="_blank" rel="noopener" href="https://10.68.225.236/">https://10.68.225.236:443</a>: net&#x2F;http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)</p>
+<p>E1124 11:40:34.469      1 available_controller.go:353] v1beta1.custom.metrics.k8s.io failed with: Get <a target="_blank" rel="noopener" href="https://10.68.225.236/">https://10.68.225.236:443</a>: net&#x2F;http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)</p>
+<p>以上，很明显是无法连接到 metrics。</p>
+<p>尝试在 master1 和 master3 上进行 telnet 10.68.225.236 443，结果如下：</p>
+<p>master1:</p>
+<p>[root@master1 ~]$ telnet 10.68.225.236 443<br>Trying 10.68.225.236…</p>
+<p>master3:</p>
+<p>[root@master3 ~]$ telnet 10.68.225.236 443<br>Trying 10.68.225.236…<br>Connected to 10.68.225.236.<br>Escape character is ‘^]‘.</p>
+<p>查看 metrics 的 pod 所在节点，如下：</p>
+<p>[root@master3 ~]$ kubectl get pod -A -o wide grep “metric” awk ‘{print $1,$2,$7,$8}’<br>kube-system monitoring-kube-state-metrics-metrics-v1-0-645bc4cb6f-ch5dz 10.68.4.133 node1<br>kube-system monitoring-metrics-server-server-v1-0-6ff56d4d6d-fk9gd 10.68.3.210 node2<br>kube-system monitoring-metrics-server-server-v1-0-6ff56d4d6d-n7zgz 10.68.5.192 node3</p>
+<p>很显然 metrics 不在 master1 上，也不再 master3 上。</p>
+<p>而 master1 不能与之通信，但 master3 可以，说明 master1 跨主机通信时，有问题。</p>
+<h4 id="3-canal-在-pod-跨主机通信时，参考-flannel-vxlan-数据流向，如下图所示："><a href="#3-canal-在-pod-跨主机通信时，参考-flannel-vxlan-数据流向，如下图所示：" class="headerlink" title="3. canal 在 pod 跨主机通信时，参考 flannel (vxlan) 数据流向，如下图所示："></a>3. canal 在 pod 跨主机通信时，参考 flannel (vxlan) 数据流向，如下图所示：</h4><hr>
+<p><img src="https://img-blog.csdnimg.cn/a97951a5386c46f1b0b0ddef331a516c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>整个过程需要封包解包 (这里就不说具体的啦)，需要通过主机网络。</p>
+<p>尝试去看看 master1 与 master3 的 arp 与 fdb，如下：</p>
+<p>master1:</p>
+<p>[root@master1 ~]$ ip neigh grep flannel.1<br>10.68.1.0 dev flannel.1 lladdr 16:23:8e:ab:c6:5c PERMANENT<br>10.68.4.0 dev flannel.1 lladdr 82:67:5t:5f:43:3b PERMANENT<br>10.68.2.0 dev flannel.1 lladdr a2:23:78:a5:7d:de PERMANENT<br>10.68.3.0 dev flannel.1 lladdr 32:a3:2r:8e:fb:2r PERMANENT<br>[root@master1 ~]$ bridge  fdb  grep flannel.1<br>32:a3:2r:8e:fb:2r dev flannel.1 dst 192.168.1.143 self permanent<br>a2:23:78:a5:7d:de dev flannel.1 dst 192.168.1.141 self permanent<br>16:23:8e:ab:c6:5c dev flannel.1 dst 192.168.1.142 self permanent<br>82:67:5t:5f:43:3b dev flannel.1 dst 192.168.1.144 self permanent</p>
+<p>master3:</p>
+<p>[root@master3 ~]$ ip neigh grep flannel.1<br>10.68.0.0 dev flannel.1 INCOMPLETE<br>10.68.4.0 dev flannel.1 lladdr 82:67:5t:5f:43:3b PERMANENT<br>10.68.2.0 dev flannel.1 lladdr a2:23:78:a5:7d:de PERMANENT<br>10.68.3.0 dev flannel.1 lladdr 32:a3:2r:8e:fb:2r PERMANENT<br>[root@master3 ~]$ bridge  fdb  grep flannel.1<br>32:a3:2r:8e:fb:2r dev flannel.1 dst 192.168.1.143 self permanent<br>a2:23:78:a5:7d:de dev flannel.1 dst 192.168.1.141 self permanent<br>82:67:5t:5f:43:3b dev flannel.1 dst 192.168.1.144 self permanent<br>36:9u:9c:53:4a:10 dev flannel.1 dst 192.168.1.140 self permanent</p>
+<p>由 master3 可知，master1 的 flannel.1 的 mac 地址缺失。</p>
+<p>因此认为，master1 上的 pod 与其他节点上的 pod 通信时，数据包无法返回。</p>
+<p>也就是说 master1 与其他节点的 flannel.1 的 IP 是不通的。</p>
+<h4 id="4-以上只是猜想，但还是要抓包确认一下。"><a href="#4-以上只是猜想，但还是要抓包确认一下。" class="headerlink" title="4. 以上只是猜想，但还是要抓包确认一下。"></a>4. 以上只是猜想，但还是要抓包确认一下。</h4><hr>
+<p>在 master1 上 ping master3 的 flannel.1 的 IP。</p>
+<p>同时，在 master1、master3 上对 eth0、flannel.1 进行抓包，结果如下：</p>
+<p>master1:</p>
+<p>ping 10.68.1.0</p>
+<p>master1 抓包显示:</p>
+<p>[root@master1 ~]$ tcpdump -lnni flannel.1 grep 10.68.1.0<br>tcpdump: verbose output suppressed, use -v or -vv for full protocol decode<br>listening on flannel.1, link-type EN10MB (Ethernet), capture size 262144 bytes<br>13:24:07.618633 IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 28296, seq 1, length 64<br>13:24:08.618726 IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 28296, seq 2, length 64<br>13:24:09.618719 IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 28296, seq 3, length 64<br>13:24:10.618710 IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 28296, seq 4, length 64<br>13:24:11.618723 IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 28296, seq 5, length 64</p>
+<p>[root@master1 ~]$ tcpdump -lnni eth0 grep 10.68.1.0<br>tcpdump: verbose output suppressed, use -v or -vv for full protocol decode<br>listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 25177, seq 1, length 64<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 25177, seq 2, length 64<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 25177, seq 3, length 64<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 25177, seq 4, length 64<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 25177, seq 5, length 64</p>
+<p>master3 抓包显示：</p>
+<p>[root@master3 ~]$ tcpdump  -lnni eth0 grep 10.68.0.0<br>tcpdump: verbose output suppressed, use -v or -vv for full protocol decode<br>listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 30689, seq 1, length 64<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 30689, seq 2, length 64<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 30689, seq 3, length 64<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 30689, seq 4, length 64<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 30689, seq 5, length 64</p>
+<p>[root@master3 ~]$ tcpdump  -lnni flannel.1 grep 10.68.0.0<br>tcpdump: verbose output suppressed, use -v or -vv for full protocol decode<br>listening on eth0, link-type EN10MB (Ethernet), capture size 262144 bytes<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 30689, seq 1, length 64<br>ARP, Request who-has 10.68.0.0 tell 10.68.1.0, length 28<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 30689, seq 2, length 64<br>ARP, Request who-has 10.68.0.0 tell 10.68.1.0, length 28<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 30689, seq 3, length 64<br>ARP, Request who-has 10.68.0.0 tell 10.68.1.0, length 28<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 30689, seq 4, length 64<br>ARP, Request who-has 10.68.0.0 tell 10.68.1.0, length 28<br>IP 10.68.0.0 &gt; 10.68.1.0: ICMP echo request, id 30689, seq 5, length 64</p>
+<p>由以上可知，在 master1，ping master3 的 flannel.1 的 IP 时，数据包已经到了 master3 的 flannel.1，但是因为 mac 信息无法获取，所以数据包无法返回。</p>
+<h4 id="5-由以上可知，除-master1-以外的其他节点的-arp-中缺少了-master1-的-flannel-1-的-mac-地址，导致数据包无法返回。"><a href="#5-由以上可知，除-master1-以外的其他节点的-arp-中缺少了-master1-的-flannel-1-的-mac-地址，导致数据包无法返回。" class="headerlink" title="5. 由以上可知，除 master1 以外的其他节点的 arp 中缺少了 master1 的 flannel.1 的 mac 地址，导致数据包无法返回。"></a>5. 由以上可知，除 master1 以外的其他节点的 arp 中缺少了 master1 的 flannel.1 的 mac 地址，导致数据包无法返回。</h4><hr>
+<p>而跨主机通信时，通过 flannel，而负责维护这些信息的是 flanneld。</p>
+<p>所以只需要重启一下 canal 即可重新刷新相关信息。</p>
+<h4 id="6-重启除-master1-以外节点的-canal"><a href="#6-重启除-master1-以外节点的-canal" class="headerlink" title="6. 重启除 master1 以外节点的 canal"></a>6. 重启除 master1 以外节点的 canal</h4><hr>
+<p>kubectl delete po -n kube-system canal-xxx</p>
+<h4 id="7-查看-master3-的-arp-与-fdb"><a href="#7-查看-master3-的-arp-与-fdb" class="headerlink" title="7. 查看 master3 的 arp 与 fdb"></a>7. 查看 master3 的 arp 与 fdb</h4><hr>
+<p>[root@master3 ~]$ ip neigh grep flannel.1<br>10.68.0.0 dev flannel.1 lladdr 36:9u:9c:53:4a:10 PERMANENT<br>10.68.4.0 dev flannel.1 lladdr 82:67:5t:5f:43:3b PERMANENT<br>10.68.2.0 dev flannel.1 lladdr a2:23:78:a5:7d:de PERMANENT<br>10.68.3.0 dev flannel.1 lladdr 32:a3:2r:8e:fb:2r PERMANENT<br>[root@master3 ~]$ bridge  fdb  grep flannel.1<br>32:a3:2r:8e:fb:2r dev flannel.1 dst 192.168.1.143 self permanent<br>a2:23:78:a5:7d:de dev flannel.1 dst 192.168.1.141 self permanent<br>82:67:5t:5f:43:3b dev flannel.1 dst 192.168.1.144 self permanent<br>36:9u:9c:53:4a:10 dev flannel.1 dst 192.168.1.140 self permanent</p>
+<h4 id="8-在-master1-上执行-kubectl-get-nodes"><a href="#8-在-master1-上执行-kubectl-get-nodes" class="headerlink" title="8. 在 master1 上执行 kubectl get nodes"></a>8. 在 master1 上执行 kubectl get nodes</h4><hr>
+<p>[root@master1 ~]$ time kubectl get nodes<br>NAME    STATUS   ROLES    AGE    VERSION<br>master1   Ready    <none>   100d   v1.14.8<br>master2   Ready    <none>   100d   v1.14.8<br>master3   Ready    <none>   100d   v1.14.8<br>node1     Ready    <none>   100d   v1.14.8<br>node2     Ready    <none>   100d   v1.14.8</p>
+<p>real    0m0.538s<br>user    0m0.153s<br>sys     0m0.104s</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/10/07/kubectl-get-nodes-%E7%BC%93%E6%85%A2%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5-%E6%89%A7%E8%A1%8C%E9%80%9F%E8%AF%BB%E6%85%A2%EF%BC%9F/">http://code404.icu/2021/10/07/kubectl-get-nodes-%E7%BC%93%E6%85%A2%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5-%E6%89%A7%E8%A1%8C%E9%80%9F%E8%AF%BB%E6%85%A2%EF%BC%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/k8s/">k8s</a><a class="post-meta__tags" href="/tags/Kubernetes/">Kubernetes</a><a class="post-meta__tags" href="/tags/kubectl/">kubectl</a><a class="post-meta__tags" href="/tags/kubectl-get-nodes/">kubectl get nodes</a><a class="post-meta__tags" href="/tags/%E6%89%A7%E8%A1%8C%E9%80%9F%E5%BA%A6%E6%85%A2/">执行速度慢</a><a class="post-meta__tags" href="/tags/%E7%BC%93%E6%85%A2/">缓慢</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/10/image-3.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/08/linux%E5%88%9B%E5%BB%BA%E5%A4%A7%E6%96%87%E4%BB%B6dd-yes-fallocate-truncate/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/10/image-4.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">linux创建大文件dd_yes_fallocate_truncate</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/06/jmeterjenkins%E6%8E%A5%E5%8F%A3%E5%8E%8B%E5%8A%9B%E6%B5%8B%E8%AF%95%E6%8C%81%E7%BB%AD%E9%9B%86%E6%88%90/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/10/image-2-1024x361.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">JMeter+Jenkins接口压力测试持续集成?</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/08/17/k8s-kubernetes-%E5%87%BA%E7%8E%B0-the-connection-to-the-server-localhost8080-was-refused-%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" title="K8S_Kubernetes 出现 The connection to the server localhost:8080 was refused 的解决方法"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-14-1024x405.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-17</div><div class="title">K8S_Kubernetes 出现 The connection to the server localhost:8080 was refused 的解决方法</div></div></a></div><div><a href="/2021/09/26/k8s-%E6%8A%A5%E9%94%99cannot-allocate-memory%E6%88%96%E8%80%85no-space-left-on-device%EF%BC%8C%E4%BF%AE%E5%A4%8Dkubernetes%E5%86%85%E5%AD%98%E6%B3%84%E9%9C%B2%E9%97%AE%E9%A2%98/" title="K8s 报错cannot allocate memory或者no space left on device，修复Kubernetes内存泄露问题"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-23-1024x370.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-26</div><div class="title">K8s 报错cannot allocate memory或者no space left on device，修复Kubernetes内存泄露问题</div></div></a></div><div><a href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img class="cover" src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-07</div><div class="title">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</div></div></a></div><div><a href="/2021/11/29/%E5%A6%82%E4%BD%95nginx-ingress%E5%AF%B9%E5%A4%96%E6%8F%90%E4%BE%9B%E6%9C%8D%E5%8A%A1-nginx-ingress%E5%8E%9F%E7%90%86/" title="如何nginx-ingress对外提供服务_nginx-ingress原理?"><img class="cover" src="https://code404.icu/img/moveypu/2021/11/image-14.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-29</div><div class="title">如何nginx-ingress对外提供服务_nginx-ingress原理?</div></div></a></div><div><a href="/2021/12/23/%E6%B8%85%E7%90%86k8s-docker%E7%A3%81%E7%9B%98%E7%A9%BA%E9%97%B4/" title="清理k8s_docker磁盘空间"><img class="cover" src="https://code404.icu/img/moveypu/2021/12/image-15.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-23</div><div class="title">清理k8s_docker磁盘空间</div></div></a></div><div><a href="/2021/05/03/512/" title="推荐 k8s原生镜像仓库registry好用的UI"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/image-52.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-03</div><div class="title">推荐 k8s原生镜像仓库registry好用的UI</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%8F%8F%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">问题描述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E6%9F%A5%E7%BB%93%E6%9E%9C"><span class="toc-number">2.</span> <span class="toc-text">排查结果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%92%E6%9F%A5%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">排查过程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%9C%A8-master1-%E4%B8%8A%E6%89%A7%E8%A1%8C-kubectl-get-nodes-%E5%A4%A7%E6%A6%82%E9%9C%80%E8%A6%81-45s%EF%BC%8C%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="toc-number">3.1.</span> <span class="toc-text">1. 在 master1 上执行 kubectl get nodes 大概需要 45s，如下：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%9B%A0%E4%B8%BA%E6%89%A7%E8%A1%8C-kubectl-%E5%91%BD%E4%BB%A4%E4%BC%9A%E7%BB%8F%E8%BF%87-kube-apiserver%EF%BC%8C%E4%BA%8E%E6%98%AF%E6%9F%A5%E7%9C%8B-master1-%E7%9A%84-apiserver-%E7%9A%84%E6%97%A5%E5%BF%97%EF%BC%8C"><span class="toc-number">3.2.</span> <span class="toc-text">2. 因为执行 kubectl 命令会经过 kube-apiserver，于是查看 master1 的 apiserver 的日志，</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-canal-%E5%9C%A8-pod-%E8%B7%A8%E4%B8%BB%E6%9C%BA%E9%80%9A%E4%BF%A1%E6%97%B6%EF%BC%8C%E5%8F%82%E8%80%83-flannel-vxlan-%E6%95%B0%E6%8D%AE%E6%B5%81%E5%90%91%EF%BC%8C%E5%A6%82%E4%B8%8B%E5%9B%BE%E6%89%80%E7%A4%BA%EF%BC%9A"><span class="toc-number">3.3.</span> <span class="toc-text">3. canal 在 pod 跨主机通信时，参考 flannel (vxlan) 数据流向，如下图所示：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E4%BB%A5%E4%B8%8A%E5%8F%AA%E6%98%AF%E7%8C%9C%E6%83%B3%EF%BC%8C%E4%BD%86%E8%BF%98%E6%98%AF%E8%A6%81%E6%8A%93%E5%8C%85%E7%A1%AE%E8%AE%A4%E4%B8%80%E4%B8%8B%E3%80%82"><span class="toc-number">3.4.</span> <span class="toc-text">4. 以上只是猜想，但还是要抓包确认一下。</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E7%94%B1%E4%BB%A5%E4%B8%8A%E5%8F%AF%E7%9F%A5%EF%BC%8C%E9%99%A4-master1-%E4%BB%A5%E5%A4%96%E7%9A%84%E5%85%B6%E4%BB%96%E8%8A%82%E7%82%B9%E7%9A%84-arp-%E4%B8%AD%E7%BC%BA%E5%B0%91%E4%BA%86-master1-%E7%9A%84-flannel-1-%E7%9A%84-mac-%E5%9C%B0%E5%9D%80%EF%BC%8C%E5%AF%BC%E8%87%B4%E6%95%B0%E6%8D%AE%E5%8C%85%E6%97%A0%E6%B3%95%E8%BF%94%E5%9B%9E%E3%80%82"><span class="toc-number">3.5.</span> <span class="toc-text">5. 由以上可知，除 master1 以外的其他节点的 arp 中缺少了 master1 的 flannel.1 的 mac 地址，导致数据包无法返回。</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#6-%E9%87%8D%E5%90%AF%E9%99%A4-master1-%E4%BB%A5%E5%A4%96%E8%8A%82%E7%82%B9%E7%9A%84-canal"><span class="toc-number">3.6.</span> <span class="toc-text">6. 重启除 master1 以外节点的 canal</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#7-%E6%9F%A5%E7%9C%8B-master3-%E7%9A%84-arp-%E4%B8%8E-fdb"><span class="toc-number">3.7.</span> <span class="toc-text">7. 查看 master3 的 arp 与 fdb</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#8-%E5%9C%A8-master1-%E4%B8%8A%E6%89%A7%E8%A1%8C-kubectl-get-nodes"><span class="toc-number">3.8.</span> <span class="toc-text">8. 在 master1 上执行 kubectl get nodes</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

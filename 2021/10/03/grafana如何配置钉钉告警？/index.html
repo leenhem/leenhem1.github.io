@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Grafana如何配置钉钉告警？ | 码404</title><meta name="keywords" content="grafana,grafana 配置,webhook,告警渠道,钉钉告警,钉钉机器人"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="导语 Grafana+钉钉只是告警渠道的其中之一，这种方式没有告警收敛、告警静默等功能，如果阈值设置不合适，很容易导致告警泛滥。 简述 依托于多数据源的特性，Grafana 可以说是运维监控中不可缺少的一环，可以将运维过程中隔离的数据进行集中展示，如：Zabbix 主机资源、ELK 流量、MySQL 运营数据、容器监控等等。其中 Grafana 最新版本 v8.0 对告警系统的重构，也足以看出官">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Grafana如何配置钉钉告警？">
+<meta property="og:url" content="http://code404.icu/2021/10/03/grafana%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AE%E9%92%89%E9%92%89%E5%91%8A%E8%AD%A6%EF%BC%9F/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="导语 Grafana+钉钉只是告警渠道的其中之一，这种方式没有告警收敛、告警静默等功能，如果阈值设置不合适，很容易导致告警泛滥。 简述 依托于多数据源的特性，Grafana 可以说是运维监控中不可缺少的一环，可以将运维过程中隔离的数据进行集中展示，如：Zabbix 主机资源、ELK 流量、MySQL 运营数据、容器监控等等。其中 Grafana 最新版本 v8.0 对告警系统的重构，也足以看出官">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/09/image-30-1024x534.png">
+<meta property="article:published_time" content="2021-10-03T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.849Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="grafana">
+<meta property="article:tag" content="grafana 配置">
+<meta property="article:tag" content="webhook">
+<meta property="article:tag" content="告警渠道">
+<meta property="article:tag" content="钉钉告警">
+<meta property="article:tag" content="钉钉机器人">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/09/image-30-1024x534.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/10/03/grafana%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AE%E9%92%89%E9%92%89%E5%91%8A%E8%AD%A6%EF%BC%9F/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Grafana如何配置钉钉告警？',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/09/image-30-1024x534.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Grafana如何配置钉钉告警？</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-10-03T00:30:00.000Z" title="发表于 2021-10-03 08:30:00">2021-10-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.849Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4%E7%9B%91%E6%8E%A7/">运维监控</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Grafana/">Grafana</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Grafana如何配置钉钉告警？"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/09/image-30-1024x534.png"></p>
+<h3 id="导语"><a href="#导语" class="headerlink" title="导语"></a>导语</h3><hr>
+<p>Grafana+钉钉只是告警渠道的其中之一，这种方式没有告警收敛、告警静默等功能，如果阈值设置不合适，很容易导致告警泛滥。</p>
+<h3 id="简述"><a href="#简述" class="headerlink" title="简述"></a>简述</h3><hr>
+<p>依托于多数据源的特性，Grafana 可以说是运维监控中不可缺少的一环，可以将运维过程中隔离的数据进行集中展示，如：Zabbix 主机资源、ELK 流量、MySQL 运营数据、容器监控等等。<br>其中 Grafana 最新版本 v8.0 对告警系统的重构，也足以看出官方对 Grafana 在监控告警方面的重视。另外，阿里云云监控、蓝鲸监控等场景也都有 Grafana 的影子，也说明了用户对其不同程度的依赖。<br>言归正传，对于 Grafana 钉钉告警不是什么新鲜事，关键在于当 grafana 告警渠道配置”Include image”，而此时 grafana 又位于内网服务器无法上网，钉钉告警如何包含图片截图，就成了我们需要面对的问题。</p>
+<h3 id="告警渠道"><a href="#告警渠道" class="headerlink" title="告警渠道"></a>告警渠道</h3><hr>
+<h4 id="1-钉钉添加机器人"><a href="#1-钉钉添加机器人" class="headerlink" title="1.钉钉添加机器人"></a>1.钉钉添加机器人</h4><hr>
+<p>新建“统一监控告警平台”，通过“智能群助手”添加钉钉机器人，一般选择 自定义（通过 Webhook 接入自定义服务）类型的机器人。<br><img src="https://img-blog.csdnimg.cn/fe3cc289d53a49718317985a13fb9e4c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_17,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h4 id="2-Grafana-添加钉钉告警渠道"><a href="#2-Grafana-添加钉钉告警渠道" class="headerlink" title="2.Grafana 添加钉钉告警渠道"></a>2.Grafana 添加钉钉告警渠道</h4><hr>
+<p>“Alerting”—“Notification channels”—“New channel”，新建告警渠道。<br>其中：</p>
+<ul>
+<li>Url 为钉钉机器人的 Webhook 地址；</li>
+<li>Message Type 为消息类型，我们选择 AutoCard；</li>
+<li>告警设置，我们选择”Include image”，告警包含截图并关闭问题解决信息；<br><img src="https://img-blog.csdnimg.cn/3b1363236e9c4632bc4635b60f251fbb.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></li>
+</ul>
+<h3 id="图片渲染"><a href="#图片渲染" class="headerlink" title="图片渲染"></a>图片渲染</h3><hr>
+<p>当告警渠道开启”Include image”，意味着 Grafana 需要与警报规则关联 dashboard 呈现为 PNG 图像，并将其包含在通知中，此时就需要配置图片渲染功能。<br>图片渲染需要额外安装一个在后台运行的插件，将渲染面板和仪表板处理为 PNG 图像。<br>图片渲染服务的部署直接通过 grafana-cli 直接安装或 Docker 安装，部署位置可以是本机或者远程服务器，比较灵活。</p>
+<h4 id="1-安装插件"><a href="#1-安装插件" class="headerlink" title="1. 安装插件"></a>1. 安装插件</h4><hr>
+<p># 安装依赖包<br>yum install -y libXcomposite libXdamage libXtst cups libXScrnSaver pango atk adwaita-cursor-theme adwaita-icon-theme at at-spi2-atk at-spi2-core cairo-gobject colord-libs dconf desktop-file-utils ed emacs-filesystem gdk-pixbuf2 glib-networking gnutls gsettings-desktop-schemas gtk-update-icon-cache gtk3 hicolor-icon-theme jasper-libs json-glib libappindicator-gtk3 libdbusmenu libdbusmenu-gtk3 libepoxy liberation-fonts liberation-narrow-fonts liberation-sans-fonts liberation-serif-fonts libgusb libindicator-gtk3 libmodman libproxy libsoup libwayland-cursor libwayland-egl libxkbcommon m4 mailx nettle patch psmisc redhat-lsb-core redhat-lsb-submod-security rest spax time trousers xdg-utils xkeyboard-config</p>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><p>grafana-cli plugins install grafana-image-renderer</p>
+<h1 id="重启"><a href="#重启" class="headerlink" title="重启"></a>重启</h1><p>systemctl restart grafana-server</p>
+<h4 id="2-图片渲染"><a href="#2-图片渲染" class="headerlink" title="2. 图片渲染"></a>2. 图片渲染</h4><hr>
+<p>在 dashboard 中”share”—“Direct link rendered image” 可渲染图片。<br><img src="https://img-blog.csdnimg.cn/d3fdb6f6399e496f97a2fe04226bbb9e.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>注意：默认配置下，Link URL 的地址”<a href="http://localhost:3000&quot;。若要更改其地址，需要修改相应的配置文件，请继续往下看。">http://localhost:3000&quot;。若要更改其地址，需要修改相应的配置文件，请继续往下看。</a><br><img src="https://img-blog.csdnimg.cn/552890d437f6494ea76647dde68b4b73.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>上图是渲染生成的图片，默认存放位置为”&#x2F;var&#x2F;lib&#x2F;grafana&#x2F;png”。<br>如果图片的标题“流量测试”为乱码，则原因可能有以下两种：</p>
+<ul>
+<li>时区及语言不对；</li>
+<li>系统中没有中文字体；<br>注意： 一般情况下在修改时区及语言无效后，可考虑是缺少字体问题导致。<br>可以通过以下方式解决：</li>
+</ul>
+<p># 1.时区或语言问题</p>
+<h1 id="修改全局配置文件或默认配置文件"><a href="#修改全局配置文件或默认配置文件" class="headerlink" title="修改全局配置文件或默认配置文件"></a>修改全局配置文件或默认配置文件</h1><p>vim &#x2F;usr&#x2F;share&#x2F;grafana&#x2F;conf&#x2F;defaults.ini vim &#x2F;etc&#x2F;grafana&#x2F;grafana.ini</p>
+<h1 id="添加如下"><a href="#添加如下" class="headerlink" title="添加如下"></a>添加如下</h1><p>[plugin.grafana-image-render]rendering_timezone &#x3D; Asia&#x2F;Shanghairendering_language &#x3D; zh-CN,zh;q&#x3D;0.9<br>﻿# 重启<br>﻿systemctl restart grafana-server</p>
+<h1 id="2-缺少中文字体"><a href="#2-缺少中文字体" class="headerlink" title="2.缺少中文字体"></a>2.缺少中文字体</h1><h1 id="确认是否存在中文字体"><a href="#确认是否存在中文字体" class="headerlink" title="确认是否存在中文字体"></a>确认是否存在中文字体</h1><p>fc-list :lang&#x3D;zh</p>
+<h1 id="安装字体将-C-Windows-Fonts-下的字体-放到-Linux-服务器-x2F-usr-x2F-share-x2F-fonts-目录下"><a href="#安装字体将-C-Windows-Fonts-下的字体-放到-Linux-服务器-x2F-usr-x2F-share-x2F-fonts-目录下" class="headerlink" title="安装字体将 C:\Windows\Fonts 下的字体 放到 Linux 服务器&#x2F;usr&#x2F;share&#x2F;fonts 目录下"></a>安装字体将 C:\Windows\Fonts 下的字体 放到 Linux 服务器&#x2F;usr&#x2F;share&#x2F;fonts 目录下</h1><p>﻿# 安装字体<br>﻿cd &#x2F;usr&#x2F;share&#x2F;fontsmkfontscalemkfontdirfc-cache</p>
+<h1 id="再次确认"><a href="#再次确认" class="headerlink" title="再次确认"></a>再次确认</h1><p>fc-list :lang&#x3D;zh</p>
+<h4 id="3-配置文件"><a href="#3-配置文件" class="headerlink" title="3. 配置文件"></a>3. 配置文件</h4><hr>
+<p># 修改全局配置文件<br>vim &#x2F;usr&#x2F;share&#x2F;grafana&#x2F;conf&#x2F;defaults.ini<br>[rendering]</p>
+<h1 id="远程渲染服务地址，如果使用-grafana-cli-部署可忽略；server-url-x3D"><a href="#远程渲染服务地址，如果使用-grafana-cli-部署可忽略；server-url-x3D" class="headerlink" title="远程渲染服务地址，如果使用 grafana-cli 部署可忽略；server_url&#x3D;"></a>远程渲染服务地址，如果使用 grafana-cli 部署可忽略；server_url&#x3D;</h1><p>﻿# 本地 grafana 地址 callback_url&#x3D;<br>﻿# 图片渲染并发数，防止服务器负载过高；concurrent_render_request_limit &#x3D; 30</p>
+<p>另外，渲染的图片每 10 分钟后自动清理，我们可以通过调整” temp-data-lifetime “ 参数来重新定义清理时间。</p>
+<h3 id="钉钉告警"><a href="#钉钉告警" class="headerlink" title="钉钉告警"></a>钉钉告警</h3><hr>
+<p>钉钉告警关键在于，当 grafana 服务器在内网并且无法访问公网，此时钉钉就无法获取渲染的图片。<br>而官网文档的解决方式是将渲染图片上传至可公网访问的外部图像存储，这样钉钉就可以直接访问外部图像存储来解决图片无法访问的问题。<br>Grafana 支持的存储有 s3、webdav、gcs、azure_blob、local，我们一般使用 local 本地存储，那么我们如何解决公网访问问题呢？</p>
+<h4 id="1-公网-nginx-代理"><a href="#1-公网-nginx-代理" class="headerlink" title="1.公网 nginx 代理"></a>1.公网 nginx 代理</h4><hr>
+<p>相信我们的生产环境肯定会有统一的公网 nginx 访问入口，我们只需要做一层代理即可。</p>
+<p>vim grafana.test.com.conf<br>server {<br>   listen 80;<br>   listen 443 ssl;<br>   server_name grafana.test.com;<br>   underscores_in_headers on;<br>   ssl_certificate ssl&#x2F;server.crt;<br>   ssl_certificate_key ssl&#x2F;server.key;<br>   location &#x2F; {<br>   proxy_pass <a target="_blank" rel="noopener" href="http://10.16.202.250:3000/">http://10.16.202.250:3000</a>;<br> }<br> }</p>
+<p>}</p>
+<h4 id="2-grafana-配置"><a href="#2-grafana-配置" class="headerlink" title="2.grafana 配置"></a>2.grafana 配置</h4><hr>
+<p>vim &#x2F;usr&#x2F;share&#x2F;grafana&#x2F;defaults.ini</p>
+<p>[server]</p>
+<p>protocol &#x3D; http # 默认为 localhost http_addr &#x3D; # 启动端口 http_port &#x3D; 3000 ﻿# 绑定域名 domain &#x3D; grafana.test.comenforce_domain &#x3D; false ﻿# 访问地址 root_url &#x3D; <a target="_blank" rel="noopener" href="http://grafana.test.com/">http://grafana.test.com/</a> ﻿serve_from_sub_path &#x3D; false</p>
+<p>经以上配置，就能解决公网访问 grafana 问题。一旦触发告警阈值，钉钉就会报警。</p>
+<p><img src="https://img-blog.csdnimg.cn/af876c52722c4af8bd8db3fccf32da64.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_15,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>此时由于钉钉没有访问到图片，因此是 404。此时需要开启的 local 本地存储。</p>
+<p>vim &#x2F;usr&#x2F;share&#x2F;grafana&#x2F;defaults.ini<br>[external_image_storage]<br>provider &#x3D; local</p>
+<p><img src="https://img-blog.csdnimg.cn/18b0297004054fffac1531581a68a1d8.png" alt="在这里插入图片描述"></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><hr>
+<p>Grafana+钉钉只是告警渠道的其中之一，这种方式没有告警收敛、告警静默等功能，如果阈值设置不合适，很容易导致告警泛滥。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/10/03/grafana%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AE%E9%92%89%E9%92%89%E5%91%8A%E8%AD%A6%EF%BC%9F/">http://code404.icu/2021/10/03/grafana%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AE%E9%92%89%E9%92%89%E5%91%8A%E8%AD%A6%EF%BC%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/grafana/">grafana</a><a class="post-meta__tags" href="/tags/grafana-%E9%85%8D%E7%BD%AE/">grafana 配置</a><a class="post-meta__tags" href="/tags/webhook/">webhook</a><a class="post-meta__tags" href="/tags/%E5%91%8A%E8%AD%A6%E6%B8%A0%E9%81%93/">告警渠道</a><a class="post-meta__tags" href="/tags/%E9%92%89%E9%92%89%E5%91%8A%E8%AD%A6/">钉钉告警</a><a class="post-meta__tags" href="/tags/%E9%92%89%E9%92%89%E6%9C%BA%E5%99%A8%E4%BA%BA/">钉钉机器人</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/09/image-30-1024x534.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/04/jenkins%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AE%E6%89%A9%E5%B1%95%E5%85%B1%E4%BA%AB%E5%BA%93/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/10/image.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Jenkins如何配置扩展共享库?</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/02/%E6%80%8E%E4%B9%88%E6%A0%B7%E4%BD%BF%E7%94%A8jmeter%E5%BD%95%E5%88%B6https%E5%8D%8F%E8%AE%AE%E8%84%9A%E6%9C%AC%EF%BC%9F/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/09/image-29.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">怎么样使用Jmeter录制https协议脚本？</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/03/29/grafana%E5%AF%86%E7%A0%81%E4%BF%AE%E6%94%B9-%E9%87%8D%E7%BD%AEgrafana%E5%AF%86%E7%A0%81/" title="grafana密码修改 重置grafana密码"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-03-29</div><div class="title">grafana密码修改 重置grafana密码</div></div></a></div><div><a href="/2021/07/15/%E5%9C%A8%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86nginx-haproxy-iis-traefik%E5%90%8E%E9%9D%A2%E8%BF%90%E8%A1%8Cgrafana/" title="在反向代理NGINX_HAProxy_IIS_Traefik后面运行Grafana"><img class="cover" src="https://code404.icu/img/moveypu/2021/07/image-42.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-15</div><div class="title">在反向代理NGINX_HAProxy_IIS_Traefik后面运行Grafana</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%BC%E8%AF%AD"><span class="toc-number">1.</span> <span class="toc-text">导语</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E8%BF%B0"><span class="toc-number">2.</span> <span class="toc-text">简述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%8A%E8%AD%A6%E6%B8%A0%E9%81%93"><span class="toc-number">3.</span> <span class="toc-text">告警渠道</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E9%92%89%E9%92%89%E6%B7%BB%E5%8A%A0%E6%9C%BA%E5%99%A8%E4%BA%BA"><span class="toc-number">3.1.</span> <span class="toc-text">1.钉钉添加机器人</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-Grafana-%E6%B7%BB%E5%8A%A0%E9%92%89%E9%92%89%E5%91%8A%E8%AD%A6%E6%B8%A0%E9%81%93"><span class="toc-number">3.2.</span> <span class="toc-text">2.Grafana 添加钉钉告警渠道</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%BE%E7%89%87%E6%B8%B2%E6%9F%93"><span class="toc-number">4.</span> <span class="toc-text">图片渲染</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%89%E8%A3%85%E6%8F%92%E4%BB%B6"><span class="toc-number">4.1.</span> <span class="toc-text">1. 安装插件</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-number"></span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%87%8D%E5%90%AF"><span class="toc-number"></span> <span class="toc-text">重启</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%9B%BE%E7%89%87%E6%B8%B2%E6%9F%93"><span class="toc-number">0.1.</span> <span class="toc-text">2. 图片渲染</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E5%85%A8%E5%B1%80%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E6%88%96%E9%BB%98%E8%AE%A4%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number"></span> <span class="toc-text">修改全局配置文件或默认配置文件</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0%E5%A6%82%E4%B8%8B"><span class="toc-number"></span> <span class="toc-text">添加如下</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E7%BC%BA%E5%B0%91%E4%B8%AD%E6%96%87%E5%AD%97%E4%BD%93"><span class="toc-number"></span> <span class="toc-text">2.缺少中文字体</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%A1%AE%E8%AE%A4%E6%98%AF%E5%90%A6%E5%AD%98%E5%9C%A8%E4%B8%AD%E6%96%87%E5%AD%97%E4%BD%93"><span class="toc-number"></span> <span class="toc-text">确认是否存在中文字体</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%AD%97%E4%BD%93%E5%B0%86-C-Windows-Fonts-%E4%B8%8B%E7%9A%84%E5%AD%97%E4%BD%93-%E6%94%BE%E5%88%B0-Linux-%E6%9C%8D%E5%8A%A1%E5%99%A8-x2F-usr-x2F-share-x2F-fonts-%E7%9B%AE%E5%BD%95%E4%B8%8B"><span class="toc-number"></span> <span class="toc-text">安装字体将 C:\Windows\Fonts 下的字体 放到 Linux 服务器&#x2F;usr&#x2F;share&#x2F;fonts 目录下</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%8D%E6%AC%A1%E7%A1%AE%E8%AE%A4"><span class="toc-number"></span> <span class="toc-text">再次确认</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">0.1.</span> <span class="toc-text">3. 配置文件</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%BF%9C%E7%A8%8B%E6%B8%B2%E6%9F%93%E6%9C%8D%E5%8A%A1%E5%9C%B0%E5%9D%80%EF%BC%8C%E5%A6%82%E6%9E%9C%E4%BD%BF%E7%94%A8-grafana-cli-%E9%83%A8%E7%BD%B2%E5%8F%AF%E5%BF%BD%E7%95%A5%EF%BC%9Bserver-url-x3D"><span class="toc-number"></span> <span class="toc-text">远程渲染服务地址，如果使用 grafana-cli 部署可忽略；server_url&#x3D;</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%92%89%E9%92%89%E5%91%8A%E8%AD%A6"><span class="toc-number">1.</span> <span class="toc-text">钉钉告警</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%85%AC%E7%BD%91-nginx-%E4%BB%A3%E7%90%86"><span class="toc-number">1.1.</span> <span class="toc-text">1.公网 nginx 代理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-grafana-%E9%85%8D%E7%BD%AE"><span class="toc-number">1.2.</span> <span class="toc-text">2.grafana 配置</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">2.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

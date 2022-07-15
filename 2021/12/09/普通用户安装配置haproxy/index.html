@@ -1,0 +1,211 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>普通用户安装配置haproxy | 码404</title><meta name="keywords" content="安装,普通用户,配置,haproxy"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 HAProxy提供高可用性、负载均衡以及基于TCP和HTTP应用的代理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案。HAProxy特别适用于那些负载特大的web站点，这些站点通常又需要会话保持或七层处理。HAProxy运行在当前的硬件上，完全可以支持数以万计的并发连接。并且它的运行模式使得它可以很简单安全的整合进您当前的架构中， 同时可以保护你的web服务器不被暴露到网络上。 安装">
+<meta property="og:type" content="article">
+<meta property="og:title" content="普通用户安装配置haproxy">
+<meta property="og:url" content="http://code404.icu/2021/12/09/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEhaproxy/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 HAProxy提供高可用性、负载均衡以及基于TCP和HTTP应用的代理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案。HAProxy特别适用于那些负载特大的web站点，这些站点通常又需要会话保持或七层处理。HAProxy运行在当前的硬件上，完全可以支持数以万计的并发连接。并且它的运行模式使得它可以很简单安全的整合进您当前的架构中， 同时可以保护你的web服务器不被暴露到网络上。 安装">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/12/image-5.png">
+<meta property="article:published_time" content="2021-12-09T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.913Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="安装">
+<meta property="article:tag" content="普通用户">
+<meta property="article:tag" content="配置">
+<meta property="article:tag" content="haproxy">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/12/image-5.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/12/09/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEhaproxy/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '普通用户安装配置haproxy',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/12/image-5.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">普通用户安装配置haproxy</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-12-09T00:30:00.000Z" title="发表于 2021-12-09 08:30:00">2021-12-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.913Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/haproxy/">haproxy</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="普通用户安装配置haproxy"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/12/image-5.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>HAProxy提供高可用性、负载均衡以及基于TCP和HTTP应用的代理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案。<br>HAProxy特别适用于那些负载特大的web站点，这些站点通常又需要会话保持或七层处理。<br>HAProxy运行在当前的硬件上，完全可以支持数以万计的并发连接。并且它的运行模式使得它可以很简单安全的整合进您当前的架构中， 同时可以保护你的web服务器不被暴露到网络上。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><hr>
+<p>下载包<br>下载地址：<a target="_blank" rel="noopener" href="http://download.openpkg.org/components/cache/haproxy/haproxy-2.5.0.tar.gz">http://download.openpkg.org/components/cache/haproxy/haproxy-2.5.0.tar.gz</a></p>
+<p>[code404@NEWCWS-AS06 data]$ tar -xvf haproxy-2.5.0.tar.gz<br>[code404@NEWCWS-AS06 haproxy-2.5.0]$ cd haproxy-2.5.0<br>[code404@NEWCWS-AS06 haproxy-2.5.0]$ uname -r<br>3.10.0-1062.el7.x86_64</p>
+<p>系统版本 3.10.0-1062.el7.x86_64</p>
+<h3 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h3><hr>
+<h4 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h4><hr>
+<ul>
+<li>TARGET&#x3D;linux26 #内核版本，使用uname -r查看内核，如：2.6.18-371.el5，此时该参数就为linux26；kernel 大于2.6.28的用： TARGET&#x3D;linux2628</li>
+<li>ARCH&#x3D;x86_64 #系统位数</li>
+<li>PREFIX&#x3D;&#x2F;data&#x2F;haprpxy #&#x2F;usr&#x2F;local&#x2F;haprpxy为haprpxy安装路径</li>
+</ul>
+<p>[code404@NEWCWS-AS06 haproxy-2.5.0]$ make TARGET&#x3D;3100 ARCH&#x3D;x86_64 PREFIX&#x3D;&#x2F;data&#x2F;haproxy<br>[code404@NEWCWS-AS06 haproxy-2.5.0]$ make install TARGET&#x3D;3100 ARCH&#x3D;x86_64 PREFIX&#x3D;&#x2F;data&#x2F;haproxy<br>install: creating directory ‘&#x2F;data&#x2F;haproxy’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;sbin’<br>‘haproxy’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;share’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;share&#x2F;man’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;share&#x2F;man&#x2F;man1’<br>‘doc&#x2F;haproxy.1’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;share&#x2F;man&#x2F;man1&#x2F;haproxy.1’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;doc’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy’<br>‘doc&#x2F;configuration.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;configuration.txt’<br>‘doc&#x2F;management.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;management.txt’<br>‘doc&#x2F;seamless_reload.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;seamless_reload.txt’<br>‘doc&#x2F;architecture.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;architecture.txt’<br>‘doc&#x2F;peers-v2.0.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;peers-v2.0.txt’<br>‘doc&#x2F;regression-testing.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;regression-testing.txt’<br>‘doc&#x2F;cookie-options.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;cookie-options.txt’<br>‘doc&#x2F;lua.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;lua.txt’<br>‘doc&#x2F;WURFL-device-detection.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;WURFL-device-detection.txt’<br>‘doc&#x2F;proxy-protocol.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;proxy-protocol.txt’<br>‘doc&#x2F;linux-syn-cookies.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;linux-syn-cookies.txt’<br>‘doc&#x2F;SOCKS4.protocol.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;SOCKS4.protocol.txt’<br>‘doc&#x2F;network-namespaces.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;network-namespaces.txt’<br>‘doc&#x2F;DeviceAtlas-device-detection.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;DeviceAtlas-device-detection.txt’<br>‘doc&#x2F;51Degrees-device-detection.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;51Degrees-device-detection.txt’<br>‘doc&#x2F;netscaler-client-ip-insertion-protocol.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;netscaler-client-ip-insertion-protocol.txt’<br>‘doc&#x2F;peers.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;peers.txt’<br>‘doc&#x2F;close-options.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;close-options.txt’<br>‘doc&#x2F;SPOE.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;SPOE.txt’<br>‘doc&#x2F;intro.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;intro.txt’</p>
+<h3 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h3><hr>
+<p>[code404@NEWCWS-AS06 haproxy-2.5.0]$ cd &#x2F;data&#x2F;haproxy<br>[code404@NEWCWS-AS06 haproxy]$ mkdir etc<br>[code404@NEWCWS-AS06 haproxy]$ vim etc&#x2F;haproxy.cfg</p>
+<p>&#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg 配置</p>
+<p>#———————————————————————</p>
+<h1 id="Global-settings"><a href="#Global-settings" class="headerlink" title="Global settings"></a>Global settings</h1><p>#———————————————————————<br>global<br>    # to have these messages end up in &#x2F;var&#x2F;log&#x2F;haproxy.log you will<br>    log         127.0.0.1 local2</p>
+<pre><code>#chroot      /data/haproxy/chroot
+pidfile     /data/haproxy.pid
+maxconn     4000
+uid0
+gid 0
+daemon
+
+# turn on stats unix socket
+stats socket /data/haproxy/stats
+</code></pre>
+<p>#———————————————————————</p>
+<h1 id="common-defaults-that-all-the-‘listen’-and-‘backend’-sections-will"><a href="#common-defaults-that-all-the-‘listen’-and-‘backend’-sections-will" class="headerlink" title="common defaults that all the ‘listen’ and ‘backend’ sections will"></a>common defaults that all the ‘listen’ and ‘backend’ sections will</h1><h1 id="use-if-not-designated-in-their-block"><a href="#use-if-not-designated-in-their-block" class="headerlink" title="use if not designated in their block"></a>use if not designated in their block</h1><p>#———————————————————————<br>defaults<br>    mode                    http<br>    log                     global<br>    option                  httplog<br>    option                  dontlognull<br>    option http-server-close</p>
+<h1 id="option-forwardfor-except-127-0-0-0-x2F-8"><a href="#option-forwardfor-except-127-0-0-0-x2F-8" class="headerlink" title="option forwardfor       except 127.0.0.0&#x2F;8"></a>option forwardfor       except 127.0.0.0&#x2F;8</h1><pre><code>option                  redispatch
+retries                 3
+timeout http-request    10s
+timeout queue           1m
+timeout connect         10s
+timeout client          1m
+timeout server          1m
+timeout http-keep-alive 10s
+timeout check           10s
+maxconn                 3000
+</code></pre>
+<p>listen oa_rabbitmq_cluster<br>    bind *:5672<br>    #配置TCP模式<br>    mode tcp<br>    option tcplog<br>    #简单的轮询<br>    balance roundrobin<br>    #rabbitmq集群节点配置 server 每个节点的hostname ip:5672<br>    server OA-MQ1 10.3.152.68:5672 check inter 5000 rise 2 fall 2<br>    server OA-MQ2 10.3.152.69:5672 check inter 5000 rise 2 fall 2<br>    server OA-MQ3 10.3.153.69:5672 check inter 5000 rise 2 fall 2</p>
+<p>listen stats<br>    bind *:15672<br>    mode http<br>    option httplog<br>    stats enable<br>    #简单的轮询<br>    balance roundrobin<br>    #rabbitmq集群节点配置 server 每个节点的hostname ip:5672<br>    server OA-MQ1 10.3.152.68:15672 check inter 5000 rise 2 fall 2<br>    server OA-MQ2 10.3.152.69:15672 check inter 5000 rise 2 fall 2<br>    server OA-MQ3 10.3.153.69:15672 check inter 5000 rise 2 fall 2</p>
+<h3 id="启动-haproxy"><a href="#启动-haproxy" class="headerlink" title="启动 haproxy"></a>启动 haproxy</h3><hr>
+<p>&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy -f &#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg</p>
+<h3 id="报错了-x2F-data-x2F-haproxy-x2F-sbin-x2F-haproxy-main-Cannot-raise-FD-limit-to-8032-limit-is-1024"><a href="#报错了-x2F-data-x2F-haproxy-x2F-sbin-x2F-haproxy-main-Cannot-raise-FD-limit-to-8032-limit-is-1024" class="headerlink" title="报错了[&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy.main()] Cannot raise FD limit to 8032, limit is 1024."></a>报错了[&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy.main()] Cannot raise FD limit to 8032, limit is 1024.</h3><hr>
+<p>[code404@NEWCWS-AS06 haproxy]$ &#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy -f &#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg<br>[NOTICE]   (22699) : haproxy version is 2.5.0-f2e0833<br>[NOTICE]   (22699) : path to executable is &#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy<br>[ALERT]    (22699) : [&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy.main()] Cannot raise FD limit to 8032, limit is 1024.<br>[code404@NEWCWS-AS06 haproxy]$</p>
+<p>这个报错说明，系统没有优化，下面优化一下</p>
+<p>vim &#x2F;etc&#x2F;security&#x2F;limits.conf<br>*        soft    nofile        65535<br>*        hard    nofile        65535</p>
+<p>优化完成后，要重启一下服务器</p>
+<p>reboot</p>
+<h3 id="再次启动Haproxy"><a href="#再次启动Haproxy" class="headerlink" title="再次启动Haproxy"></a>再次启动Haproxy</h3><hr>
+<p>[code404@NEWCWS-AS06 haproxy]$ &#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy -f &#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg<br>[code404@NEWCWS-AS06 haproxy]$ netstat -nptl<br>(Not all processes could be identified, non-owned process info<br> will not be shown, you would have to be root to see it all.)<br>Active Internet connections (only servers)<br>Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID&#x2F;Program name<br>tcp        0      0 0.0.0.0:15672           0.0.0.0:*               LISTEN      1887&#x2F;haproxy<br>tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      -<br>tcp        0      0 0.0.0.0:5672            0.0.0.0:*               LISTEN      1887&#x2F;haproxy<br>tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -<br>tcp6       0      0 ::1:25                  :::*                    LISTEN      -<br>tcp6       0      0 :::22                   :::*                    LISTEN      -       </p>
+<h3 id="检查haproxy状态，能访问了"><a href="#检查haproxy状态，能访问了" class="headerlink" title="检查haproxy状态，能访问了"></a>检查haproxy状态，能访问了</h3><hr>
+<p>[code404@NEWCWS-AS06 haproxy]$ curl localhost:15672 -I<br>HTTP&#x2F;1.1 200 OK<br>content-length: 2884<br>content-security-policy: script-src ‘self’ ‘unsafe-eval’ ‘unsafe-inline’; object-src ‘self’<br>content-type: text&#x2F;html<br>date: Mon, 06 Dec 2021 06:59:07 GMT<br>etag: “3417244139”<br>last-modified: Thu, 02 Dec 2021 07:12:23 GMT<br>server: Cowboy<br>vary: origin</p>
+<h3 id="外面访问，要开防火墙端口"><a href="#外面访问，要开防火墙端口" class="headerlink" title="外面访问，要开防火墙端口"></a>外面访问，要开防火墙端口</h3><hr>
+<p>切换到root账号，开放端口</p>
+<p>[code404@NEWCWS-AS06 haproxy]$ firewall-cmd –add-port&#x3D;15672&#x2F;tcp –add-port&#x3D;5672&#x2F;tcp –zone&#x3D;public –perman<br>success<br>[code404@NEWCWS-AS06 haproxy]$ firewall-cmd –reload<br>success<br>[code404@NEWCWS-AS06 haproxy]$</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/12/09/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEhaproxy/">http://code404.icu/2021/12/09/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEhaproxy/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%AE%89%E8%A3%85/">安装</a><a class="post-meta__tags" href="/tags/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7/">普通用户</a><a class="post-meta__tags" href="/tags/%E9%85%8D%E7%BD%AE/">配置</a><a class="post-meta__tags" href="/tags/haproxy/">haproxy</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/12/image-5.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/12/10/%E4%BD%BF%E7%94%A8%E7%A7%98%E9%92%A5%E7%99%BB%E5%BD%95linux%E6%9C%8D%E5%8A%A1%E5%99%A8/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/12/image-6.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">使用秘钥登录linux服务器</div></div></a></div><div class="next-post pull-right"><a href="/2021/12/08/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86keepalived/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/12/image-4.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">普通用户安装管理Keepalived</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/12/08/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86keepalived/" title="普通用户安装管理Keepalived"><img class="cover" src="https://code404.icu/img/moveypu/2021/12/image-4.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-08</div><div class="title">普通用户安装管理Keepalived</div></div></a></div><div><a href="/2021/05/02/k8s%E5%8E%9F%E7%94%9F%E9%95%9C%E5%83%8F%E4%BB%93%E5%BA%93%E5%AE%89%E8%A3%85registry/" title="k8s原生镜像仓库安装registry"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/image-50.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-02</div><div class="title">k8s原生镜像仓库安装registry</div></div></a></div><div><a href="/2021/09/07/%E5%86%85%E7%BD%91dns%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%EF%BC%88%E5%9B%9B%EF%BC%89%E9%AB%98%E7%BA%A7%E5%8A%9F%E8%83%BD%E4%B9%8B%E7%BC%96/" title="内网DNS服务安装使用系列教程（四）高级功能之编译安装BIND服务"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-5.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-07</div><div class="title">内网DNS服务安装使用系列教程（四）高级功能之编译安装BIND服务</div></div></a></div><div><a href="/2021/04/04/%E5%8F%B2%E4%B8%8A%E6%9C%80%E5%85%A8%E6%9C%80%E8%AF%A6%E7%BB%86nginx%E6%BA%90%E7%A0%81%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85%E7%9A%84%E6%96%B9%E6%B3%95%E6%AD%A5%E9%AA%A4/" title="史上最全最详细Nginx源码编译安装的方法步骤"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/2021040105275411-1024x371.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-04</div><div class="title">史上最全最详细Nginx源码编译安装的方法步骤</div></div></a></div><div><a href="/2021/06/15/linux%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A81024%E4%BB%A5%E4%B8%8B%E7%9A%84%E7%AB%AF%E5%8F%A3%EF%BC%8880%EF%BC%89/" title="linux普通用户使用1024以下的端口（80）"><img class="cover" src="https://code404.icu/img/moveypu/2021/06/image-38-1024x559.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-15</div><div class="title">linux普通用户使用1024以下的端口（80）</div></div></a></div><div><a href="/2021/12/13/nginx-%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A880%E7%AB%AF%E5%8F%A3%E5%90%AF%E5%8A%A8nginx-nginx-emerg-bind-to-0-0-0-080-failed-13-permission-denied/" title="nginx 普通用户使用80端口启动nginx nginx: [emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)"><img class="cover" src="https://code404.icu/img/moveypu/2021/12/image-7.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-13</div><div class="title">nginx 普通用户使用80端口启动nginx nginx: [emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85"><span class="toc-number">2.</span> <span class="toc-text">安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85"><span class="toc-number">3.</span> <span class="toc-text">编译安装</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="toc-number">3.1.</span> <span class="toc-text">参数说明</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number">4.</span> <span class="toc-text">修改配置文件</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Global-settings"><span class="toc-number"></span> <span class="toc-text">Global settings</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#common-defaults-that-all-the-%E2%80%98listen%E2%80%99-and-%E2%80%98backend%E2%80%99-sections-will"><span class="toc-number"></span> <span class="toc-text">common defaults that all the ‘listen’ and ‘backend’ sections will</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#use-if-not-designated-in-their-block"><span class="toc-number"></span> <span class="toc-text">use if not designated in their block</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#option-forwardfor-except-127-0-0-0-x2F-8"><span class="toc-number"></span> <span class="toc-text">option forwardfor       except 127.0.0.0&#x2F;8</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8-haproxy"><span class="toc-number">1.</span> <span class="toc-text">启动 haproxy</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8A%A5%E9%94%99%E4%BA%86-x2F-data-x2F-haproxy-x2F-sbin-x2F-haproxy-main-Cannot-raise-FD-limit-to-8032-limit-is-1024"><span class="toc-number">2.</span> <span class="toc-text">报错了[&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy.main()] Cannot raise FD limit to 8032, limit is 1024.</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%8D%E6%AC%A1%E5%90%AF%E5%8A%A8Haproxy"><span class="toc-number">3.</span> <span class="toc-text">再次启动Haproxy</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5haproxy%E7%8A%B6%E6%80%81%EF%BC%8C%E8%83%BD%E8%AE%BF%E9%97%AE%E4%BA%86"><span class="toc-number">4.</span> <span class="toc-text">检查haproxy状态，能访问了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A4%96%E9%9D%A2%E8%AE%BF%E9%97%AE%EF%BC%8C%E8%A6%81%E5%BC%80%E9%98%B2%E7%81%AB%E5%A2%99%E7%AB%AF%E5%8F%A3"><span class="toc-number">5.</span> <span class="toc-text">外面访问，要开防火墙端口</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

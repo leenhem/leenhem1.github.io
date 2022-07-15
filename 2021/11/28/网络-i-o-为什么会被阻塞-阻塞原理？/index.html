@@ -1,0 +1,234 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>网络 I/O 为什么会被阻塞_阻塞原理？ | 码404</title><meta name="keywords" content="socket,IO,网络,阻塞"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 我们应该都知道 socket（套接字），你可以认为我们的通信都要基于这个玩意，而常说的网络通信又分为 TCP 与 UDP 两种，下面我会以 TCP 通信为例来阐述下 socket 的通信流程。 不过在此之前，我先来说说什么叫 I&#x2F;O。 I&#x2F;O到底是什么? I&#x2F;O 其实就是 input 和 output 的缩写，即输入&#x2F;输出。 那输入输出啥呢？ 比如我">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络 I&#x2F;O 为什么会被阻塞_阻塞原理？">
+<meta property="og:url" content="http://code404.icu/2021/11/28/%E7%BD%91%E7%BB%9C-i-o-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E8%A2%AB%E9%98%BB%E5%A1%9E-%E9%98%BB%E5%A1%9E%E5%8E%9F%E7%90%86%EF%BC%9F/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 我们应该都知道 socket（套接字），你可以认为我们的通信都要基于这个玩意，而常说的网络通信又分为 TCP 与 UDP 两种，下面我会以 TCP 通信为例来阐述下 socket 的通信流程。 不过在此之前，我先来说说什么叫 I&#x2F;O。 I&#x2F;O到底是什么? I&#x2F;O 其实就是 input 和 output 的缩写，即输入&#x2F;输出。 那输入输出啥呢？ 比如我">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/11/image-15.png">
+<meta property="article:published_time" content="2021-11-28T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.917Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="socket">
+<meta property="article:tag" content="IO">
+<meta property="article:tag" content="网络">
+<meta property="article:tag" content="阻塞">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/11/image-15.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/11/28/%E7%BD%91%E7%BB%9C-i-o-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E8%A2%AB%E9%98%BB%E5%A1%9E-%E9%98%BB%E5%A1%9E%E5%8E%9F%E7%90%86%EF%BC%9F/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '网络 I/O 为什么会被阻塞_阻塞原理？',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/11/image-15.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">网络 I/O 为什么会被阻塞_阻塞原理？</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-11-28T00:30:00.000Z" title="发表于 2021-11-28 08:30:00">2021-11-28</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.917Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">计算机网络</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="网络 I/O 为什么会被阻塞_阻塞原理？"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/11/image-15.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>我们应该都知道 socket（套接字），你可以认为我们的通信都要基于这个玩意，而常说的网络通信又分为 TCP 与 UDP 两种，下面我会以 TCP 通信为例来阐述下 socket 的通信流程。</p>
+<p>不过在此之前，我先来说说什么叫 I&#x2F;O。</p>
+<h3 id="I-x2F-O到底是什么"><a href="#I-x2F-O到底是什么" class="headerlink" title="I&#x2F;O到底是什么?"></a>I&#x2F;O到底是什么?</h3><hr>
+<p>I&#x2F;O 其实就是 input 和 output 的缩写，即输入&#x2F;输出。</p>
+<p>那输入输出啥呢？</p>
+<p>比如我们用键盘来敲代码其实就是输入，那显示器显示图案就是输出，这其实就是 I&#x2F;O。</p>
+<p>而我们时常关心的磁盘 I&#x2F;O 指的是硬盘和内存之间的输入输出。</p>
+<p>读取本地文件的时候，要将磁盘的数据拷贝到内存中，修改本地文件的时候，需要把修改后的数据拷贝到磁盘中。</p>
+<p>网络 I&#x2F;O 指的是网卡与内存之间的输入输出。</p>
+<p>当网络上的数据到来时，网卡需要将数据拷贝到内存中。当要发送数据给网络上的其他人时，需要将数据从内存拷贝到网卡里。</p>
+<p>那为什么都要跟内存交互呢?</p>
+<p>我们的指令最终是由 CPU 执行的，究其原因是 CPU 与内存交互的速度远高于 CPU 和这些外部设备直接交互的速度。</p>
+<p>因此都是和内存交互，当然假设没有内存，让 CPU 直接和外部设备交互，那也算 I&#x2F;O。</p>
+<p>总结下：I&#x2F;O 就是指内存与外部设备之间的交互（数据拷贝）。</p>
+<p>好了，明确什么是 I&#x2F;O 之后，让我们来揭一揭 socket 通信内幕~</p>
+<h3 id="创建-socket"><a href="#创建-socket" class="headerlink" title="创建 socket"></a>创建 socket</h3><hr>
+<p>首先服务端需要先创建一个 socket。在 Linux 中一切都是文件，那么创建的 socket 也是文件，每个文件都有一个整型的文件描述符（fd）来指代这个文件。</p>
+<p>int socket(int domain, int type, int protocol);</p>
+<ul>
+<li>domain：这个参数用于选择通信的协议族，比如选择 IPv4 通信，还是 IPv6 通信等等</li>
+<li>type：选择套接字类型，可选字节流套接字、数据报套接字等等。</li>
+<li>protocol：指定使用的协议。</li>
+</ul>
+<p>这个 protocol 通常可以设为 0 ，因为由前面两个参数可以推断出所要使用的协议。</p>
+<p>比如<code>socket(AF_INET, SOCK_STREAM, 0);</code>，表明使用 IPv4 ，且使用字节流套接字，可以判断使用的协议为 TCP 协议。</p>
+<p>这个方法的返回值为 int ，其实就是创建的 socket 的 fd。</p>
+<h3 id="bind"><a href="#bind" class="headerlink" title="bind"></a>bind</h3><hr>
+<p>现在我们已经创建了一个 socket，但现在还没有地址指向这个 socket。</p>
+<p>众所周知，服务器应用需要指明 IP 和端口，这样客户端才好找上门来要服务，所以此时我们需要指定一个地址和端口来与这个 socket 绑定一下。</p>
+<p>int bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen);</p>
+<p>参数里的 sockfd 就是我们创建的 socket 的文件描述符，执行了 bind 参数之后我们的 socket 距离可以被访问又更近了一步。</p>
+<h3 id="listen"><a href="#listen" class="headerlink" title="listen"></a>listen</h3><p>执行了 socket、bind 之后，此时的 socket 还处于 closed 的状态，也就是不对外监听的，然后我们需要调用 listen 方法，让 socket 进入被动监听状态，这样的 socket 才能够监听到客户端的连接请求。</p>
+<p>int listen(int sockfd, int backlog);</p>
+<p>传入创建的 socket 的 fd，并且指明一下 backlog 的大小。</p>
+<p>这个 backlog 我查阅资料的时候，看到了三种解释：</p>
+<ol>
+<li>socket 有一个队列，同时存放已完成的连接和半连接，backlog为这个队列的大小。</li>
+<li>socket 有两个队列，分别为已完成的连接队列和半连接队列，backlog为这个两个队列的大小之和。</li>
+<li>socket 有两个队列，分别为已完成的连接队列和半连接队列，backlog仅为已完成的连接队列大小。</li>
+</ol>
+<h3 id="解释下什么叫半连接"><a href="#解释下什么叫半连接" class="headerlink" title="解释下什么叫半连接"></a>解释下什么叫半连接</h3><hr>
+<p>我们都知道 TCP 建立连接需要三次握手，当接收方收到请求方的建连请求后会返回 ack，此时这个连接在接收方就处于半连接状态，当接收方再收到请求方的 ack 时，这个连接就处于已完成状态：<br><img src="https://img-blog.csdnimg.cn/188a50c98c0b455fb875d5a0809ad2c0.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>所以上面讨论的就是这两种状态的连接的存放问题。</p>
+<p>我查阅资料看到，基于 BSD 派生的系统的实现是使用的一个队列来同时存放这两种状态的连接， backlog 参数即为这个队列的大小。</p>
+<p>而 Linux 则使用两个队列分别存储已完成连接和半连接，且 backlog 仅为已完成连接的队列大小</p>
+<h3 id="accept"><a href="#accept" class="headerlink" title="accept"></a>accept</h3><p>现在我们已经初始化好监听套接字了，此时会有客户端连上来，然后我们需要处理这些已经完成建连的连接。</p>
+<p>从上面的分析我们可以得知，三次握手完成后的连接会被加入到已完成连接队列中去。<br><img src="https://img-blog.csdnimg.cn/dabdc71112ce4a66a3d018c0fe2efa6e.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>这时候，我们就需要从已完成连接队列中拿到连接进行处理，这个拿取动作就由 accpet 来完成。</p>
+<p>int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);</p>
+<p>这个方法返回的 int 值就是拿到的已完成连接的 socket 的文件描述符，之后操作这个 socket 就可以进行通信了。</p>
+<p>如果已完成连接队列没有连接可以取，那么调用 accept 的线程会阻塞等待。</p>
+<p>至此服务端的通信流程暂告一段落，我们再看看客户端的操作。</p>
+<h3 id="connect"><a href="#connect" class="headerlink" title="connect"></a>connect</h3><hr>
+<p>客户端也需要创建一个 socket，也就是调用 socket()，这里就不赘述了，我们直接开始建连操作。</p>
+<p>客户端需要与服务端建立连接，在 TCP 协议下开始经典的三次握手操作，再看一下上面画的图：</p>
+<p><img src="https://img-blog.csdnimg.cn/1c95dd40a17d4645a89af383e8a05605.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>客户端创建完 socket 并调用 connect 之后，连接就处于 SYN_SEND 状态，当收到服务端的 SYN+ACK 之后，连接就变为 ESTABLISHED 状态，此时就代表三次握手完毕。</p>
+<p>int connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen);</p>
+<p>调用connect需要指定远程的地址和端口进行建连，三次握手完毕之后就可以开始通信了。</p>
+<p>客户端这边不需要调用 bind 操作，默认会选择源 IP 和随机端口。</p>
+<p>用一幅图来小结一下建连的操作：<br><img src="https://img-blog.csdnimg.cn/2029e8a496de40db8ea2337b36641331.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>可以看到这里的两个阻塞点：</p>
+<ul>
+<li>connect：需要阻塞等待三次握手的完成。</li>
+<li>accept：需要等待可用的已完成的连接，如果已完成连接队列为空，则被阻塞。</li>
+</ul>
+<h3 id="read、write"><a href="#read、write" class="headerlink" title="read、write"></a>read、write</h3><hr>
+<p>连接建立成功之后，就能开始发送和接收消息了，我们来看一下<br><img src="https://img-blog.csdnimg.cn/8c7cf2446d33446195c0f5cbdd3ff1e8.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>read 为读数据，从服务端来看就是等待客户端的请求，如果客户端不发请求，那么调用 read 会处于阻塞等待状态，没有数据可以读，这个应该很好理解。</p>
+<p>write 为写数据，一般而言服务端接受客户端的请求之后，会进行一些逻辑处理，然后再把结果返回给客户端，这个写入也可能会被阻塞。</p>
+<p>这里可能有人就会问 read 读不到数据阻塞等待可以理解，write 为什么还要阻塞，有数据不就直接发了吗？</p>
+<p>因为我们用的是 TCP 协议，TCP 协议需要保证数据可靠地、有序地传输，并且给予端与端之间的流量控制。</p>
+<p>所以说发送不是直接发出去，它有个发送缓冲区，我们需要把数据先拷贝到 TCP 的发送缓冲区，由 TCP 自行控制发送的时间和逻辑，有可能还有重传什么的。</p>
+<p>如果我们发的过快，导致接收方处理不过来，那么接收方就会通过 TCP 协议告知：别发了！忙不过来了。发送缓存区是有大小限制的，由于无法发送，还不断调用 write 那么缓存区就满了，满了就不然你 write 了，所以 write 也会发生阻塞。</p>
+<p>综上，read 和 write 都会发生阻塞。</p>
+<h3 id="为什么网络-I-x2F-O-会被阻塞？"><a href="#为什么网络-I-x2F-O-会被阻塞？" class="headerlink" title="为什么网络 I&#x2F;O 会被阻塞？"></a>为什么网络 I&#x2F;O 会被阻塞？</h3><p>因为建连和通信涉及到的 accept、connect、read、write 这几个方法都可能会发生阻塞。</p>
+<p>阻塞会占用当前执行的线程，使之不能进行其他操作，并且频繁阻塞唤醒切换上下文也会导致性能的下降。</p>
+<p>由于阻塞的缘故，起初的解决的方案就是建立多个线程，但是随着互联网的发展，用户激增，连接数也随着激增，需要建立的线程数也随着一起增加，到后来就产生了 C10K 问题。</p>
+<p>服务端顶不住了呀，咋办？</p>
+<p>优化呗！</p>
+<p>所以后来就弄了个非阻塞套接字，然后 I&#x2F;O多路复用、信号驱动I&#x2F;O、异步I&#x2F;O。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/11/28/%E7%BD%91%E7%BB%9C-i-o-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E8%A2%AB%E9%98%BB%E5%A1%9E-%E9%98%BB%E5%A1%9E%E5%8E%9F%E7%90%86%EF%BC%9F/">http://code404.icu/2021/11/28/%E7%BD%91%E7%BB%9C-i-o-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BC%9A%E8%A2%AB%E9%98%BB%E5%A1%9E-%E9%98%BB%E5%A1%9E%E5%8E%9F%E7%90%86%EF%BC%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/socket/">socket</a><a class="post-meta__tags" href="/tags/IO/">IO</a><a class="post-meta__tags" href="/tags/%E7%BD%91%E7%BB%9C/">网络</a><a class="post-meta__tags" href="/tags/%E9%98%BB%E5%A1%9E/">阻塞</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/11/image-15.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/11/29/%E5%A6%82%E4%BD%95nginx-ingress%E5%AF%B9%E5%A4%96%E6%8F%90%E4%BE%9B%E6%9C%8D%E5%8A%A1-nginx-ingress%E5%8E%9F%E7%90%86/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/11/image-14.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">如何nginx-ingress对外提供服务_nginx-ingress原理?</div></div></a></div><div class="next-post pull-right"><a href="/2021/11/27/skywalking%E5%A6%82%E4%BD%95%E8%BF%87%E6%BB%A4%E4%B8%8D%E9%9C%80%E8%A6%81%E8%A2%AB%E7%9B%91%E6%8E%A7%E7%9A%84%E6%8E%A5%E5%8F%A3%E5%9C%B0%E5%9D%80%EF%BC%9F/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/09/image-26-1024x576.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Skywalking如何过滤不需要被监控的接口地址？</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/08/21/org-i0itec-zkclient-exception-zktimeoutexception-unable-to-connect-to-zookeeper-server-with-timeout/" title="org.I0Itec.zkclient.exception.ZkTimeoutException: Unable to connect to zookeeper server with timeout"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-18-1024x512.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-21</div><div class="title">org.I0Itec.zkclient.exception.ZkTimeoutException: Unable to connect to zookeeper server with timeout</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#I-x2F-O%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88"><span class="toc-number">2.</span> <span class="toc-text">I&#x2F;O到底是什么?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA-socket"><span class="toc-number">3.</span> <span class="toc-text">创建 socket</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#bind"><span class="toc-number">4.</span> <span class="toc-text">bind</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#listen"><span class="toc-number">5.</span> <span class="toc-text">listen</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E9%87%8A%E4%B8%8B%E4%BB%80%E4%B9%88%E5%8F%AB%E5%8D%8A%E8%BF%9E%E6%8E%A5"><span class="toc-number">6.</span> <span class="toc-text">解释下什么叫半连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#accept"><span class="toc-number">7.</span> <span class="toc-text">accept</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#connect"><span class="toc-number">8.</span> <span class="toc-text">connect</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#read%E3%80%81write"><span class="toc-number">9.</span> <span class="toc-text">read、write</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%BD%91%E7%BB%9C-I-x2F-O-%E4%BC%9A%E8%A2%AB%E9%98%BB%E5%A1%9E%EF%BC%9F"><span class="toc-number">10.</span> <span class="toc-text">为什么网络 I&#x2F;O 会被阻塞？</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,217 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Nginx报错500_502_503_504状态码详解 | 码404</title><meta name="keywords" content="nginx,502,状态码,499,500,503,504,报错"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 先来看一下一个http请求处理流程： 一个普通的http请求处理流程，如上图所示： A -&gt; client端发起请求给nginx B -&gt; nginx处理后，将请求转发到uwsgi，并等待结果 C -&gt; uwsgi处理完请求后，返回数据给nginx D -&gt; nginx将处理结果返回给客户端 每个阶段都会有一个预设的超时时间，由于网络、机器负载、代码异常等等各种原因">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nginx报错500_502_503_504状态码详解">
+<meta property="og:url" content="http://code404.icu/2021/08/27/nginx%E6%8A%A5%E9%94%99500-502-503-504%E7%8A%B6%E6%80%81%E7%A0%81%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 先来看一下一个http请求处理流程： 一个普通的http请求处理流程，如上图所示： A -&gt; client端发起请求给nginx B -&gt; nginx处理后，将请求转发到uwsgi，并等待结果 C -&gt; uwsgi处理完请求后，返回数据给nginx D -&gt; nginx将处理结果返回给客户端 每个阶段都会有一个预设的超时时间，由于网络、机器负载、代码异常等等各种原因">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/08/image-24.png">
+<meta property="article:published_time" content="2021-08-27T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.876Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="nginx">
+<meta property="article:tag" content="502">
+<meta property="article:tag" content="状态码">
+<meta property="article:tag" content="499">
+<meta property="article:tag" content="500">
+<meta property="article:tag" content="503">
+<meta property="article:tag" content="504">
+<meta property="article:tag" content="报错">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/08/image-24.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/08/27/nginx%E6%8A%A5%E9%94%99500-502-503-504%E7%8A%B6%E6%80%81%E7%A0%81%E8%AF%A6%E8%A7%A3/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Nginx报错500_502_503_504状态码详解',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/08/image-24.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Nginx报错500_502_503_504状态码详解</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-27T00:30:00.000Z" title="发表于 2021-08-27 08:30:00">2021-08-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.876Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Nginx/">Nginx</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Nginx报错500_502_503_504状态码详解"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/08/image-24.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>先来看一下一个http请求处理流程：<br><img src="https://img-blog.csdnimg.cn/c80cea809d264b2082c7c22452a2b89c.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_Q1NETiBAbGVlbmhlbQ==,size_31,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>一个普通的http请求处理流程，如上图所示： A -&gt; client端发起请求给nginx B -&gt; nginx处理后，将请求转发到uwsgi，并等待结果 C -&gt; uwsgi处理完请求后，返回数据给nginx D -&gt; nginx将处理结果返回给客户端 每个阶段都会有一个预设的超时时间，由于网络、机器负载、代码异常等等各种原因，如果某个阶段没有在预期的时间内正常返回，就会导致这次请求异常，进而产生不同的状态码。</p>
+<h3 id="1）504"><a href="#1）504" class="headerlink" title="1）504"></a>1）504</h3><hr>
+<p>504主要是针对B、C阶段。一般nginx配置中会有：</p>
+<p>location &#x2F; {<br>    …<br>    uwsgi_connect_timeout 6s;<br>    uwsgi_send_timeout 6s;<br>    uwsgi_read_timeout 10s;<br>    uwsgi_buffering on;<br>    uwsgi_buffers 80 16k;<br>    …<br>}</p>
+<p>这个代表nginx与上游服务器（uwsgi）通信的超时时间，也就是说，如果在这个时间内，uwsgi没有响应，则认为这次请求超时，返回504状态码。</p>
+<p>具体的日志如下：<br>access_log</p>
+<p>[16&#x2F;May&#x2F;2016:22:11:38 +0800] 10.4.31.56 201605162211280100040310561523 15231401463407888908 10.*.*.* 127.0.0.1:8500 “GET &#x2F;api&#x2F;media_article_list&#x2F;?count&#x3D;10&amp;source_type&#x3D;0&amp;status&#x3D;all&amp;from_time&#x3D;0&amp;item_id&#x3D;0&amp;flag&#x3D;2&amp;_&#x3D;1463407896337 HTTP&#x2F;1.1” 504 **.***.com **.**.**.39, **.**.**.60 10.000 10.000 “Mozilla&#x2F;5.0 (Windows NT 10.0; WOW64) AppleWebKit&#x2F;537.36 (KHTML, like Gecko) Chrome&#x2F;46.0.2490.71 Safari&#x2F;537.36” …</p>
+<p>error_log</p>
+<p>2016&#x2F;05&#x2F;16 22:11:38 [error] 90674#0: *947302032 upstream timed out (110: Connection timed out) while reading response header from upstream, client: 10.6.19.81, server: **.***.com, request: “GET &#x2F;api&#x2F;media_article_list&#x2F;?count&#x3D;10&amp;source_type&#x3D;0&amp;status&#x3D;all&amp;from_time&#x3D;0&amp;item_id&#x3D;0&amp;flag&#x3D;2&amp;_&#x3D;1463407896337 HTTP&#x2F;1.1”, upstream: “<a target="_blank" rel="noopener" href="http://127.0.0.1:8500//*/*//*/*/api/media/_article/_list/?count=10&amp;source%5C_type=0&amp;status=all&amp;from%5C_time=0&amp;item%5C_id=0&amp;flag=2&amp;%5C_=1463407896337&quot;">http://127.0.0.1:8500/\*\*/\*\*/api/media\_article\_list/?count=10&amp;source\_type=0&amp;status=all&amp;from\_time=0&amp;item\_id=0&amp;flag=2&amp;\_=1463407896337&quot;</a>, host: “mp.toutiao.com”, referrer: “https:&#x2F;&#x2F;**.***.com&#x2F;articles&#x2F;?source_type&#x3D;0”error_log中upstream timed out (110: Connection timed out) while reading response header from upstream，</p>
+<p>意思是说，在规定的时间内，没有从header中拿到数据，即uwsgi没有返回任何数据。</p>
+<h3 id="2）502"><a href="#2）502" class="headerlink" title="2）502"></a>2）502</h3><hr>
+<p>502主要针对B 、C阶段。产生502的时候，对应的error_log中的内容会有好几种：</p>
+<p>access_log</p>
+<p>error_log</p>
+<p>2016&#x2F;05&#x2F;16 16:39:49 [error] 90693#0: *944980723 recv() failed (104: Connection reset by peer) while reading response header from upstream, client: 10.6.19.80, server: **.***.com, request: “GET &#x2F;articles&#x2F; HTTP&#x2F;1.1”, upstream: “<a target="_blank" rel="noopener" href="http://127.0.0.1:8500//*/*//*/*/articles/&quot;">http://127.0.0.1:8500/\*\*/\*\*/articles/&quot;</a>, host: “**.***.com”, referrer: “http:&#x2F;&#x2F;**.***.com&#x2F;new_article&#x2F;“</p>
+<p>列一下常见的几种502对应的 error_log：</p>
+<ul>
+<li>recv() failed (104: Connection reset by peer) while reading response header from upstream</li>
+<li>upstream prematurely closed connection while reading response header from upstream</li>
+<li>connect() failed (111: Connection refused) while connecting to upstream</li>
+<li>…<br>这些都代表，在nginx设置的超时时间内，上游uwsgi没有给正确的响应（但是是有响应的，不然如果一直没响应，就会变成504超时了），因此nginx这边的状态码为502。</li>
+</ul>
+<p>如上，access_log中出现503，为什么？</p>
+<p>这个是因为nginx upstream的容灾机制。如果nginx有如下配置：</p>
+<p>upstream app_backup {<br>    server 127.0.0.1:8500 max_fails&#x3D;3 fail_timeout&#x3D;5s;<br>    server 127.0.0.1:88 backup;<br>}</p>
+<ul>
+<li>max_fails&#x3D;3 说明尝试3次后，会认为“ server 127.0.0.1:8500” 失效，于是进入 “server 127.0.0.1:88 backup”，即访问本机的88端口;<br>nginx upstream的容灾机制，默认情况下，Nginx 默认判断失败节点状态以connect refuse和time out状态为准，不过location里加了这个配置：</li>
+</ul>
+<p> proxy_next_upstream error http_502;<br> proxy_connect_timeout 1s;<br> proxy_send_timeout    6s;<br> proxy_read_timeout    10s;<br> proxy_set_header Host $host;</p>
+<ul>
+<li>这个配置是说，对于http状态是502的情况，也会走upstream的容灾机制；</li>
+<li>概括一下就是，如果连续有3次(max_fails&#x3D;3)状态为502的请求，则会任务这个后端server 127.0.0.1:8500 挂掉了，在接下来的5s(fail_timeout&#x3D;5s)内，就会访问backup，即server 127.0.0.1:88 ，看下88端口对应的是什么：</li>
+</ul>
+<p>server {<br>listen 88;<br>access_log &#x2F;var&#x2F;log&#x2F;nginx&#x2F;failover.log;<br>expires 1m;<br>error_page  500 502 503 504 &#x2F;500.html;<br>location &#x2F; {<br>return 503;<br>}<br>location &#x3D; &#x2F;500.html {<br>root &#x2F;**&#x2F;**&#x2F;**&#x2F;nginx&#x2F;5xx&#x2F;;<br>}<br>}</p>
+<p>这个的意思就是，对于访问88端口的请求，nginx会返回503状态码，同时返回&#x2F;opt&#x2F;tiger&#x2F;ss_conf&#x2F;nginx&#x2F;5xx&#x2F;这个路径下的500.html文件。 因此，access_log中看到的是503</p>
+<h3 id="3）499"><a href="#3）499" class="headerlink" title="3）499"></a>3）499</h3><hr>
+<p>client发送请求后，如果在规定的时间内（假设超时时间为500ms）没有拿到nginx给的响应，则认为这次请求超时，会主动结束，这个时候nginx的access_log就会打印499状态码。 A+B+C+D &gt; 500ms 其实这个时候，server端有可能还在处理请求，只不过client断掉了连接，因此处理结果也无法返回给客户端。 499如果比较多的话，可能会引起服务雪崩。 比如说，client一直在发起请求，客户端因为某些原因处理慢了，没有在规定时间内返回数据，client认为请求失败，中断这次请求，然后再重新发起请求。这样不断的重复，服务端的请求越来越多，机器负载变大，请求处理越来越慢，没有办法响应任何请求</p>
+<p>官网总结nginx返回499的情况，是由于：</p>
+<p>client has closed connection    #客户端主动关闭了连接。</p>
+<p>client has closed connection #客户端主动关闭了连接。</p>
+<p>解决的话，可以添加</p>
+<p>proxy_ignore_client_abort    on;</p>
+<p>还有一种原因，确实是客户端关闭了连接，或者连接超时。主要是因为PHP进程数太少，或php进程占用，资源不能很快释放，请求堆积。这种情况要解决的话，需要在程序上做优化。</p>
+<h3 id="4）500"><a href="#4）500" class="headerlink" title="4）500"></a>4）500</h3><hr>
+<p>服务器内部错误，也就是服务器遇到意外情况，而无法执行请求。发生错误，一般的几种情况：</p>
+<ul>
+<li>web脚本错误，如php语法错误，lua语法错误等。</li>
+<li>访问量大的时候，由于系统资源限制，而不能打开过多的文件句柄<br>分析错误的原因</li>
+<li>查看nginx，php的错误日志</li>
+<li>如果是too many open files，修改nginx的worker_rlimit_nofile参数，使用ulimit查看系统打开文件限制，修改&#x2F;etc&#x2F;security&#x2F;limits.conf</li>
+<li>如果脚本存在问题，则需要修复脚本错误，并优化代码</li>
+<li>各种优化都做好，还是出现too many open files，那就需要考虑做负载均衡，把流量分散到不同服务器上去</li>
+</ul>
+<h3 id="5）503"><a href="#5）503" class="headerlink" title="5）503"></a>5）503</h3><hr>
+<p>503是服务不可用的返回状态。 由于在nginx配置中，设置了limit_req的流量限制，导致许多请求返回503错误代码，在限流的条件下，为提高用户体验，希望返回正常Code 200，且返回操作频繁的信息：</p>
+<p>…Nginx Code Status…</p>
+<p>200：服务器成功返回网页<br>403：服务器拒绝请求。404：请求的网页不存在<br>499：客户端主动断开了连接。500：服务器遇到错误，无法完成请求。502：服务器作为网关或代理，从上游服务器收到无效响应。503 - 服务不可用<br>504：服务器作为网关或代理，但是没有及时从上游服务器收到请求。<br>这些状态码被分为五大类：<br>100-199 用于指定客户端应相应的某些动作。<br>200-299 用于表示请求成功。<br>300-399 用于已经移动的文件并且常被包含在定位头信息中指定新的地址信息。<br>400-499 用于指出客户端的错误。 （自己电脑这边的问题） 自己电脑这边的问题）<br>500-599 用于支持服务器错误。 （对方的问题） 对方的问题）———————————————————————————————200 （成功） 服务器已成功处理了请求。 通常，这表示服务器提供了请求的网页。<br>201 （已创建） 请求成功并且服务器创建了新的资源。<br>202 （已接受） 服务器已接受请求，但尚未处理。<br>203 （非授权信息） 服务器已成功处理了请求，但返回的信息可能来自另一来源。<br>204 （无内容） 服务器成功处理了请求，但没有返回任何内容。<br>205 （重置内容） 服务器成功处理了请求，但没有返回任何内容。206 （部分内容） 服务器成功处理了部分 GET 请求。<br>———————————————————————————————300 （多种选择） 针对请求，服务器可执行多种操作。 服务器可根据请求者 (user agent) 选择一项操作，或提供操作列表供请求者选择。<br>301 （永久移动） 请求的网页已永久移动到新位置。 服务器返回此响应（对 GET 或 HEAD 请求的响应）时，会自动将请求者转到新位置。302 （临时移动） 服务器目前从不同位置的网页响应请求，但请求者应继续使用原有位置来进行以后的请求。303 （查看其他位置） 请求者应当对不同的位置使用单独的 GET 请求来检索响应时，服务器返回此代码。304 （未修改） 自从上次请求后，请求的网页未修改过。 服务器返回此响应时，不会返回网页内容。<br>305 （使用代理） 请求者只能使用代理访问请求的网页。 如果服务器返回此响应，还表示请求者应使用代理。<br>307 （临时重定向） 服务器目前从不同位置的网页响应请求，但请求者应继续使用原有位置来进行以后的请求。<br>———————————————————————————————400 （错误请求） 服务器不理解请求的语法。<br>401 （未授权） 请求要求身份验证。 对于需要登录的网页，服务器可能返回此响应。<br>403 （禁止） 服务器拒绝请求。404 （未找到） 服务器找不到请求的网页。405 （方法禁用） 禁用请求中指定的方法。<br>406 （不接受） 无法使用请求的内容特性响应请求的网页。<br>407 （需要代理授权） 此状态代码与 401（未授权）类似，但指定请求者应当授权使用代理。408 （请求超时） 服务器等候请求时发生超时。<br>409 （冲突） 服务器在完成请求时发生冲突。 服务器必须在响应中包含有关冲突的信息。<br>410 （已删除） 如果请求的资源已永久删除，服务器就会返回此响应。<br>411 （需要有效长度） 服务器不接受不含有效内容长度标头字段的请求。<br>412 （未满足前提条件） 服务器未满足请求者在请求中设置的其中一个前提条件。<br>413 （请求实体过大） 服务器无法处理请求，因为请求实体过大，超出服务器的处理能力。<br>414 （请求的 URI 过长） 请求的 URI（通常为网址）过长，服务器无法处理。<br>415 （不支持的媒体类型） 请求的格式不受请求页面的支持。<br>416 （请求范围不符合要求） 如果页面无法提供请求的范围，则服务器会返回此状态代码。<br>417 （未满足期望值） 服务器未满足”期望”请求标头字段的要求。<br>———————————————————————————————500 （服务器内部错误） 服务器遇到错误，无法完成请求。<br>501 （尚未实施） 服务器不具备完成请求的功能。 例如，服务器无法识别请求方法时可能会返回此代码。<br>502 （错误网关） 服务器作为网关或代理，从上游服务器收到无效响应。<br>503 （服务不可用） 服务器目前无法使用（由于超载或停机维护）。 通常，这只是暂时状态。<br>504 （网关超时） 服务器作为网关或代理，但是没有及时从上游服务器收到请求。<br>505 （HTTP 版本不受支持） 服务器不支持请求中所用的 HTTP 协议版本。<br>proxy_intercept_errors 当上游服务器响应头回来后，可以根据响应状态码的值进行拦截错误处理，与error_page 指令相互结合。用在访问上游服务器出现错误的情况下。</p>
+<p>如下的一个配置实例：</p>
+<p>[root@dev ~]# cat ssl-zp.code404.icu.conf<br>upstream mianshi1 {<br>    server 192.168.1.33:8080 max_fails&#x3D;3 fail_timeout&#x3D;10s;<br>    #server 192.168.1.32:8080 max_fails&#x3D;3 fail_timeout&#x3D;10s;<br>}<br> server {<br>    listen 443;<br>    server_name zp.wangshibo.com;ssl on;<br>    ### SSL log files ###<br>    access_log logs&#x2F;zrx_access.log;<br>    error_log logs&#x2F;zrx_error.log;<br>    ### SSL cert files ###<br>    ssl_certificate ssl&#x2F;wangshibo.cer;<br>    ssl_certificate_key ssl&#x2F;wangshibo.key;ssl_session_timeout 5m;<br>    error_page 404 301 <a target="_blank" rel="noopener" href="https://zp.code404.com/code404.icu-web/">https://zp.code404.com/code404.icu-web/</a>;<br>    location &#x2F;zrx-web&#x2F; {<br>        proxy_pass <a target="_blank" rel="noopener" href="http://mianshi1/">http://mianshi1</a>;<br>        proxy_next_upstream error timeout invalid_header http_500 http_502 http_503;<br>        proxy_set_header Host $host;<br>        proxy_set_header X-Real-IP $remote_addr;proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;<br>        # proxy_set_header X-Forwarded-Proto https;<br>        #proxy_set_header X-Forwarded-Proto https;proxy_redirect off;<br>        proxy_intercept_errors on;<br>    }<br>}</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/08/27/nginx%E6%8A%A5%E9%94%99500-502-503-504%E7%8A%B6%E6%80%81%E7%A0%81%E8%AF%A6%E8%A7%A3/">http://code404.icu/2021/08/27/nginx%E6%8A%A5%E9%94%99500-502-503-504%E7%8A%B6%E6%80%81%E7%A0%81%E8%AF%A6%E8%A7%A3/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/nginx/">nginx</a><a class="post-meta__tags" href="/tags/502/">502</a><a class="post-meta__tags" href="/tags/%E7%8A%B6%E6%80%81%E7%A0%81/">状态码</a><a class="post-meta__tags" href="/tags/499/">499</a><a class="post-meta__tags" href="/tags/500/">500</a><a class="post-meta__tags" href="/tags/503/">503</a><a class="post-meta__tags" href="/tags/504/">504</a><a class="post-meta__tags" href="/tags/%E6%8A%A5%E9%94%99/">报错</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/08/image-24.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/08/28/1127/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/08/image-25.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">一个TCP连接可以发送多少个HTTP请求？</div></div></a></div><div class="next-post pull-right"><a href="/2021/08/26/nginx%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E9%85%8D%E7%BD%AE%E5%A4%A7%E5%85%A8-%E5%AE%8C%E6%95%B4%E7%89%88/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/08/image-23.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Nginx性能优化配置大全_完整版</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/03/25/http%E7%8A%B6%E6%80%81%E7%A0%81%E8%AF%A6%E8%A7%A3%E7%8A%B6%E6%80%81%E6%9F%A5%E8%AF%A2/" title="HTTP状态码详解状态查询"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-03-25</div><div class="title">HTTP状态码详解状态查询</div></div></a></div><div><a href="/2021/12/04/fastdfs-nginx-module-file-ini-file-reader-c-line-1036-include-file-http-conf-not-exists-line-include-http-conf/" title="fastdfs-nginx-module file: ini_file_reader.c, line: 1036, include file "http.conf" not exists, line: "#include http.conf""><img class="cover" src="https://code404.icu/img/moveypu/2021/12/image-2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-04</div><div class="title">fastdfs-nginx-module file: ini_file_reader.c, line: 1036, include file "http.conf" not exists, line: "#include http.conf"</div></div></a></div><div><a href="/2021/04/30/linux%E4%B8%8Btomcat%E5%92%8Cnginx%E6%97%A5%E5%BF%97%E5%88%87%E5%89%B2%E8%BD%AE%E8%BD%AC/" title="Linux下Tomcat和nginx日志切割轮转"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/image-42-1024x549.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-30</div><div class="title">Linux下Tomcat和nginx日志切割轮转</div></div></a></div><div><a href="/2021/12/13/nginx-%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A880%E7%AB%AF%E5%8F%A3%E5%90%AF%E5%8A%A8nginx-nginx-emerg-bind-to-0-0-0-080-failed-13-permission-denied/" title="nginx 普通用户使用80端口启动nginx nginx: [emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)"><img class="cover" src="https://code404.icu/img/moveypu/2021/12/image-7.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-13</div><div class="title">nginx 普通用户使用80端口启动nginx nginx: [emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)</div></div></a></div><div><a href="/2021/05/06/nginx-%E4%B9%8B-location-%E5%8C%B9%E9%85%8D%E8%A7%84%E5%88%99-%E5%8F%B2%E4%B8%8A%E6%9C%80%E5%BC%BA%E8%AE%B2%E8%A7%A3code404/" title="nginx 之 location 匹配规则-史上最强讲解code404"><img class="cover" src="https://code404.icu/img/moveypu/2021/05/image-1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-06</div><div class="title">nginx 之 location 匹配规则-史上最强讲解code404</div></div></a></div><div><a href="/2021/07/24/nginx-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86-http-basic-authentication-in-nginx/" title="Nginx 访问权限管理_ HTTP Basic Authentication in Nginx"><img class="cover" src="https://code404.icu/img/moveypu/2021/07/image-64-1024x528.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-24</div><div class="title">Nginx 访问权限管理_ HTTP Basic Authentication in Nginx</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1%EF%BC%89504"><span class="toc-number">2.</span> <span class="toc-text">1）504</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%EF%BC%89502"><span class="toc-number">3.</span> <span class="toc-text">2）502</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%EF%BC%89499"><span class="toc-number">4.</span> <span class="toc-text">3）499</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%EF%BC%89500"><span class="toc-number">5.</span> <span class="toc-text">4）500</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%EF%BC%89503"><span class="toc-number">6.</span> <span class="toc-text">5）503</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

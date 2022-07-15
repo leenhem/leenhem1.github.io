@@ -1,0 +1,435 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>使用 kubeadm 搭建 Kubernetes 集群 | 码404</title><meta name="keywords" content="k8s,kubeadm,kubernets,k8s集群,集群搭建"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 虽然网上有大量从零搭建 K8S 的文章，但大都针对老版本，若直接照搬去安装最新的 1.20 版本会遇到一堆问题。故此将我的安装步骤记录下来，希望能为读者提供 copy and paste 式的集群搭建帮助。 1. 部署准备工作 部署最小化 K8S 集群：master + node1 + node2 Ubuntu 是一款基于 Debian Linux 的以桌面应用为主的操作系统，内容涵盖文字">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用 kubeadm 搭建 Kubernetes 集群">
+<meta property="og:url" content="http://code404.icu/2021/08/30/%E4%BD%BF%E7%94%A8-kubeadm-%E6%90%AD%E5%BB%BA-kubernetes-%E9%9B%86%E7%BE%A4/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 虽然网上有大量从零搭建 K8S 的文章，但大都针对老版本，若直接照搬去安装最新的 1.20 版本会遇到一堆问题。故此将我的安装步骤记录下来，希望能为读者提供 copy and paste 式的集群搭建帮助。 1. 部署准备工作 部署最小化 K8S 集群：master + node1 + node2 Ubuntu 是一款基于 Debian Linux 的以桌面应用为主的操作系统，内容涵盖文字">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/08/image-27.png">
+<meta property="article:published_time" content="2021-08-30T00:54:35.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.898Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="k8s">
+<meta property="article:tag" content="kubeadm">
+<meta property="article:tag" content="kubernets">
+<meta property="article:tag" content="k8s集群">
+<meta property="article:tag" content="集群搭建">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/08/image-27.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/08/30/%E4%BD%BF%E7%94%A8-kubeadm-%E6%90%AD%E5%BB%BA-kubernetes-%E9%9B%86%E7%BE%A4/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '使用 kubeadm 搭建 Kubernetes 集群',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/08/image-27.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">使用 kubeadm 搭建 Kubernetes 集群</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-30T00:54:35.000Z" title="发表于 2021-08-30 08:54:35">2021-08-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.898Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E4%BA%91%E5%8E%9F%E7%94%9F/">云原生</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/k8s/">k8s</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="使用 kubeadm 搭建 Kubernetes 集群"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/08/image-27.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>虽然网上有大量从零搭建 K8S 的文章，但大都针对老版本，若直接照搬去安装最新的 1.20 版本会遇到一堆问题。故此将我的安装步骤记录下来，希望能为读者提供 copy and paste 式的集群搭建帮助。</p>
+<h3 id="1-部署准备工作"><a href="#1-部署准备工作" class="headerlink" title="1. 部署准备工作"></a>1. 部署准备工作</h3><hr>
+<p>部署最小化 K8S 集群：master + node1 + node2</p>
+<p>Ubuntu 是一款基于 Debian Linux 的以桌面应用为主的操作系统，内容涵盖文字处理、电子邮件、软件开发工具和 Web 服务等，可供用户免费下载、使用和分享。</p>
+<p>➜ vgs<br>Current machine states:<br>master                    running (virtualbox)<br>node1                     running (virtualbox)<br>node2                     running (virtualbox)</p>
+<h4 id="1-1-基础环境信息"><a href="#1-1-基础环境信息" class="headerlink" title="1.1 基础环境信息"></a>1.1 基础环境信息</h4><hr>
+<ul>
+<li>设置系统主机名以及 Host 文件各节点之间的相互解析 <code>使用这个的 Vagrantfile 启动的三节点服务已经配置好了 以下使用 master 节点进行演示查看，其他节点操作均一致</code></li>
+</ul>
+<p># hostnamectl<br>vagrant@k8s-master:~$ hostnamectl<br>   Static hostname: k8s-master</p>
+<h1 id="hosts"><a href="#hosts" class="headerlink" title="hosts"></a>hosts</h1><p>vagrant@k8s-master:~$ cat &#x2F;etc&#x2F;hosts<br>127.0.0.1        localhost<br>127.0.1.1        vagrant.vm    vagrant<br>192.168.30.30    k8s-master<br>192.168.30.31    k8s-node1<br>192.168.30.32    k8s-node2</p>
+<h1 id="ping"><a href="#ping" class="headerlink" title="ping"></a>ping</h1><p>vagrant@k8s-master:~$ ping k8s-node1<br>PING k8s-node1 (192.168.30.31) 56(84) bytes of data.<br>64 bytes from k8s-node1 (192.168.30.31): icmp_seq&#x3D;1 ttl&#x3D;64 time&#x3D;0.689 ms</p>
+<h4 id="1-2-阿里源配置"><a href="#1-2-阿里源配置" class="headerlink" title="1.2 阿里源配置"></a>1.2 阿里源配置</h4><hr>
+<ul>
+<li>配置 Ubuntu 的阿里源来加速安装速度 <code>阿里源镜像地址</code></li>
+</ul>
+<p># 登录服务器<br>➜ vgssh master&#x2F;node1&#x2F;nod2<br>Welcome to Ubuntu 18.04.2 LTS (GNU&#x2F;Linux 4.15.0-50-generic x86_64)</p>
+<h1 id="设置阿里云Ubuntu镜像"><a href="#设置阿里云Ubuntu镜像" class="headerlink" title="设置阿里云Ubuntu镜像"></a>设置阿里云Ubuntu镜像</h1><p>$ sudo cp &#x2F;etc&#x2F;apt&#x2F;sources.list{,.bak}<br>$ sudo vim &#x2F;etc&#x2F;apt&#x2F;sources.list</p>
+<h1 id="配置kubeadm的阿里云镜像源"><a href="#配置kubeadm的阿里云镜像源" class="headerlink" title="配置kubeadm的阿里云镜像源"></a>配置kubeadm的阿里云镜像源</h1><p>$ sudo vim &#x2F;etc&#x2F;apt&#x2F;sources.list<br>deb <a target="_blank" rel="noopener" href="https://mirrors.aliyun.com/kubernetes/apt">https://mirrors.aliyun.com/kubernetes/apt</a> kubernetes-xenial main<br>$ sudo gpg –keyserver keyserver.ubuntu.com –recv-keys BA07F4FB<br>$ sudo gpg –export –armor BA07F4FB  sudo apt-key add -</p>
+<h1 id="配置docker安装"><a href="#配置docker安装" class="headerlink" title="配置docker安装"></a>配置docker安装</h1><p>$ curl -fsSL <a target="_blank" rel="noopener" href="https://download.docker.com/linux/ubuntu/gpg">https://download.docker.com/linux/ubuntu/gpg</a>  sudo apt-key add -<br>$ sudo apt-key fingerprint 0EBFCD88<br>$ sudo vim &#x2F;etc&#x2F;apt&#x2F;sources.list<br>deb [arch&#x3D;amd64] <a target="_blank" rel="noopener" href="https://download.docker.com/linux/ubuntu">https://download.docker.com/linux/ubuntu</a> bionic stable</p>
+<h1 id="更新仓库"><a href="#更新仓库" class="headerlink" title="更新仓库"></a>更新仓库</h1><p>$ sudo apt update<br>$ sudo apt dist-upgrade</p>
+<h4 id="1-3-基础工具安装"><a href="#1-3-基础工具安装" class="headerlink" title="1.3 基础工具安装"></a>1.3 基础工具安装</h4><hr>
+<ul>
+<li>部署阶段的基础工具安装 <code>基础组件 docker 部署工具 kubeadm 路由规则 ipvsadm 时间同步 ntp</code></li>
+</ul>
+<p># 基础工具安装<br>$ sudo apt install -y \<br>    docker-ce docker-ce-cli containerd.io \<br>    kubeadm ipvsadm \<br>    ntp ntpdate \<br>    nginx supervisor</p>
+<h1 id="将当前普通用户加入docker组-需重新登录"><a href="#将当前普通用户加入docker组-需重新登录" class="headerlink" title="将当前普通用户加入docker组(需重新登录)"></a>将当前普通用户加入docker组(需重新登录)</h1><p>$ sudo usermod -a -G docker $USER</p>
+<h1 id="服务启用"><a href="#服务启用" class="headerlink" title="服务启用"></a>服务启用</h1><p>$ sudo systemctl enable docker.service<br>$ sudo systemctl start docker.service<br>$ sudo systemctl enable kubelet.service<br>$ sudo systemctl start kubelet.service</p>
+<h4 id="1-4-操作系统配置"><a href="#1-4-操作系统配置" class="headerlink" title="1.4 操作系统配置"></a>1.4 操作系统配置</h4><hr>
+<ul>
+<li>操作系统相关配置 <code>关闭缓存 配置内核参数 调整系统时区 升级内核版本(默认为4.15.0的版本)</code></li>
+</ul>
+<p># 关闭缓存<br>$ sudo swapoff -a</p>
+<h1 id="为K8S来调整内核参数"><a href="#为K8S来调整内核参数" class="headerlink" title="为K8S来调整内核参数"></a>为K8S来调整内核参数</h1><p>$ sudo touch &#x2F;etc&#x2F;sysctl.d&#x2F;kubernetes.conf<br>$ sudo cat &gt; &#x2F;etc&#x2F;sysctl.d&#x2F;kubernetes.conf &lt;&lt;EOF<br>net.bridge.bridge-nf-call-iptables &#x3D; 1 # 开启网桥模式(必须)<br>net.bridge.bridge-nf-call-ip6tables &#x3D; 1 # 开启网桥模式(必须)<br>net.ipv6.conf.all.disable_ipv6 &#x3D; 1 # 关闭IPv6协议(必须)<br>net.ipv4.ip_forward &#x3D; 1 # 转发模式(默认开启)<br>vm.panic_on_oom&#x3D;0 # 开启OOM(默认开启)<br>vm.swappiness &#x3D; 0 # 禁止使用swap空间<br>vm.overcommit_memory&#x3D;1 # 不检查物理内存是否够用<br>fs.inotify.max_user_instances&#x3D;8192<br>fs.inotify.max_user_watches&#x3D;1048576<br>fs.file-max &#x3D; 52706963 # 设置文件句柄数量<br>fs.nr_open &#x3D; 52706963 # 设置文件的最大打开数量<br>net.netfilter.nf_conntrack_max &#x3D; 2310720<br>EOF</p>
+<h1 id="查看系统内核参数的方式"><a href="#查看系统内核参数的方式" class="headerlink" title="查看系统内核参数的方式"></a>查看系统内核参数的方式</h1><p>$ sudo sysctl -a  grep xxx</p>
+<h1 id="使内核参数配置文件生效"><a href="#使内核参数配置文件生效" class="headerlink" title="使内核参数配置文件生效"></a>使内核参数配置文件生效</h1><p>$ sudo sysctl -p &#x2F;etc&#x2F;sysctl.d&#x2F;kubernetes.conf</p>
+<h1 id="设置系统时区为中国-x2F-上海"><a href="#设置系统时区为中国-x2F-上海" class="headerlink" title="设置系统时区为中国&#x2F;上海"></a>设置系统时区为中国&#x2F;上海</h1><p>$ sudo timedatectl set-timezone Asia&#x2F;Shanghai</p>
+<h1 id="将当前的UTC时间写入硬件时钟"><a href="#将当前的UTC时间写入硬件时钟" class="headerlink" title="将当前的UTC时间写入硬件时钟"></a>将当前的UTC时间写入硬件时钟</h1><p>$ sudo timedatectl set-local-rtc 0</p>
+<h4 id="1-5-开启-ipvs-服务"><a href="#1-5-开启-ipvs-服务" class="headerlink" title="1.5 开启 ipvs 服务"></a>1.5 开启 ipvs 服务</h4><hr>
+<ul>
+<li>开启 ipvs 服务 <code>kube-proxy 开启 ipvs 的前置条件</code></li>
+</ul>
+<p># 载入指定的个别模块<br>$ modprobe br_netfilter</p>
+<h1 id="修改配置"><a href="#修改配置" class="headerlink" title="修改配置"></a>修改配置</h1><p>$ cat &gt; &#x2F;etc&#x2F;sysconfig&#x2F;modules&#x2F;ipvs.modules &lt;&lt;EOF<br>#!&#x2F;bin&#x2F;bash<br>modprobe – ip_vs<br>modprobe – ip_vs_rr<br>modprobe – ip_vs_wrr<br>modprobe – ip_vs_sh<br>modprobe – nf_conntrack_ipv<br>EOF</p>
+<h1 id="加载配置"><a href="#加载配置" class="headerlink" title="加载配置"></a>加载配置</h1><p>$ chmod 755 &#x2F;etc&#x2F;sysconfig&#x2F;modules&#x2F;ipvs.modules \<br>    &amp;&amp; bash &#x2F;etc&#x2F;sysconfig&#x2F;modules&#x2F;ipvs.modules \<br>    &amp;&amp; lsmod  grep -e ip_vs -e nf_conntrack_ipv</p>
+<h3 id="2-部署-Master-节点"><a href="#2-部署-Master-节点" class="headerlink" title="2. 部署 Master 节点"></a>2. 部署 Master 节点</h3><hr>
+<p>节点最低配置: 2C+2G 内存；从节点资源尽量充足</p>
+<p>kubeadm 工具的 init 命令，即可初始化以单节点部署的 master。为了避免翻墙，这里可以使用阿里云的谷歌源来代替。在执行 kubeadm 部署命令的时候，指定对应地址即可。当然，可以将其加入本地的镜像库之中，更易维护。</p>
+<ul>
+<li>注意事项 <code>阿里云谷歌源地址 使用 kubeadm 定制控制平面配置</code></li>
+</ul>
+<p># 登录服务器<br>➜ vgssh master<br>Welcome to Ubuntu 18.04.2 LTS (GNU&#x2F;Linux 4.15.0-50-generic x86_64)</p>
+<h1 id="部署节点-命令行"><a href="#部署节点-命令行" class="headerlink" title="部署节点(命令行)"></a>部署节点(命令行)</h1><h1 id="注意pod和service的地址需要不同-否则会报错"><a href="#注意pod和service的地址需要不同-否则会报错" class="headerlink" title="注意pod和service的地址需要不同(否则会报错)"></a>注意pod和service的地址需要不同(否则会报错)</h1><p>$ sudo kubeadm init \<br>    –kubernetes-version&#x3D;1.20.2 \<br>    –image-repository registry.aliyuncs.com&#x2F;google_containers \<br>    –apiserver-advertise-address&#x3D;192.168.30.30 \<br>    –pod-network-cidr&#x3D;10.244.0.0&#x2F;16 \<br>    –service-cidr&#x3D;10.245.0.0&#x2F;16</p>
+<h1 id="部署镜像配置-配置文件"><a href="#部署镜像配置-配置文件" class="headerlink" title="部署镜像配置(配置文件)"></a>部署镜像配置(配置文件)</h1><p>$ sudo kubeadm init –config .&#x2F;kubeadm-config.yaml<br>Your Kubernetes control-plane has initialized successfully!</p>
+<h1 id="查看IP段是否生效-iptable"><a href="#查看IP段是否生效-iptable" class="headerlink" title="查看IP段是否生效(iptable)"></a>查看IP段是否生效(iptable)</h1><p>$ ip route show<br>10.244.0.0&#x2F;24 dev cni0 proto kernel scope link src 10.244.0.1<br>10.244.1.0&#x2F;24 via 10.244.1.0 dev flannel.1 onlink<br>10.244.2.0&#x2F;24 via 10.244.2.0 dev flannel.1 onlink</p>
+<h1 id="查看IP段是否生效-ipvs"><a href="#查看IP段是否生效-ipvs" class="headerlink" title="# 查看IP段是否生效(ipvs)"></a># 查看IP段是否生效(ipvs)</h1><p>$ ipvsadm -L -n<br>IP Virtual Server version 1.2.1 (size&#x3D;4096)<br>Prot LocalAddress:Port Scheduler Flags<br>  -&gt; RemoteAddress:Port           Forward Weight ActiveConn InActConn</p>
+<ul>
+<li>配置文件定义 <code>接口使用了 v1beta2 版本 配置主节点 IP 地址为 192.168.30.30 为 flannel 分配的是 10.244.0.0/16 网段 选择的 kubernetes 是当前最新的 1.20.2 版本 加入了 controllerManager 的水平扩容功能</code></li>
+</ul>
+<p># kubeadm-config.yaml</p>
+<h1 id="sudo-kubeadm-config-print-init-defaults-gt-kubeadm-config-yaml"><a href="#sudo-kubeadm-config-print-init-defaults-gt-kubeadm-config-yaml" class="headerlink" title="sudo kubeadm config print init-defaults &gt; kubeadm-config.yaml"></a>sudo kubeadm config print init-defaults &gt; kubeadm-config.yaml</h1><p>apiVersion: kubeadm.k8s.io&#x2F;v1beta2<br>imageRepository: registry.aliyuncs.com&#x2F;google_containers<br>kind: ClusterConfiguration<br>kubernetesVersion: v1.20.2<br>apiServer:<br>  extraArgs:<br>    advertise-address: 192.168.30.30<br>networking:<br>  podSubnet: 10.244.0.0&#x2F;16<br>controllerManager:<br>  ExtraArgs:<br>    horizontal-pod-autoscaler-use-rest-clients: “true”<br>    horizontal-pod-autoscaler-sync-period: “10s”<br>    node-monitor-grace-period: “10s”</p>
+<ul>
+<li>执行成功之后会输出如下信息，需要安装如下步骤操作下<strong>第一步</strong> 在 kubectl 默认控制和操作集群节点的时候，需要使用到 CA 的密钥，传输过程是通过 TLS 协议保障通讯的安全性。通过下面 3 行命令拷贝密钥信息到当前用户家目录下，这样 kubectl 执行时会首先访问 .kube 目录，使用这些授权信息访问集群。<strong>第二步</strong> 之后添加 worker 节点时，要通过 token 才能保障安全性。因此，先把显示的这行命令保存下来，以备后续使用会用到。</li>
+</ul>
+<p># master setting step one<br>To start cluster, you need to run the following as a regular user:<br>  mkdir -p $HOME&#x2F;.kube<br>  sudo cp -i &#x2F;etc&#x2F;kubernetes&#x2F;admin.conf $HOME&#x2F;.kube&#x2F;config<br>  sudo chown $(id -u):$(id -g) $HOME&#x2F;.kube&#x2F;config</p>
+<p>Alternatively, if you are the root user, you can run:<br>  export KUBECONFIG&#x3D;&#x2F;etc&#x2F;kubernetes&#x2F;admin.conf</p>
+<h1 id="master-setting-step-two"><a href="#master-setting-step-two" class="headerlink" title="master setting step two"></a>master setting step two</h1><p>You should now deploy a pod network to the cluster.<br>Run “kubectl apply -f [podnetwork].yaml” with one of the options listed:<br>  <a target="_blank" rel="noopener" href="https://kubernetes.io/docs/concepts/cluster-administration/addons/">https://kubernetes.io/docs/concepts/cluster-administration/addons/</a></p>
+<p>Join any number of worker nodes by running the following on each as root:<br>kubeadm join 192.168.30.30:6443 \<br>  –token lebbdi.p9lzoy2a16tmr6hq \<br>  –discovery-token-ca-cert-hash \<br>  sha256:6c79fd83825d7b2b0c3bed9e10c428acf8ffcd615a1d7b258e9b500848c20cae</p>
+<ul>
+<li>将子节点加入主节点中</li>
+</ul>
+<p>$ kubectl get nodes<br>NAME         STATUS     ROLES                  AGE   VERSION<br>k8s-master   NotReady   control-plane,master   62m   v1.20.2<br>k8s-node1    NotReady   <none>                 82m   v1.20.2<br>k8s-node2    NotReady   <none>                 82m   v1.20.2</p>
+<p># 查看token令牌<br>$ sudo kubeadm token list</p>
+<h1 id="生成token令牌"><a href="#生成token令牌" class="headerlink" title="生成token令牌"></a>生成token令牌</h1><p>$ sudo kubeadm token create</p>
+<h1 id="忘记sha编码"><a href="#忘记sha编码" class="headerlink" title="忘记sha编码"></a>忘记sha编码</h1><p>$ openssl x509 -pubkey -in &#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;ca.crt \<br>     openssl rsa -pubin -outform der 2&gt;&#x2F;dev&#x2F;null \<br>     openssl dgst -sha256 -hex  sed ‘s&#x2F;^.* &#x2F;&#x2F;‘</p>
+<p># 生成一个新的 token 令牌(比上面的方便)<br>$ kubeadm token generate</p>
+<h1 id="直接生成-join-命令-比上面的方便"><a href="#直接生成-join-命令-比上面的方便" class="headerlink" title="直接生成 join 命令(比上面的方便)"></a>直接生成 join 命令(比上面的方便)</h1><p>$ kubeadm token create &lt;token_generate&gt; –print-join-command –ttl&#x3D;0</p>
+<ul>
+<li>执行完成之后可以通过如下命令，查看主节点信息</li>
+</ul>
+<ol>
+<li>默认生成四个命名空间default、kube-system、kube-public、kube-node-lease</li>
+<li>部署的核心服务有以下几个 (kube-system)coredns、etcdkube-apiserver、kube-schedulerkube-controller-manager、kube-controller-manager</li>
+<li>此时 master 并没有 ready 状态(需要安装网络插件)，下一章节中，我们将安装 flannel 这个网络插件</li>
+</ol>
+<p># 命名空间<br>$ kubectl get namespace<br>NAME              STATUS   AGE<br>default           Active   19m<br>kube-node-lease   Active   19m<br>kube-public       Active   19m<br>kube-system       Active   19m</p>
+<h1 id="核心服务"><a href="#核心服务" class="headerlink" title="核心服务"></a>核心服务</h1><p>$ kubectl get pod -n kube-system<br>NAME                                 READY   STATUS    RESTARTS   AGE<br>coredns-7f89b7bc75-bh42f             1&#x2F;1     Running   0          19m<br>coredns-7f89b7bc75-dvzpl             1&#x2F;1     Running   0          19m<br>etcd-k8s-master                      1&#x2F;1     Running   0          19m<br>kube-apiserver-k8s-master            1&#x2F;1     Running   0          19m<br>kube-controller-manager-k8s-master   1&#x2F;1     Running   0          19m<br>kube-proxy-5rlpv                     1&#x2F;1     Running   0          19m<br>kube-scheduler-k8s-master            1&#x2F;1     Running   0          19m</p>
+<h3 id="3-部署-flannel-网络"><a href="#3-部署-flannel-网络" class="headerlink" title="3. 部署 flannel 网络"></a>3. 部署 flannel 网络</h3><hr>
+<p>网络服务用于管理 K8S 集群中的服务网络</p>
+<p>flannel 网络需要指定 IP 地址段，即上一步中通过编排文件设置的 10.244.0.0&#x2F;16。其实可以通过 flannel 官方和 HELM 工具直接部署服务，但是原地址是需要搭梯子的。所以，可以将其内容保存在如下配置文件中，修改对应镜像地址。</p>
+<ul>
+<li>部署 flannel 服务的官方下载地址</li>
+</ul>
+<p># 部署flannel服务</p>
+<h1 id="1-修改镜像地址-如果下载不了的话"><a href="#1-修改镜像地址-如果下载不了的话" class="headerlink" title="1.修改镜像地址(如果下载不了的话)"></a>1.修改镜像地址(如果下载不了的话)</h1><h1 id="2-修改Network为–pod-network-cidr的参数IP段"><a href="#2-修改Network为–pod-network-cidr的参数IP段" class="headerlink" title="2.修改Network为–pod-network-cidr的参数IP段"></a>2.修改Network为–pod-network-cidr的参数IP段</h1><p>$ kubectl apply -f .&#x2F;kube-flannel.yml</p>
+<h1 id="如果部署出现问题可通过如下命令查看日志"><a href="#如果部署出现问题可通过如下命令查看日志" class="headerlink" title="如果部署出现问题可通过如下命令查看日志"></a>如果部署出现问题可通过如下命令查看日志</h1><p>$ kubectl logs kube-flannel-ds-6xxs5 –namespace&#x3D;kube-system<br>$ kubectl describe pod kube-flannel-ds-6xxs5 –namespace&#x3D;kube-system</p>
+<p><img src="https://img-blog.csdnimg.cn/1a4d8ce2511347d2884cd9fa5cdcf1ea.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<ul>
+<li>如果使用当中存在问题的，可以参考官方的问题手册</li>
+</ul>
+<ol>
+<li>因为我们这里使用的是 Vagrant 虚拟出来的机器进行 K8S 的部署，但是在运行对应 yaml 配置的时候，会报错。通过查看日志发现是因为默认绑定的是虚拟机上面的 eth0 这块网卡，而这块网卡是 Vagrant 使用的，我们应该绑定的是 eth1 才对。</li>
+<li>Vagrant 通常为所有 VM 分配两个接口，第一个为所有主机分配的 IP 地址为 10.0.2.15，用于获得 NAT 的外部流量。这样会导致 flannel 部署存在问题。通过官方问题说明，我们可以使用 –iface&#x3D;eth1 这个参数选择第二个网卡。</li>
+<li>对应的参数使用方式，可以参考 flannel use –iface&#x3D;eth1 中的回答自行添加，而这里我直接修改了启动的配置文件，在启动服务的时候通过 args 修改了，如下所示。</li>
+</ol>
+<p>$ kubectl get pods -n kube-system<br>NAME                                 READY   STATUS    RESTARTS   AGE<br>coredns-7f89b7bc75-bh42f             1&#x2F;1     Running   0          61m<br>coredns-7f89b7bc75-dvzpl             1&#x2F;1     Running   0          61m<br>etcd-k8s-master                      1&#x2F;1     Running   0          62m<br>kube-apiserver-k8s-master            1&#x2F;1     Running   0          62m<br>kube-controller-manager-k8s-master   1&#x2F;1     Running   0          62m<br>kube-flannel-ds-zl148                1&#x2F;1     Running   0          44s<br>kube-flannel-ds-ll523                1&#x2F;1     Running   0          44s<br>kube-flannel-ds-wpmhw                1&#x2F;1     Running   0          44s<br>kube-proxy-5rlpv                     1&#x2F;1     Running   0          61m<br>kube-scheduler-k8s-master            1&#x2F;1     Running   0          62m</p>
+<ul>
+<li>配置文件如下所示</li>
+</ul>
+<p>-–<br>apiVersion: policy&#x2F;v1beta1<br>kind: PodSecurityPolicy<br>metadata:<br>  name: psp.flannel.unprivileged<br>  annotations:<br>    seccomp.security.alpha.kubernetes.io&#x2F;allowedProfileNames: docker&#x2F;default<br>    seccomp.security.alpha.kubernetes.io&#x2F;defaultProfileName: docker&#x2F;default<br>    apparmor.security.beta.kubernetes.io&#x2F;allowedProfileNames: runtime&#x2F;default<br>    apparmor.security.beta.kubernetes.io&#x2F;defaultProfileName: runtime&#x2F;default<br>spec:<br>  privileged: false<br>  volumes:<br>    - configMap<br>    - secret<br>    - emptyDir<br>    - hostPath<br>  allowedHostPaths:<br>    - pathPrefix: “&#x2F;etc&#x2F;cni&#x2F;net.d”<br>    - pathPrefix: “&#x2F;etc&#x2F;kube-flannel”<br>    - pathPrefix: “&#x2F;run&#x2F;flannel”<br>  readOnlyRootFilesystem: false</p>
+<h1 id="Users-and-groups"><a href="#Users-and-groups" class="headerlink" title="Users and groups"></a>Users and groups</h1><p>  runAsUser:<br>    rule: RunAsAny<br>  supplementalGroups:<br>    rule: RunAsAny<br>  fsGroup:<br>    rule: RunAsAny</p>
+<h1 id="Privilege-Escalation"><a href="#Privilege-Escalation" class="headerlink" title="Privilege Escalation"></a>Privilege Escalation</h1><p>  allowPrivilegeEscalation: false<br>  defaultAllowPrivilegeEscalation: false</p>
+<h1 id="Capabilities"><a href="#Capabilities" class="headerlink" title="Capabilities"></a>Capabilities</h1><p>  allowedCapabilities: [“NET_ADMIN”, “NET_RAW”]<br>  defaultAddCapabilities: []<br>  requiredDropCapabilities: []</p>
+<h1 id="Host-namespaces"><a href="#Host-namespaces" class="headerlink" title="Host namespaces"></a>Host namespaces</h1><p>  hostPID: false<br>  hostIPC: false<br>  hostNetwork: true<br>  hostPorts:<br>    - min: 0<br>      max: 65535</p>
+<h1 id="SELinux"><a href="#SELinux" class="headerlink" title="SELinux"></a>SELinux</h1><p>  seLinux:<br>    # SELinux is unused in CaaSP<br>    rule: “RunAsAny”</p>
+<hr>
+<p>kind: ClusterRole<br>apiVersion: rbac.authorization.k8s.io&#x2F;v1<br>metadata:<br>  name: flannel<br>rules:</p>
+<ul>
+<li>apiGroups: [“extensions”]<br>resources: [“podsecuritypolicies”]<br>verbs: [“use”]<br>resourceNames: [“psp.flannel.unprivileged”]</li>
+<li>apiGroups:<ul>
+<li>“”<br>resources:</li>
+<li>pods<br>verbs:</li>
+<li>get</li>
+</ul>
+</li>
+<li>apiGroups:<ul>
+<li>“”<br>resources:</li>
+<li>nodes<br>verbs:</li>
+<li>list</li>
+<li>watch</li>
+</ul>
+</li>
+<li>apiGroups:<ul>
+<li>“”<br>resources:</li>
+<li>nodes&#x2F;status<br>verbs:</li>
+<li>patch</li>
+</ul>
+</li>
+</ul>
+<hr>
+<p>kind: ClusterRoleBinding<br>apiVersion: rbac.authorization.k8s.io&#x2F;v1<br>metadata:<br>  name: flannel<br>roleRef:<br>  apiGroup: rbac.authorization.k8s.io<br>  kind: ClusterRole<br>  name: flannel<br>subjects:</p>
+<ul>
+<li>kind: ServiceAccount<br>name: flannel<br>namespace: kube-system</li>
+</ul>
+<hr>
+<p>apiVersion: v1<br>kind: ServiceAccount<br>metadata:<br>  name: flannel<br>  namespace: kube-system</p>
+<hr>
+<p>kind: ConfigMap<br>apiVersion: v1<br>metadata:<br>  name: kube-flannel-cfg<br>  namespace: kube-system<br>  labels:<br>    tier: node<br>    app: flannel<br>data:<br>  cni-conf.json:<br>    {<br>      “name”: “cbr0”,<br>      “cniVersion”: “0.3.1”,<br>      “plugins”: [<br>        {<br>          “type”: “flannel”,<br>          “delegate”: {<br>            “hairpinMode”: true,<br>            “isDefaultGateway”: true<br>          }<br>        },<br>        {<br>          “type”: “portmap”,<br>          “capabilities”: {<br>            “portMappings”: true<br>          }<br>        }<br>      ]<br>    }<br>  net-conf.json:<br>    {<br>      “Network”: “10.244.0.0&#x2F;16”,<br>      “Backend”: {<br>        “Type”: “vxlan”<br>      }<br>    }</p>
+<hr>
+<p>apiVersion: apps&#x2F;v1<br>kind: DaemonSet<br>metadata:<br>  name: kube-flannel-ds<br>  namespace: kube-system<br>  labels:<br>    tier: node<br>    app: flannel<br>spec:<br>  selector:<br>    matchLabels:<br>      app: flannel<br>  template:<br>    metadata:<br>      labels:<br>        tier: node<br>        app: flannel<br>    spec:<br>      affinity:<br>        nodeAffinity:<br>          requiredDuringSchedulingIgnoredDuringExecution:<br>            nodeSelectorTerms:<br>              - matchExpressions:<br>                  - key: kubernetes.io&#x2F;os<br>                    operator: In<br>                    values:<br>                      - linux<br>      hostNetwork: true<br>      priorityClassName: system-node-critical<br>      tolerations:<br>        - operator: Exists<br>          effect: NoSchedule<br>      serviceAccountName: flannel<br>      initContainers:<br>        - name: install-cni<br>          image: quay.io&#x2F;coreos&#x2F;flannel:v0.13.1-rc1<br>          command:<br>            - cp<br>          args:<br>            - -f<br>            - &#x2F;etc&#x2F;kube-flannel&#x2F;cni-conf.json<br>            - &#x2F;etc&#x2F;cni&#x2F;net.d&#x2F;10-flannel.conflist<br>          volumeMounts:<br>            - name: cni<br>              mountPath: &#x2F;etc&#x2F;cni&#x2F;net.d<br>            - name: flannel-cfg<br>              mountPath: &#x2F;etc&#x2F;kube-flannel&#x2F;<br>      containers:<br>        - name: kube-flannel<br>          image: quay.io&#x2F;coreos&#x2F;flannel:v0.13.1-rc1<br>          command:<br>            - &#x2F;opt&#x2F;bin&#x2F;flanneld<br>          args:<br>            - –ip-masq<br>            - –kube-subnet-mgr<br>            - –iface&#x3D;eth1<br>          resources:<br>            requests:<br>              cpu: “100m”<br>              memory: “50Mi”<br>            limits:<br>              cpu: “100m”<br>              memory: “50Mi”<br>          securityContext:<br>            privileged: false<br>            capabilities:<br>              add: [“NET_ADMIN”, “NET_RAW”]<br>          env:<br>            - name: POD_NAME<br>              valueFrom:<br>                fieldRef:<br>                  fieldPath: metadata.name<br>            - name: POD_NAMESPACE<br>              valueFrom:<br>                fieldRef:<br>                  fieldPath: metadata.namespace<br>          volumeMounts:<br>            - name: run<br>              mountPath: &#x2F;run&#x2F;flannel<br>            - name: flannel-cfg<br>              mountPath: &#x2F;etc&#x2F;kube-flannel&#x2F;<br>      volumes:<br>        - name: run<br>          hostPath:<br>            path: &#x2F;run&#x2F;flannel<br>        - name: cni<br>          hostPath:<br>            path: &#x2F;etc&#x2F;cni&#x2F;net.d<br>        - name: flannel-cfg<br>          configMap:<br>            name: kube-flannel-cfg</p>
+<p>至此集群部署成功！如果有参数错误需要修改，你也可以在 reset 后重新 init 集群。</p>
+<p>$ kubectl get nodes<br>NAME         STATUS   ROLES                  AGE   VERSION<br>k8s-master   Ready    control-plane,master   62m   v1.20.2<br>k8s-node1    Ready    control-plane,master   82m   v1.20.2<br>k8s-node2    Ready    control-plane,master   82m   v1.20.2</p>
+<h1 id="重启集群"><a href="#重启集群" class="headerlink" title="重启集群"></a>重启集群</h1><p>$ sudo kubeadm reset<br>$ sudo kubeadm init</p>
+<h3 id="4-部署-dashboard-服务"><a href="#4-部署-dashboard-服务" class="headerlink" title="4. 部署 dashboard 服务"></a>4. 部署 dashboard 服务</h3><hr>
+<p>以 WEB 页面的可视化 dashboard 来监控集群的状态</p>
+<p>这个还是会遇到需要搭梯子下载启动配置文件的问题，下面是对应的下载地址，可以下载之后上传到服务器上面在进行部署。</p>
+<ul>
+<li>部署 dashboard 服务的官方下载地址</li>
+</ul>
+<p># 部署flannel服务<br>$ kubectl apply -f .&#x2F;kube-dashboard.yaml</p>
+<h1 id="如果部署出现问题可通过如下命令查看日志-1"><a href="#如果部署出现问题可通过如下命令查看日志-1" class="headerlink" title="如果部署出现问题可通过如下命令查看日志"></a>如果部署出现问题可通过如下命令查看日志</h1><p>$ kubectl logs \<br>    kubernetes-dashboard-c9fb67ffc-nknpj \<br>    –namespace&#x3D;kubernetes-dashboard<br>$ kubectl describe pod \<br>    kubernetes-dashboard-c9fb67ffc-nknpj \<br>    –namespace&#x3D;kubernetes-dashboard</p>
+<p>$ kubectl get svc -n kubernetes-dashboard<br>NAME                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE<br>dashboard-metrics-scraper   ClusterIP   10.245.214.11    <none>        8000&#x2F;TCP   26s<br>kubernetes-dashboard        ClusterIP   10.245.161.146   <none>        443&#x2F;TCP    26s</p>
+<p>需要注意的是 dashboard 默认不允许外网访问，即使通过 kubectl proxy 允许外网访问。但 dashboard 又只允许 HTTPS 访问，这样 kubeadm init 时自签名的 CA 证书是不被浏览器承认的。</p>
+<p>我采用的方案是 Nginx 作为反向代理，使用 Lets Encrypt 提供的有效证书对外提供服务，再经由 proxy_pass 指令反向代理到 kubectl proxy 上，如下所示。此时，本地可经由 8888 访问到 dashboard 服务，再通过 Nginx 访问它。</p>
+<p># 代理(可以使用supervisor)<br>$ kubectl proxy –accept-hosts&#x3D;’^*$’<br>$ kubectl proxy –port&#x3D;8888 –accept-hosts&#x3D;’^*$’</p>
+<h1 id="测试代理是否正常-默认监听在8001端口上"><a href="#测试代理是否正常-默认监听在8001端口上" class="headerlink" title="测试代理是否正常(默认监听在8001端口上)"></a>测试代理是否正常(默认监听在8001端口上)</h1><p>$ curl -X GET -L <a target="_blank" rel="noopener" href="http://localhost:8001/">http://localhost:8001</a></p>
+<h1 id="本地-可以使用nginx"><a href="#本地-可以使用nginx" class="headerlink" title="本地(可以使用nginx)"></a>本地(可以使用nginx)</h1><p>proxy_pass <a target="_blank" rel="noopener" href="http://localhost:8001/">http://localhost:8001</a>;<br>proxy_pass <a target="_blank" rel="noopener" href="http://localhost:8888/">http://localhost:8888</a>;</p>
+<h1 id="外网访问如下URL地址"><a href="#外网访问如下URL地址" class="headerlink" title="外网访问如下URL地址"></a>外网访问如下URL地址</h1><p><a target="_blank" rel="noopener" href="https://mydomain/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login">https://mydomain/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login</a></p>
+<ul>
+<li>配置文件整理</li>
+</ul>
+<ol>
+<li>nginx</li>
+<li>supervisor</li>
+</ol>
+<p># k8s.conf</p>
+<p>client_max_body_size     80M;<br>client_body_buffer_size  128k;<br>proxy_connect_timeout    600;<br>proxy_read_timeout       600;<br>proxy_send_timeout       600;</p>
+<p>server {<br>    listen       8080 ssl;<br>    server_name  _;</p>
+<pre><code>ssl\_certificate     /etc/kubernetes/pki/ca.crt;
+ssl\_certificate\_key /etc/kubernetes/pki/ca.key;
+
+access\_log /var/log/nginx/k8s.access.log;
+error\_log  /var/log/nginx/k8s.error.log  error;
+
+location / &#123;
+    proxy\_set\_header   X-Forwarded-Proto $scheme;
+    proxy\_set\_header   Host              $http\_host;
+    proxy\_set\_header   X-Real-IP         $remote\_addr;
+    proxy\_pass http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/;
+&#125;
+</code></pre>
+<p>}</p>
+<p># k8s.conf</p>
+<p>[program:k8s-master]<br>command&#x3D;kubectl proxy –accept-hosts&#x3D;’^*$’<br>user&#x3D;vagrant<br>environment&#x3D;KUBECONFIG&#x3D;”&#x2F;home&#x2F;vagrant&#x2F;.kube&#x2F;config”<br>stopasgroup&#x3D;true<br>stopasgroup&#x3D;true<br>autostart&#x3D;true<br>autorestart&#x3D;unexpected<br>stdout_logfile_maxbytes&#x3D;1MB<br>stdout_logfile_backups&#x3D;10<br>stderr_logfile_maxbytes&#x3D;1MB<br>stderr_logfile_backups&#x3D;10<br>stderr_logfile&#x3D;&#x2F;var&#x2F;log&#x2F;supervisor&#x2F;k8s-stderr.log<br>stdout_logfile&#x3D;&#x2F;var&#x2F;log&#x2F;supervisor&#x2F;k8s-stdout.log</p>
+<ul>
+<li>配置文件如下所示</li>
+</ul>
+<p># Copyright 2017 The Kubernetes Authors.<br>#</p>
+<h1 id="Licensed-under-the-Apache-License-Version-2-0-the-“License”"><a href="#Licensed-under-the-Apache-License-Version-2-0-the-“License”" class="headerlink" title="Licensed under the Apache License, Version 2.0 (the “License”);"></a>Licensed under the Apache License, Version 2.0 (the “License”);</h1><h1 id="you-may-not-use-this-file-except-in-compliance-with-the-License"><a href="#you-may-not-use-this-file-except-in-compliance-with-the-License" class="headerlink" title="you may not use this file except in compliance with the License."></a>you may not use this file except in compliance with the License.</h1><h1 id="You-may-obtain-a-copy-of-the-License-at"><a href="#You-may-obtain-a-copy-of-the-License-at" class="headerlink" title="You may obtain a copy of the License at"></a>You may obtain a copy of the License at</h1><h1 id=""><a href="#" class="headerlink" title=""></a></h1><h1 id="http-www-apache-org-licenses-LICENSE-2-0"><a href="#http-www-apache-org-licenses-LICENSE-2-0" class="headerlink" title="http://www.apache.org/licenses/LICENSE-2.0"></a><a target="_blank" rel="noopener" href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></h1><h1 id="-1"><a href="#-1" class="headerlink" title=""></a></h1><h1 id="Unless-required-by-applicable-law-or-agreed-to-in-writing-software"><a href="#Unless-required-by-applicable-law-or-agreed-to-in-writing-software" class="headerlink" title="Unless required by applicable law or agreed to in writing, software"></a>Unless required by applicable law or agreed to in writing, software</h1><h1 id="distributed-under-the-License-is-distributed-on-an-“AS-IS”-BASIS"><a href="#distributed-under-the-License-is-distributed-on-an-“AS-IS”-BASIS" class="headerlink" title="distributed under the License is distributed on an “AS IS” BASIS,"></a>distributed under the License is distributed on an “AS IS” BASIS,</h1><h1 id="WITHOUT-WARRANTIES-OR-CONDITIONS-OF-ANY-KIND-either-express-or-implied"><a href="#WITHOUT-WARRANTIES-OR-CONDITIONS-OF-ANY-KIND-either-express-or-implied" class="headerlink" title="WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied."></a>WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</h1><h1 id="See-the-License-for-the-specific-language-governing-permissions-and"><a href="#See-the-License-for-the-specific-language-governing-permissions-and" class="headerlink" title="See the License for the specific language governing permissions and"></a>See the License for the specific language governing permissions and</h1><h1 id="limitations-under-the-License"><a href="#limitations-under-the-License" class="headerlink" title="limitations under the License."></a>limitations under the License.</h1><p>apiVersion: v1<br>kind: Namespace<br>metadata:<br>  name: kubernetes-dashboard</p>
+<hr>
+<p>apiVersion: v1<br>kind: ServiceAccount<br>metadata:<br>  labels:<br>    k8s-app: kubernetes-dashboard<br>  name: kubernetes-dashboard<br>  namespace: kubernetes-dashboard</p>
+<hr>
+<p>kind: Service<br>apiVersion: v1<br>metadata:<br>  labels:<br>    k8s-app: kubernetes-dashboard<br>  name: kubernetes-dashboard<br>  namespace: kubernetes-dashboard<br>spec:<br>  ports:<br>    - port: 443<br>      targetPort: 8443<br>  selector:<br>    k8s-app: kubernetes-dashboard</p>
+<hr>
+<p>apiVersion: v1<br>kind: Secret<br>metadata:<br>  labels:<br>    k8s-app: kubernetes-dashboard<br>  name: kubernetes-dashboard-certs<br>  namespace: kubernetes-dashboard<br>type: Opaque</p>
+<hr>
+<p>apiVersion: v1<br>kind: Secret<br>metadata:<br>  labels:<br>    k8s-app: kubernetes-dashboard<br>  name: kubernetes-dashboard-csrf<br>  namespace: kubernetes-dashboard<br>type: Opaque<br>data:<br>  csrf: “”</p>
+<hr>
+<p>apiVersion: v1<br>kind: Secret<br>metadata:<br>  labels:<br>    k8s-app: kubernetes-dashboard<br>  name: kubernetes-dashboard-key-holder<br>  namespace: kubernetes-dashboard<br>type: Opaque</p>
+<hr>
+<p>kind: ConfigMap<br>apiVersion: v1<br>metadata:<br>  labels:<br>    k8s-app: kubernetes-dashboard<br>  name: kubernetes-dashboard-settings<br>  namespace: kubernetes-dashboard</p>
+<hr>
+<p>kind: Role<br>apiVersion: rbac.authorization.k8s.io&#x2F;v1<br>metadata:<br>  labels:<br>    k8s-app: kubernetes-dashboard<br>  name: kubernetes-dashboard<br>  namespace: kubernetes-dashboard<br>rules:</p>
+<h1 id="Allow-Dashboard-to-get-update-and-delete-Dashboard-exclusive-secrets"><a href="#Allow-Dashboard-to-get-update-and-delete-Dashboard-exclusive-secrets" class="headerlink" title="Allow Dashboard to get, update and delete Dashboard exclusive secrets."></a>Allow Dashboard to get, update and delete Dashboard exclusive secrets.</h1><ul>
+<li>apiGroups: [“”]<br>resources: [“secrets”]<br>resourceNames:<br>  [<br>“kubernetes-dashboard-key-holder”,<br>“kubernetes-dashboard-certs”,<br>“kubernetes-dashboard-csrf”,<br>  ]<br>verbs: [“get”, “update”, “delete”]<h1 id="Allow-Dashboard-to-get-and-update-‘kubernetes-dashboard-settings’-config-map"><a href="#Allow-Dashboard-to-get-and-update-‘kubernetes-dashboard-settings’-config-map" class="headerlink" title="Allow Dashboard to get and update ‘kubernetes-dashboard-settings’ config map."></a>Allow Dashboard to get and update ‘kubernetes-dashboard-settings’ config map.</h1></li>
+<li>apiGroups: [“”]<br>resources: [“configmaps”]<br>resourceNames: [“kubernetes-dashboard-settings”]<br>verbs: [“get”, “update”]<h1 id="Allow-Dashboard-to-get-metrics"><a href="#Allow-Dashboard-to-get-metrics" class="headerlink" title="Allow Dashboard to get metrics."></a>Allow Dashboard to get metrics.</h1></li>
+<li>apiGroups: [“”]<br>resources: [“services”]<br>resourceNames: [“heapster”, “dashboard-metrics-scraper”]<br>verbs: [“proxy”]</li>
+<li>apiGroups: [“”]<br>resources: [“services&#x2F;proxy”]<br>resourceNames:<br>  [<br>“heapster”,<br>“http:heapster:”,<br>“https:heapster:”,<br>“dashboard-metrics-scraper”,<br>“http:dashboard-metrics-scraper”,<br>  ]<br>verbs: [“get”]</li>
+</ul>
+<hr>
+<p>kind: ClusterRole<br>apiVersion: rbac.authorization.k8s.io&#x2F;v1<br>metadata:<br>  labels:<br>    k8s-app: kubernetes-dashboard<br>  name: kubernetes-dashboard<br>rules:</p>
+<h1 id="Allow-Metrics-Scraper-to-get-metrics-from-the-Metrics-server"><a href="#Allow-Metrics-Scraper-to-get-metrics-from-the-Metrics-server" class="headerlink" title="Allow Metrics Scraper to get metrics from the Metrics server"></a>Allow Metrics Scraper to get metrics from the Metrics server</h1><ul>
+<li>apiGroups: [“metrics.k8s.io”]<br>resources: [“pods”, “nodes”]<br>verbs: [“get”, “list”, “watch”]</li>
+</ul>
+<hr>
+<p>apiVersion: rbac.authorization.k8s.io&#x2F;v1<br>kind: RoleBinding<br>metadata:<br>  labels:<br>    k8s-app: kubernetes-dashboard<br>  name: kubernetes-dashboard<br>  namespace: kubernetes-dashboard<br>roleRef:<br>  apiGroup: rbac.authorization.k8s.io<br>  kind: Role<br>  name: kubernetes-dashboard<br>subjects:</p>
+<ul>
+<li>kind: ServiceAccount<br>name: kubernetes-dashboard<br>namespace: kubernetes-dashboard</li>
+</ul>
+<hr>
+<p>apiVersion: rbac.authorization.k8s.io&#x2F;v1<br>kind: ClusterRoleBinding<br>metadata:<br>  name: kubernetes-dashboard<br>roleRef:<br>  apiGroup: rbac.authorization.k8s.io<br>  kind: ClusterRole<br>  name: kubernetes-dashboard<br>subjects:</p>
+<ul>
+<li>kind: ServiceAccount<br>name: kubernetes-dashboard<br>namespace: kubernetes-dashboard</li>
+</ul>
+<hr>
+<p>kind: Deployment<br>apiVersion: apps&#x2F;v1<br>metadata:<br>  labels:<br>    k8s-app: kubernetes-dashboard<br>  name: kubernetes-dashboard<br>  namespace: kubernetes-dashboard<br>spec:<br>  replicas: 1<br>  revisionHistoryLimit: 10<br>  selector:<br>    matchLabels:<br>      k8s-app: kubernetes-dashboard<br>  template:<br>    metadata:<br>      labels:<br>        k8s-app: kubernetes-dashboard<br>    spec:<br>      containers:<br>        - name: kubernetes-dashboard<br>          image: registry.cn-shanghai.aliyuncs.com&#x2F;jieee&#x2F;dashboard:v2.0.4<br>          imagePullPolicy: Always<br>          ports:<br>            - containerPort: 8443<br>              protocol: TCP<br>          args:<br>            - –auto-generate-certificates<br>            - –namespace&#x3D;kubernetes-dashboard<br>            # Uncomment the following line to manually specify Kubernetes API server Host<br>            # If not specified, Dashboard will attempt to auto discover the API server and connect<br>            # to it. Uncomment only if the default does not work.<br>            # - –apiserver-host&#x3D;<a href="http://my-address:port">http://my-address:port</a><br>          volumeMounts:<br>            - name: kubernetes-dashboard-certs<br>              mountPath: &#x2F;certs<br>              # Create on-disk volume to store exec logs<br>            - mountPath: &#x2F;tmp<br>              name: tmp-volume<br>          livenessProbe:<br>            httpGet:<br>              scheme: HTTPS<br>              path: &#x2F;<br>              port: 8443<br>            initialDelaySeconds: 30<br>            timeoutSeconds: 30<br>          securityContext:<br>            allowPrivilegeEscalation: false<br>            readOnlyRootFilesystem: true<br>            runAsUser: 1001<br>            runAsGroup: 2001<br>      volumes:<br>        - name: kubernetes-dashboard-certs<br>          secret:<br>            secretName: kubernetes-dashboard-certs<br>        - name: tmp-volume<br>          emptyDir: {}<br>      serviceAccountName: kubernetes-dashboard<br>      nodeSelector:<br>        “kubernetes.io&#x2F;os”: linux<br>      # Comment the following tolerations if Dashboard must not be deployed on master<br>      tolerations:<br>        - key: node-role.kubernetes.io&#x2F;master<br>          effect: NoSchedule</p>
+<hr>
+<p>kind: Service<br>apiVersion: v1<br>metadata:<br>  labels:<br>    k8s-app: dashboard-metrics-scraper<br>  name: dashboard-metrics-scraper<br>  namespace: kubernetes-dashboard<br>spec:<br>  ports:<br>    - port: 8000<br>      targetPort: 8000<br>  selector:<br>    k8s-app: dashboard-metrics-scraper</p>
+<hr>
+<p>kind: Deployment<br>apiVersion: apps&#x2F;v1<br>metadata:<br>  labels:<br>    k8s-app: dashboard-metrics-scraper<br>  name: dashboard-metrics-scraper<br>  namespace: kubernetes-dashboard<br>spec:<br>  replicas: 1<br>  revisionHistoryLimit: 10<br>  selector:<br>    matchLabels:<br>      k8s-app: dashboard-metrics-scraper<br>  template:<br>    metadata:<br>      labels:<br>        k8s-app: dashboard-metrics-scraper<br>      annotations:<br>        seccomp.security.alpha.kubernetes.io&#x2F;pod: “runtime&#x2F;default”<br>    spec:<br>      containers:<br>        - name: dashboard-metrics-scraper<br>          image: registry.cn-shanghai.aliyuncs.com&#x2F;jieee&#x2F;metrics-scraper:v1.0.4<br>          ports:<br>            - containerPort: 8000<br>              protocol: TCP<br>          livenessProbe:<br>            httpGet:<br>              scheme: HTTP<br>              path: &#x2F;<br>              port: 8000<br>            initialDelaySeconds: 30<br>            timeoutSeconds: 30<br>          volumeMounts:<br>            - mountPath: &#x2F;tmp<br>              name: tmp-volume<br>          securityContext:<br>            allowPrivilegeEscalation: false<br>            readOnlyRootFilesystem: true<br>            runAsUser: 1001<br>            runAsGroup: 2001<br>      serviceAccountName: kubernetes-dashboard<br>      nodeSelector:<br>        “kubernetes.io&#x2F;os”: linux<br>      # Comment the following tolerations if Dashboard must not be deployed on master<br>      tolerations:<br>        - key: node-role.kubernetes.io&#x2F;master<br>          effect: NoSchedule<br>      volumes:<br>        - name: tmp-volume<br>          emptyDir: {}</p>
+<ul>
+<li>第一种：登录 dashboard 的方式(配置文件)</li>
+</ul>
+<ol>
+<li>采用 token 方式</li>
+<li>采用秘钥文件方式</li>
+</ol>
+<p><img src="https://img-blog.csdnimg.cn/1fea07e66dd44b78abd19981cf450082.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p># 创建管理员帐户(dashboard)<br>$ cat &lt;&lt;EOF  kubectl apply -f -<br>apiVersion: v1<br>kind: ServiceAccount<br>metadata:<br>  name: admin-user<br>  namespace: kubernetes-dashboard<br>EOF</p>
+<p># 将用户绑定已经存在的集群管理员角色<br>$ cat &lt;&lt;EOF  kubectl apply -f -<br>apiVersion: rbac.authorization.k8s.io&#x2F;v1<br>kind: ClusterRoleBinding<br>metadata:<br>  name: admin-user<br>roleRef:<br>  apiGroup: rbac.authorization.k8s.io<br>  kind: ClusterRole<br>  name: cluster-admin<br>subjects:</p>
+<ul>
+<li>kind: ServiceAccount<br>name: admin-user<br>namespace: kubernetes-dashboard<br>EOF</li>
+</ul>
+<p># 获取可用户于访问的token令牌<br>$ kubectl -n kubernetes-dashboard describe secret \<br>    $(kubectl -n kubernetes-dashboard get secret \<br>     grep admin-user  awk ‘{print $1}’)</p>
+<ul>
+<li>登录界面展示</li>
+</ul>
+<ol>
+<li>针对 Chrome 浏览器，在空白处点击然后输入：thisisunsafe</li>
+<li>针对 Firefox 浏览器，遇到证书过期，添加例外访问</li>
+</ol>
+<p><img src="https://img-blog.csdnimg.cn/4c384caff52e4561bcf0c2c4433abc7e.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<ul>
+<li>第二种：授权 dashboard 权限(不适用配置文件)</li>
+</ul>
+<ol>
+<li>如果登录之后提示权限问题的话，可以执行如下操作</li>
+<li>把 serviceaccount 绑定在 clusteradmin</li>
+<li>授权 serviceaccount 用户具有整个集群的访问管理权限</li>
+</ol>
+<p># 创建serviceaccount<br>$ kubectl create serviceaccount dashboard-admin -n kube-system</p>
+<h1 id="把serviceaccount绑定在clusteradmin"><a href="#把serviceaccount绑定在clusteradmin" class="headerlink" title="把serviceaccount绑定在clusteradmin"></a>把serviceaccount绑定在clusteradmin</h1><h1 id="授权serviceaccount用户具有整个集群的访问管理权限"><a href="#授权serviceaccount用户具有整个集群的访问管理权限" class="headerlink" title="授权serviceaccount用户具有整个集群的访问管理权限"></a>授权serviceaccount用户具有整个集群的访问管理权限</h1><p>$ kubectl create clusterrolebinding \<br>    dashboard-cluster-admin –clusterrole&#x3D;cluster-admin \<br>    –serviceaccount&#x3D;kube-system:dashboard-admin</p>
+<h1 id="获取serviceaccount的secret信息，可得到token令牌的信息"><a href="#获取serviceaccount的secret信息，可得到token令牌的信息" class="headerlink" title="获取serviceaccount的secret信息，可得到token令牌的信息"></a>获取serviceaccount的secret信息，可得到token令牌的信息</h1><p>$ kubectl get secret -n kube-system</p>
+<h1 id="通过上边命令获取到dashboard-admin-token-slfcr信息"><a href="#通过上边命令获取到dashboard-admin-token-slfcr信息" class="headerlink" title="通过上边命令获取到dashboard-admin-token-slfcr信息"></a>通过上边命令获取到dashboard-admin-token-slfcr信息</h1><p>$ kubectl describe secret <dashboard-admin-token-slfcr> -n kube-system</p>
+<h1 id="浏览器访问登录并把token粘贴进去登录即可"><a href="#浏览器访问登录并把token粘贴进去登录即可" class="headerlink" title="浏览器访问登录并把token粘贴进去登录即可"></a>浏览器访问登录并把token粘贴进去登录即可</h1><p><a target="_blank" rel="noopener" href="https://192.168.30.30:8080/">https://192.168.30.30:8080/</a></p>
+<h1 id="快捷查看token的命令"><a href="#快捷查看token的命令" class="headerlink" title="快捷查看token的命令"></a>快捷查看token的命令</h1><p>$ kubectl describe secrets -n kube-system \<br>    $(kubectl -n kube-system get secret  awk ‘&#x2F;admin&#x2F;{print $1}’)</p>
+<h3 id="5-参考链接"><a href="#5-参考链接" class="headerlink" title="5. 参考链接"></a>5. 参考链接</h3><ul>
+<li>十分钟搭建好 K8S 集群</li>
+<li>基于阿里云 ubuntu 的 k8s-1.8.2 环境搭建</li>
+<li>从零开始在 ubuntu 上安装和使用 k8s 集群及报错解决</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/08/30/%E4%BD%BF%E7%94%A8-kubeadm-%E6%90%AD%E5%BB%BA-kubernetes-%E9%9B%86%E7%BE%A4/">http://code404.icu/2021/08/30/%E4%BD%BF%E7%94%A8-kubeadm-%E6%90%AD%E5%BB%BA-kubernetes-%E9%9B%86%E7%BE%A4/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/k8s/">k8s</a><a class="post-meta__tags" href="/tags/kubeadm/">kubeadm</a><a class="post-meta__tags" href="/tags/kubernets/">kubernets</a><a class="post-meta__tags" href="/tags/k8s%E9%9B%86%E7%BE%A4/">k8s集群</a><a class="post-meta__tags" href="/tags/%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA/">集群搭建</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/08/image-27.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/08/31/python%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1-%E5%A4%9A%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/08/image-28.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Python如何实现定时任务_多种方式实现定时任务</div></div></a></div><div class="next-post pull-right"><a href="/2021/08/29/rabbitmq%E5%90%AF%E5%8A%A8%E5%90%8E%E6%B2%A1%E6%9C%89%E7%BB%91%E5%AE%9Aip-%E6%8A%A5%E9%94%99security-violation-scripts-are-being-executed-but-script-security-not-enabled/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/08/image-26.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">RabbitMQ启动后没有绑定IP_报错SECURITY VIOLATION - scripts are being executed but script_security not enabled</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/08/17/k8s-kubernetes-%E5%87%BA%E7%8E%B0-the-connection-to-the-server-localhost8080-was-refused-%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" title="K8S_Kubernetes 出现 The connection to the server localhost:8080 was refused 的解决方法"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-14-1024x405.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-17</div><div class="title">K8S_Kubernetes 出现 The connection to the server localhost:8080 was refused 的解决方法</div></div></a></div><div><a href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img class="cover" src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-07</div><div class="title">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</div></div></a></div><div><a href="/2021/12/11/k8s%E5%A6%82%E4%BD%95%E4%BF%AE%E6%94%B9%E9%99%90%E5%88%B6%E8%8A%82%E7%82%B9%E5%90%AF%E5%8A%A8%E7%9A%84pod%E6%95%B0%E9%87%8F%EF%BC%9F/" title="k8s如何修改限制节点启动的Pod数量？"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-23-1024x370.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-11</div><div class="title">k8s如何修改限制节点启动的Pod数量？</div></div></a></div><div><a href="/2021/06/01/k8s%E9%9B%86%E7%BE%A4%E6%B7%BB%E5%8A%A0node%E8%8A%82%E7%82%B9%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/" title="k8s集群添加node节点遇到的问题"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-01</div><div class="title">k8s集群添加node节点遇到的问题</div></div></a></div><div><a href="/2021/10/15/%E4%BD%BF%E7%94%A8-ansible-%E5%A6%82%E4%BD%95%E9%83%A8%E7%BD%B2-k8s-kubernets/" title="使用 ansible 如何部署 k8s_kubernets?"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image-11.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-15</div><div class="title">使用 ansible 如何部署 k8s_kubernets?</div></div></a></div><div><a href="/2021/05/03/512/" title="推荐 k8s原生镜像仓库registry好用的UI"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/image-52.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-03</div><div class="title">推荐 k8s原生镜像仓库registry好用的UI</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E9%83%A8%E7%BD%B2%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-number">2.</span> <span class="toc-text">1. 部署准备工作</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-1-%E5%9F%BA%E7%A1%80%E7%8E%AF%E5%A2%83%E4%BF%A1%E6%81%AF"><span class="toc-number">2.1.</span> <span class="toc-text">1.1 基础环境信息</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#hosts"><span class="toc-number"></span> <span class="toc-text">hosts</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#ping"><span class="toc-number"></span> <span class="toc-text">ping</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-2-%E9%98%BF%E9%87%8C%E6%BA%90%E9%85%8D%E7%BD%AE"><span class="toc-number">0.1.</span> <span class="toc-text">1.2 阿里源配置</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E9%98%BF%E9%87%8C%E4%BA%91Ubuntu%E9%95%9C%E5%83%8F"><span class="toc-number"></span> <span class="toc-text">设置阿里云Ubuntu镜像</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEkubeadm%E7%9A%84%E9%98%BF%E9%87%8C%E4%BA%91%E9%95%9C%E5%83%8F%E6%BA%90"><span class="toc-number"></span> <span class="toc-text">配置kubeadm的阿里云镜像源</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEdocker%E5%AE%89%E8%A3%85"><span class="toc-number"></span> <span class="toc-text">配置docker安装</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9B%B4%E6%96%B0%E4%BB%93%E5%BA%93"><span class="toc-number"></span> <span class="toc-text">更新仓库</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-%E5%9F%BA%E7%A1%80%E5%B7%A5%E5%85%B7%E5%AE%89%E8%A3%85"><span class="toc-number">0.1.</span> <span class="toc-text">1.3 基础工具安装</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B0%86%E5%BD%93%E5%89%8D%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%8A%A0%E5%85%A5docker%E7%BB%84-%E9%9C%80%E9%87%8D%E6%96%B0%E7%99%BB%E5%BD%95"><span class="toc-number"></span> <span class="toc-text">将当前普通用户加入docker组(需重新登录)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%90%AF%E7%94%A8"><span class="toc-number"></span> <span class="toc-text">服务启用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE"><span class="toc-number">0.1.</span> <span class="toc-text">1.4 操作系统配置</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%BAK8S%E6%9D%A5%E8%B0%83%E6%95%B4%E5%86%85%E6%A0%B8%E5%8F%82%E6%95%B0"><span class="toc-number"></span> <span class="toc-text">为K8S来调整内核参数</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E7%B3%BB%E7%BB%9F%E5%86%85%E6%A0%B8%E5%8F%82%E6%95%B0%E7%9A%84%E6%96%B9%E5%BC%8F"><span class="toc-number"></span> <span class="toc-text">查看系统内核参数的方式</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BD%BF%E5%86%85%E6%A0%B8%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E7%94%9F%E6%95%88"><span class="toc-number"></span> <span class="toc-text">使内核参数配置文件生效</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E7%B3%BB%E7%BB%9F%E6%97%B6%E5%8C%BA%E4%B8%BA%E4%B8%AD%E5%9B%BD-x2F-%E4%B8%8A%E6%B5%B7"><span class="toc-number"></span> <span class="toc-text">设置系统时区为中国&#x2F;上海</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%B0%86%E5%BD%93%E5%89%8D%E7%9A%84UTC%E6%97%B6%E9%97%B4%E5%86%99%E5%85%A5%E7%A1%AC%E4%BB%B6%E6%97%B6%E9%92%9F"><span class="toc-number"></span> <span class="toc-text">将当前的UTC时间写入硬件时钟</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-5-%E5%BC%80%E5%90%AF-ipvs-%E6%9C%8D%E5%8A%A1"><span class="toc-number">0.1.</span> <span class="toc-text">1.5 开启 ipvs 服务</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE"><span class="toc-number"></span> <span class="toc-text">修改配置</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE"><span class="toc-number"></span> <span class="toc-text">加载配置</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E9%83%A8%E7%BD%B2-Master-%E8%8A%82%E7%82%B9"><span class="toc-number">1.</span> <span class="toc-text">2. 部署 Master 节点</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E8%8A%82%E7%82%B9-%E5%91%BD%E4%BB%A4%E8%A1%8C"><span class="toc-number"></span> <span class="toc-text">部署节点(命令行)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B3%A8%E6%84%8Fpod%E5%92%8Cservice%E7%9A%84%E5%9C%B0%E5%9D%80%E9%9C%80%E8%A6%81%E4%B8%8D%E5%90%8C-%E5%90%A6%E5%88%99%E4%BC%9A%E6%8A%A5%E9%94%99"><span class="toc-number"></span> <span class="toc-text">注意pod和service的地址需要不同(否则会报错)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%83%A8%E7%BD%B2%E9%95%9C%E5%83%8F%E9%85%8D%E7%BD%AE-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="toc-number"></span> <span class="toc-text">部署镜像配置(配置文件)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BIP%E6%AE%B5%E6%98%AF%E5%90%A6%E7%94%9F%E6%95%88-iptable"><span class="toc-number"></span> <span class="toc-text">查看IP段是否生效(iptable)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8BIP%E6%AE%B5%E6%98%AF%E5%90%A6%E7%94%9F%E6%95%88-ipvs"><span class="toc-number"></span> <span class="toc-text"># 查看IP段是否生效(ipvs)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#sudo-kubeadm-config-print-init-defaults-gt-kubeadm-config-yaml"><span class="toc-number"></span> <span class="toc-text">sudo kubeadm config print init-defaults &gt; kubeadm-config.yaml</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#master-setting-step-two"><span class="toc-number"></span> <span class="toc-text">master setting step two</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%94%9F%E6%88%90token%E4%BB%A4%E7%89%8C"><span class="toc-number"></span> <span class="toc-text">生成token令牌</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BF%98%E8%AE%B0sha%E7%BC%96%E7%A0%81"><span class="toc-number"></span> <span class="toc-text">忘记sha编码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%9B%B4%E6%8E%A5%E7%94%9F%E6%88%90-join-%E5%91%BD%E4%BB%A4-%E6%AF%94%E4%B8%8A%E9%9D%A2%E7%9A%84%E6%96%B9%E4%BE%BF"><span class="toc-number"></span> <span class="toc-text">直接生成 join 命令(比上面的方便)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%A0%B8%E5%BF%83%E6%9C%8D%E5%8A%A1"><span class="toc-number"></span> <span class="toc-text">核心服务</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%83%A8%E7%BD%B2-flannel-%E7%BD%91%E7%BB%9C"><span class="toc-number">1.</span> <span class="toc-text">3. 部署 flannel 网络</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E4%BF%AE%E6%94%B9%E9%95%9C%E5%83%8F%E5%9C%B0%E5%9D%80-%E5%A6%82%E6%9E%9C%E4%B8%8B%E8%BD%BD%E4%B8%8D%E4%BA%86%E7%9A%84%E8%AF%9D"><span class="toc-number"></span> <span class="toc-text">1.修改镜像地址(如果下载不了的话)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-%E4%BF%AE%E6%94%B9Network%E4%B8%BA%E2%80%93pod-network-cidr%E7%9A%84%E5%8F%82%E6%95%B0IP%E6%AE%B5"><span class="toc-number"></span> <span class="toc-text">2.修改Network为–pod-network-cidr的参数IP段</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E9%83%A8%E7%BD%B2%E5%87%BA%E7%8E%B0%E9%97%AE%E9%A2%98%E5%8F%AF%E9%80%9A%E8%BF%87%E5%A6%82%E4%B8%8B%E5%91%BD%E4%BB%A4%E6%9F%A5%E7%9C%8B%E6%97%A5%E5%BF%97"><span class="toc-number"></span> <span class="toc-text">如果部署出现问题可通过如下命令查看日志</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Users-and-groups"><span class="toc-number"></span> <span class="toc-text">Users and groups</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Privilege-Escalation"><span class="toc-number"></span> <span class="toc-text">Privilege Escalation</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Capabilities"><span class="toc-number"></span> <span class="toc-text">Capabilities</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Host-namespaces"><span class="toc-number"></span> <span class="toc-text">Host namespaces</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SELinux"><span class="toc-number"></span> <span class="toc-text">SELinux</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%87%8D%E5%90%AF%E9%9B%86%E7%BE%A4"><span class="toc-number"></span> <span class="toc-text">重启集群</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E9%83%A8%E7%BD%B2-dashboard-%E6%9C%8D%E5%8A%A1"><span class="toc-number">1.</span> <span class="toc-text">4. 部署 dashboard 服务</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A6%82%E6%9E%9C%E9%83%A8%E7%BD%B2%E5%87%BA%E7%8E%B0%E9%97%AE%E9%A2%98%E5%8F%AF%E9%80%9A%E8%BF%87%E5%A6%82%E4%B8%8B%E5%91%BD%E4%BB%A4%E6%9F%A5%E7%9C%8B%E6%97%A5%E5%BF%97-1"><span class="toc-number"></span> <span class="toc-text">如果部署出现问题可通过如下命令查看日志</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%90%86%E6%98%AF%E5%90%A6%E6%AD%A3%E5%B8%B8-%E9%BB%98%E8%AE%A4%E7%9B%91%E5%90%AC%E5%9C%A88001%E7%AB%AF%E5%8F%A3%E4%B8%8A"><span class="toc-number"></span> <span class="toc-text">测试代理是否正常(默认监听在8001端口上)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0-%E5%8F%AF%E4%BB%A5%E4%BD%BF%E7%94%A8nginx"><span class="toc-number"></span> <span class="toc-text">本地(可以使用nginx)</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%A4%96%E7%BD%91%E8%AE%BF%E9%97%AE%E5%A6%82%E4%B8%8BURL%E5%9C%B0%E5%9D%80"><span class="toc-number"></span> <span class="toc-text">外网访问如下URL地址</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Licensed-under-the-Apache-License-Version-2-0-the-%E2%80%9CLicense%E2%80%9D"><span class="toc-number"></span> <span class="toc-text">Licensed under the Apache License, Version 2.0 (the “License”);</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#you-may-not-use-this-file-except-in-compliance-with-the-License"><span class="toc-number"></span> <span class="toc-text">you may not use this file except in compliance with the License.</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#You-may-obtain-a-copy-of-the-License-at"><span class="toc-number"></span> <span class="toc-text">You may obtain a copy of the License at</span></a></li><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number"></span> <span class="toc-text"></span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#http-www-apache-org-licenses-LICENSE-2-0"><span class="toc-number"></span> <span class="toc-text">http:&#x2F;&#x2F;www.apache.org&#x2F;licenses&#x2F;LICENSE-2.0</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#-1"><span class="toc-number"></span> <span class="toc-text"></span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Unless-required-by-applicable-law-or-agreed-to-in-writing-software"><span class="toc-number"></span> <span class="toc-text">Unless required by applicable law or agreed to in writing, software</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#distributed-under-the-License-is-distributed-on-an-%E2%80%9CAS-IS%E2%80%9D-BASIS"><span class="toc-number"></span> <span class="toc-text">distributed under the License is distributed on an “AS IS” BASIS,</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#WITHOUT-WARRANTIES-OR-CONDITIONS-OF-ANY-KIND-either-express-or-implied"><span class="toc-number"></span> <span class="toc-text">WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#See-the-License-for-the-specific-language-governing-permissions-and"><span class="toc-number"></span> <span class="toc-text">See the License for the specific language governing permissions and</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#limitations-under-the-License"><span class="toc-number"></span> <span class="toc-text">limitations under the License.</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Allow-Dashboard-to-get-update-and-delete-Dashboard-exclusive-secrets"><span class="toc-number"></span> <span class="toc-text">Allow Dashboard to get, update and delete Dashboard exclusive secrets.</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Allow-Dashboard-to-get-and-update-%E2%80%98kubernetes-dashboard-settings%E2%80%99-config-map"><span class="toc-number"></span> <span class="toc-text">Allow Dashboard to get and update ‘kubernetes-dashboard-settings’ config map.</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Allow-Dashboard-to-get-metrics"><span class="toc-number"></span> <span class="toc-text">Allow Dashboard to get metrics.</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Allow-Metrics-Scraper-to-get-metrics-from-the-Metrics-server"><span class="toc-number"></span> <span class="toc-text">Allow Metrics Scraper to get metrics from the Metrics server</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8A%8Aserviceaccount%E7%BB%91%E5%AE%9A%E5%9C%A8clusteradmin"><span class="toc-number"></span> <span class="toc-text">把serviceaccount绑定在clusteradmin</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8E%88%E6%9D%83serviceaccount%E7%94%A8%E6%88%B7%E5%85%B7%E6%9C%89%E6%95%B4%E4%B8%AA%E9%9B%86%E7%BE%A4%E7%9A%84%E8%AE%BF%E9%97%AE%E7%AE%A1%E7%90%86%E6%9D%83%E9%99%90"><span class="toc-number"></span> <span class="toc-text">授权serviceaccount用户具有整个集群的访问管理权限</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%8E%B7%E5%8F%96serviceaccount%E7%9A%84secret%E4%BF%A1%E6%81%AF%EF%BC%8C%E5%8F%AF%E5%BE%97%E5%88%B0token%E4%BB%A4%E7%89%8C%E7%9A%84%E4%BF%A1%E6%81%AF"><span class="toc-number"></span> <span class="toc-text">获取serviceaccount的secret信息，可得到token令牌的信息</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E4%B8%8A%E8%BE%B9%E5%91%BD%E4%BB%A4%E8%8E%B7%E5%8F%96%E5%88%B0dashboard-admin-token-slfcr%E4%BF%A1%E6%81%AF"><span class="toc-number"></span> <span class="toc-text">通过上边命令获取到dashboard-admin-token-slfcr信息</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E8%AE%BF%E9%97%AE%E7%99%BB%E5%BD%95%E5%B9%B6%E6%8A%8Atoken%E7%B2%98%E8%B4%B4%E8%BF%9B%E5%8E%BB%E7%99%BB%E5%BD%95%E5%8D%B3%E5%8F%AF"><span class="toc-number"></span> <span class="toc-text">浏览器访问登录并把token粘贴进去登录即可</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BF%AB%E6%8D%B7%E6%9F%A5%E7%9C%8Btoken%E7%9A%84%E5%91%BD%E4%BB%A4"><span class="toc-number"></span> <span class="toc-text">快捷查看token的命令</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">1.</span> <span class="toc-text">5. 参考链接</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

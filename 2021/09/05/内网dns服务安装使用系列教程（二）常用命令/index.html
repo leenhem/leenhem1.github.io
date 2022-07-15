@@ -1,0 +1,261 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>内网DNS服务安装使用系列教程（二）常用命令 | 码404</title><meta name="keywords" content="DNS,常用命令,nslookup,dig,host,rndc"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. dig命令 dig用于测试dns系统，因此不会查询hosts文件进行解析  用于询问 DNS 域名服务器的灵活的工具 除非被告知请求特定域名服务器，dig将尝试 &#x2F;etc&#x2F;resolv.conf中列举的任何服务器 当未指定任何命令行参数或选项时，dig将对.（根）执行NS查询  格式dig [-t type] name [@SERVER] [query options]">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内网DNS服务安装使用系列教程（二）常用命令">
+<meta property="og:url" content="http://code404.icu/2021/09/05/%E5%86%85%E7%BD%91dns%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%EF%BC%88%E4%BA%8C%EF%BC%89%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="1. dig命令 dig用于测试dns系统，因此不会查询hosts文件进行解析  用于询问 DNS 域名服务器的灵活的工具 除非被告知请求特定域名服务器，dig将尝试 &#x2F;etc&#x2F;resolv.conf中列举的任何服务器 当未指定任何命令行参数或选项时，dig将对.（根）执行NS查询  格式dig [-t type] name [@SERVER] [query options]">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/09/image-3-1024x408.png">
+<meta property="article:published_time" content="2021-09-05T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.900Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="DNS">
+<meta property="article:tag" content="常用命令">
+<meta property="article:tag" content="nslookup">
+<meta property="article:tag" content="dig">
+<meta property="article:tag" content="host">
+<meta property="article:tag" content="rndc">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/09/image-3-1024x408.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/09/05/%E5%86%85%E7%BD%91dns%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%EF%BC%88%E4%BA%8C%EF%BC%89%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '内网DNS服务安装使用系列教程（二）常用命令',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/09/image-3-1024x408.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">内网DNS服务安装使用系列教程（二）常用命令</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-09-05T00:30:00.000Z" title="发表于 2021-09-05 08:30:00">2021-09-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.900Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/DNS/">DNS</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="内网DNS服务安装使用系列教程（二）常用命令"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/09/image-3-1024x408.png"></p>
+<h3 id="1-dig命令"><a href="#1-dig命令" class="headerlink" title="1. dig命令"></a>1. dig命令</h3><hr>
+<p>dig用于测试dns系统，因此不会查询hosts文件进行解析</p>
+<ul>
+<li>用于询问 DNS 域名服务器的灵活的工具</li>
+<li>除非被告知请求特定域名服务器，dig将尝试 &#x2F;etc&#x2F;resolv.conf中列举的任何服务器</li>
+<li>当未指定任何命令行参数或选项时，dig将对.（根）执行NS查询</li>
+</ul>
+<h4 id="格式"><a href="#格式" class="headerlink" title="格式"></a>格式</h4><p>dig [-t type] name [@SERVER] [query options]</p>
+<h4 id="语法"><a href="#语法" class="headerlink" title="语法"></a>语法</h4><ul>
+<li>类型查询</li>
+</ul>
+<p>dig -t NS code404.icu @140.205.41.23<br>dig -t MS code404.icu @140.205.41.23<br>dig -t A <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a></p>
+<ul>
+<li>查询选项</li>
+</ul>
+<p>+[no]trace：跟踪解析过程<br>+[no]recurse：进行递归解析</p>
+<ul>
+<li>测试反向解析：</li>
+</ul>
+<p>dig -x IP @SERVER<br>dig -x 172.16.100.11 @172.16.242.178</p>
+<ul>
+<li>模拟区域传送：</li>
+</ul>
+<p>dig -t axfr ZONE_NAME @SERVER<br>dig -t axfr code404.icu @106.11.141.113</p>
+<h3 id="2-host命令"><a href="#2-host命令" class="headerlink" title="2. host命令"></a>2. host命令</h3><hr>
+<p><strong>host</strong>命令用于查询<strong>DNS</strong>的工具</p>
+<ul>
+<li>它通过常转换指定主机名称的主机名称为 IP 地址</li>
+<li>当不指定参数时，它显示host命令的帮助信息</li>
+</ul>
+<h4 id="格式-1"><a href="#格式-1" class="headerlink" title="格式"></a>格式</h4><p>host [-t type] name [SERVER]</p>
+<h4 id="语法-1"><a href="#语法-1" class="headerlink" title="语法"></a>语法</h4><ul>
+<li>-a 等同于-v -t</li>
+<li>-C 在需要认证的域名服务器上查找 SOA 记录</li>
+<li>-l 列出一个域内所有的主机</li>
+<li>-i 反向查找</li>
+<li>-r 不使用递归处理</li>
+<li>-v 运行时显示详细的处理信息</li>
+<li>-4 用于 IPv4 的查询</li>
+<li>-6 用于 IPv6 的查询</li>
+<li>-t &lt;类型&gt; 指定类型，包括a、all、mx、ns等</li>
+</ul>
+<h4 id="实例展示"><a href="#实例展示" class="headerlink" title="实例展示"></a>实例展示</h4><p>[root@localhost ~]# host -t A <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a> 114.114.114.114<br>Using domain server:<br>Name: 114.114.114.114<br>Address: 114.114.114.114#53<br>Aliases: </p>
+<p><a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a> has address 182.92.75.185</p>
+<p>[root@localhost ~]# host –help<br>host: illegal option – -<br>Usage: host [-aCdlriTwv] [-c class] [-N ndots] [-t type] [-W time]<br>            [-R number] [-m flag] hostname [server]<br>       -a is equivalent to -v -t ANY<br>       -c specifies query class for non-IN data<br>       -C compares SOA records on authoritative nameservers<br>       -d is equivalent to -v<br>       -l lists all hosts in a domain, using AXFR<br>       -i IP6.INT reverse lookups<br>       -N changes the number of dots allowed before root lookup is done<br>       -r disables recursive processing<br>       -R specifies number of retries for UDP packets<br>       -s a SERVFAIL response should stop query<br>       -t specifies the query type<br>       -T enables TCP&#x2F;IP mode<br>       -v enables verbose output<br>       -w specifies to wait forever for a reply<br>       -W specifies how long to wait for a reply<br>       -4 use IPv4 query transport only<br>       -6 use IPv6 query transport only<br>       -m set memory debugging flag (tracerecordusage)</p>
+<h3 id="3-nslookup命令"><a href="#3-nslookup命令" class="headerlink" title="3. nslookup命令"></a>3. nslookup命令</h3><hr>
+<p>nslookup 命令用于查找域名服务器的程序，有两种模式为互交和非互交</p>
+<h4 id="格式-2"><a href="#格式-2" class="headerlink" title="格式"></a>格式</h4><p>nslookup [-option] [name  -] [server]</p>
+<h4 id="语法-2"><a href="#语法-2" class="headerlink" title="语法"></a>语法</h4><ul>
+<li>非交互模式</li>
+<li>直接查询即可</li>
+<li>交互式模式</li>
+</ul>
+<p>nslookup&gt;<br>server IP: 指明使用哪个DNS server进行查询；<br>set q&#x3D;RR_TYPE: 指明查询的资源记录类型；<br>NAME: 要查询的名称；</p>
+<h4 id="实例展示-1"><a href="#实例展示-1" class="headerlink" title="实例展示"></a>实例展示</h4><p>[root@k8s-master01 ~]# nslookup </p>
+<blockquote>
+<p>server 114.114.114.114<br>Default server: 114.114.114.114<br>Address: 114.114.114.114#53<br>set q&#x3D;A<br><a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a><br>Server:114.114.114.114<br>Address:114.114.114.114#53</p>
+</blockquote>
+<p>Non-authoritative answer:<br>Name:<a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a><br>Address: 182.92.75.185</p>
+<blockquote>
+<p>set q&#x3D;NS<br>code404.icu<br>Server:114.114.114.114<br>Address:114.114.114.114#53</p>
+</blockquote>
+<p>Non-authoritative answer:<br>code404.icunameserver &#x3D; dns2.hichina.com.<br>code404.icunameserver &#x3D; dns1.hichina.com.</p>
+<p>Authoritative answers can be found from:</p>
+<p># 非交互模式查询<br>[root@k8s-master01 ~]# nslookup code404.icu<br>Server:172.17.0.14<br>Address:172.17.0.14#53</p>
+<p>Non-authoritative answer:<br>Name:code404.icu<br>Address: 182.92.75.185</p>
+<p># 非交互模式查询<br>[root@k8s-master01 ~]# nslookup </p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a><br>Server:172.17.0.14<br>Address:172.17.0.14#53</p>
+</blockquote>
+<p>Non-authoritative answer:     #非权威答案，表明是在缓存中读取的<br>Name:<a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a><br>Address: 182.92.75.185       #返回第一个IP地址</p>
+<blockquote>
+<p>server 8.8.8.8              #设置域名服务器为 8.8.8.8<br>Default server: 8.8.8.8<br>Address: 8.8.8.8#53<br><a target="_blank" rel="noopener" href="http://www.baidu.com/">www.baidu.com</a><br><a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a>               #再次请求码404的IP地址<br>Server:8.8.8.8<br>Address:8.8.8.8#53</p>
+</blockquote>
+<p>Non-authoritative answer:<br>Name:<a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a><br>Address: 182.92.75.185      #不同的DNS获取的IP地址是不同的。</p>
+<h3 id="4-rndc命令"><a href="#4-rndc命令" class="headerlink" title="4. rndc命令"></a>4. rndc命令</h3><hr>
+<p>rndc客户端是通过建立套接字连接服务端，监听在TCP的953端口，来对服务端的named进行修改操作，但由于安全考虑，所以rndc的客户端和服务端安装在同一台主机之上。</p>
+<h4 id="语法-1"><a href="#语法-1" class="headerlink" title="语法 1"></a>语法 1</h4><ul>
+<li><strong>-b</strong> source-address 使用 source-address 作为连接服务器的源地址允许多个实例设置 IPv4 和 IPv6 源地址</li>
+<li><strong>-c</strong> config-file 使用config-file 作为缺省的配置文件&#x2F;etc&#x2F;rndc.conf 的替代</li>
+<li><strong>-k</strong> key-file 使用 key-file 作为缺省的密钥文件&#x2F;etc&#x2F;rndc.key 的替代 如果config-file 不存在，&#x2F;etc&#x2F;rndc.key 中的密钥将用于认证发向服务器的命令</li>
+<li><strong>-s</strong> server server 是与rndc的配置文件中server语句匹配的服务器的名字或地址 如果命令行没有提供服务器，会使用rndc配置文件中options语句中的default-server子句所命名的主机</li>
+<li><strong>-p</strong> port 发送命令到TCP端口port，以取代BIND 9的缺省控制通道端口 953</li>
+<li><strong>-V</strong> 打开冗余日志</li>
+<li><strong>-y</strong> key_id 使用配置文件中的密钥key_id</li>
+</ul>
+<h4 id="语法-2"><a href="#语法-2" class="headerlink" title="语法 2"></a>语法 2</h4><ul>
+<li><strong>reload</strong> 重载主配置文件和区域解析库文件</li>
+<li><strong>reload zone</strong> 重载区域解析库文件</li>
+<li><strong>refresh zone</strong> 安排区域的立即维护</li>
+<li><strong>retransfer zone</strong> 手动启动区域传送过程，而不管序列号是否增加</li>
+<li><strong>notify zone</strong> 重新对区域传送发通知</li>
+<li><strong>reconfig</strong> 重载主配置文件</li>
+<li><strong>status</strong> 将服务器统计信息写入统计文件中</li>
+<li><strong>querylog</strong> 开启或关闭查询日志<br>建议调试的时候开启，否则日志消耗太多性能</li>
+<li><strong>dumpdb</strong> 将高速缓存转储到转储文件 (named_dump.db)</li>
+<li><strong>stop</strong> 将暂挂更新保存到主文件并停止服务器</li>
+<li><strong>halt</strong> 停止服务器，但不保存暂挂更新</li>
+<li><strong>trace</strong> 将调试级别增加一级<br>建议调试的时候开启，否则日志消耗太多性能</li>
+<li><strong>trace level</strong> 更改调试级别</li>
+<li><strong>notrace</strong> 将调试级别设置为0</li>
+<li><strong>flush</strong> 刷新服务器的所有高速缓存</li>
+<li><strong>status</strong> 显示服务器的状态</li>
+<li><strong>restart</strong> 重新启动服务器</li>
+</ul>
+<h4 id="实例展示-2"><a href="#实例展示-2" class="headerlink" title="实例展示"></a>实例展示</h4><p># rndc工具能够帮助我们输出系统信息<br>[root@localhost ~]# rndc status<br>version: 9.8.2rc1-RedHat-9.8.2-0.47.rc1.el6<br>CPUs found: 1<br>worker threads: 1<br>number of zones: 20<br>debug level: 0<br>xfers running: 0<br>xfers deferred: 0<br>soa queries in progress: 0<br>query logging is OFF<br>recursive clients: 0&#x2F;0&#x2F;1000<br>tcp clients: 0&#x2F;100<br>server is up and running</p>
+<h1 id="rndc不重启加载区域文件"><a href="#rndc不重启加载区域文件" class="headerlink" title="rndc不重启加载区域文件"></a>rndc不重启加载区域文件</h1><p>[root@localhost ~]# rndc reload</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/09/05/%E5%86%85%E7%BD%91dns%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%EF%BC%88%E4%BA%8C%EF%BC%89%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">http://code404.icu/2021/09/05/%E5%86%85%E7%BD%91dns%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%EF%BC%88%E4%BA%8C%EF%BC%89%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/DNS/">DNS</a><a class="post-meta__tags" href="/tags/%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">常用命令</a><a class="post-meta__tags" href="/tags/nslookup/">nslookup</a><a class="post-meta__tags" href="/tags/dig/">dig</a><a class="post-meta__tags" href="/tags/host/">host</a><a class="post-meta__tags" href="/tags/rndc/">rndc</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/09/image-3-1024x408.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/09/06/%E5%86%85%E7%BD%91dns%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%89%EF%BC%89bind%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/09/image-4-1024x408.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">内网DNS服务安装使用系列教程（三）BIND的安装配置</div></div></a></div><div class="next-post pull-right"><a href="/2021/09/04/%E5%86%85%E7%BD%91dns%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8B%E7%BB%8D/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/09/image-2-1024x408.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">内网DNS服务安装使用系列教程（一）介绍</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/09/06/%E5%86%85%E7%BD%91dns%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%89%EF%BC%89bind%E7%9A%84%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/" title="内网DNS服务安装使用系列教程（三）BIND的安装配置"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-4-1024x408.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-06</div><div class="title">内网DNS服务安装使用系列教程（三）BIND的安装配置</div></div></a></div><div><a href="/2021/07/12/centos%E7%B3%BB%E7%BB%9F%E4%B8%8A%E6%90%AD%E5%BB%BA-unbound-dns-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA-dns%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/" title="Centos系统上搭建_unbound_dns_服务器搭建_DNS服务器搭建"><img class="cover" src="https://code404.icu/img/moveypu/2021/07/image-39.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-12</div><div class="title">Centos系统上搭建_unbound_dns_服务器搭建_DNS服务器搭建</div></div></a></div><div><a href="/2021/09/04/%E5%86%85%E7%BD%91dns%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%EF%BC%88%E4%B8%80%EF%BC%89%E4%BB%8B%E7%BB%8D/" title="内网DNS服务安装使用系列教程（一）介绍"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-2-1024x408.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-04</div><div class="title">内网DNS服务安装使用系列教程（一）介绍</div></div></a></div><div><a href="/2021/09/07/%E5%86%85%E7%BD%91dns%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%EF%BC%88%E5%9B%9B%EF%BC%89%E9%AB%98%E7%BA%A7%E5%8A%9F%E8%83%BD%E4%B9%8B%E7%BC%96/" title="内网DNS服务安装使用系列教程（四）高级功能之编译安装BIND服务"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-5.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-07</div><div class="title">内网DNS服务安装使用系列教程（四）高级功能之编译安装BIND服务</div></div></a></div><div><a href="/2021/05/19/redis-cluster%E9%9B%86%E7%BE%A4%E5%88%9B%E5%BB%BA%E5%BC%82%E5%B8%B8%E5%8F%8A%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C%E5%91%BD%E4%BB%A4/" title="Redis-cluster集群创建异常及常用操作命令"><img class="cover" src="https://code404.icu/img/moveypu/2021/05/image-40.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-19</div><div class="title">Redis-cluster集群创建异常及常用操作命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-dig%E5%91%BD%E4%BB%A4"><span class="toc-number">1.</span> <span class="toc-text">1. dig命令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F"><span class="toc-number">1.1.</span> <span class="toc-text">格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95"><span class="toc-number">1.2.</span> <span class="toc-text">语法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-host%E5%91%BD%E4%BB%A4"><span class="toc-number">2.</span> <span class="toc-text">2. host命令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F-1"><span class="toc-number">2.1.</span> <span class="toc-text">格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95-1"><span class="toc-number">2.2.</span> <span class="toc-text">语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B%E5%B1%95%E7%A4%BA"><span class="toc-number">2.3.</span> <span class="toc-text">实例展示</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-nslookup%E5%91%BD%E4%BB%A4"><span class="toc-number">3.</span> <span class="toc-text">3. nslookup命令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%BC%E5%BC%8F-2"><span class="toc-number">3.1.</span> <span class="toc-text">格式</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95-2"><span class="toc-number">3.2.</span> <span class="toc-text">语法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B%E5%B1%95%E7%A4%BA-1"><span class="toc-number">3.3.</span> <span class="toc-text">实例展示</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-rndc%E5%91%BD%E4%BB%A4"><span class="toc-number">4.</span> <span class="toc-text">4. rndc命令</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95-1"><span class="toc-number">4.1.</span> <span class="toc-text">语法 1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%AD%E6%B3%95-2"><span class="toc-number">4.2.</span> <span class="toc-text">语法 2</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E4%BE%8B%E5%B1%95%E7%A4%BA-2"><span class="toc-number">4.3.</span> <span class="toc-text">实例展示</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#rndc%E4%B8%8D%E9%87%8D%E5%90%AF%E5%8A%A0%E8%BD%BD%E5%8C%BA%E5%9F%9F%E6%96%87%E4%BB%B6"><span class="toc-number"></span> <span class="toc-text">rndc不重启加载区域文件</span></a></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

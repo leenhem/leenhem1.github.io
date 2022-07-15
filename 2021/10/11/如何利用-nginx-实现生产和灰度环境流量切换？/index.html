@@ -1,0 +1,254 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>如何利用 nginx 实现生产和灰度环境流量切换？ | 码404</title><meta name="keywords" content="nginx,lua,cookie,map,weight,灰度发布,金丝雀发布"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 灰度发布（又名金丝雀发布）是指在黑与白之间，能够平滑过渡的一种发布方式。在其上可以进行A&#x2F;B testing，即让一部分用户继续用产品特性A，一部分用户开始用产品特性B，如果用户对B没有什么反对意见，那么逐步扩大范围，把所有用户都迁移到B上面来。灰度发布可以保证整体系统的稳定，在初始灰度的时候就可以发现、调整问题，以保证其影响度。 根据 cookie 实现灰度配置 查询 cook">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何利用 nginx 实现生产和灰度环境流量切换？">
+<meta property="og:url" content="http://code404.icu/2021/10/11/%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8-nginx-%E5%AE%9E%E7%8E%B0%E7%94%9F%E4%BA%A7%E5%92%8C%E7%81%B0%E5%BA%A6%E7%8E%AF%E5%A2%83%E6%B5%81%E9%87%8F%E5%88%87%E6%8D%A2%EF%BC%9F/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 灰度发布（又名金丝雀发布）是指在黑与白之间，能够平滑过渡的一种发布方式。在其上可以进行A&#x2F;B testing，即让一部分用户继续用产品特性A，一部分用户开始用产品特性B，如果用户对B没有什么反对意见，那么逐步扩大范围，把所有用户都迁移到B上面来。灰度发布可以保证整体系统的稳定，在初始灰度的时候就可以发现、调整问题，以保证其影响度。 根据 cookie 实现灰度配置 查询 cook">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/10/image-7.png">
+<meta property="article:published_time" content="2021-10-11T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.907Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="nginx">
+<meta property="article:tag" content="lua">
+<meta property="article:tag" content="cookie">
+<meta property="article:tag" content="map">
+<meta property="article:tag" content="weight">
+<meta property="article:tag" content="灰度发布">
+<meta property="article:tag" content="金丝雀发布">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/10/image-7.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/10/11/%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8-nginx-%E5%AE%9E%E7%8E%B0%E7%94%9F%E4%BA%A7%E5%92%8C%E7%81%B0%E5%BA%A6%E7%8E%AF%E5%A2%83%E6%B5%81%E9%87%8F%E5%88%87%E6%8D%A2%EF%BC%9F/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '如何利用 nginx 实现生产和灰度环境流量切换？',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/10/image-7.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">如何利用 nginx 实现生产和灰度环境流量切换？</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-10-11T00:30:00.000Z" title="发表于 2021-10-11 08:30:00">2021-10-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.907Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Nginx/">Nginx</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="如何利用 nginx 实现生产和灰度环境流量切换？"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/10/image-7.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>灰度发布（又名金丝雀发布）是指在黑与白之间，能够平滑过渡的一种发布方式。在其上可以进行A&#x2F;B testing，即让一部分用户继续用产品特性A，一部分用户开始用产品特性B，如果用户对B没有什么反对意见，那么逐步扩大范围，把所有用户都迁移到B上面来。灰度发布可以保证整体系统的稳定，在初始灰度的时候就可以发现、调整问题，以保证其影响度。</p>
+<h3 id="根据-cookie-实现灰度配置"><a href="#根据-cookie-实现灰度配置" class="headerlink" title="根据 cookie 实现灰度配置"></a>根据 cookie 实现灰度配置</h3><hr>
+<p>查询 cookie 键为 version 的值，如果该 cookie 值为 V1 则转发到 server_01，为 V2 则转发到 server_02，cookie 值都不匹配的情况下默认走 server_01 所对应的服务器。</p>
+<p>使用 if 指令实现</p>
+<p>upstream server_01 {<br>    server 192.168.1.100:8080 max_fails&#x3D;1 fail_timeout&#x3D;60;<br>}<br>upstream server_02 {<br>    server 192.168.1.101:8080 max_fails&#x3D;1 fail_timeout&#x3D;60;<br>}<br>server {<br>    listen 80;<br>    server_name <a target="_blank" rel="noopener" href="http://www.server.com/">www.server.com</a>;</p>
+<pre><code>#match cookie
+set $server &quot;server\_01&quot;;
+if ($http\_cookie ~\* &quot;version=V1&quot;)&#123;
+    set $server server\_01;
+&#125;
+if ($http\_cookie ~\* &quot;version=V2&quot;)&#123;
+    set $server server\_02;
+&#125;
+location / &#123;
+    proxy\_pass http://$server;
+    proxy\_set\_header Host $host;
+    proxy\_set\_header X-Real-IP $remote\_addr;
+    proxy\_set\_header X-Forwarded-For $proxy\_add\_x\_forwarded\_for;
+    index index.html index.htm;
+&#125;
+</code></pre>
+<p>}</p>
+<h3 id="使用-map-指令实现"><a href="#使用-map-指令实现" class="headerlink" title="使用 map 指令实现"></a>使用 map 指令实现</h3><hr>
+<p>upstream server_01 {<br>    server 192.168.1.100:8080 max_fails&#x3D;1 fail_timeout&#x3D;60;<br>}<br>upstream server_02 {<br>    server 192.168.1.101:8080 max_fails&#x3D;1 fail_timeout&#x3D;60;<br>}<br>map $COOKIE_version $server {<br>    ~*V1$ server_01;<br>    ~*V2$ server_02;<br>    default server_01;<br>}<br>server {<br>    listen 80;<br>    server_name <a target="_blank" rel="noopener" href="http://www.server.com/">www.server.com</a>;</p>
+<pre><code>location / &#123;
+    proxy\_pass http://$server;
+    proxy\_set\_header Host $host;
+    proxy\_set\_header X-Real-IP $remote\_addr;
+    proxy\_set\_header X-Forwarded-For $proxy\_add\_x\_forwarded\_for;
+    index index.html index.htm;
+&#125;
+</code></pre>
+<p>}</p>
+<h3 id="根据权重实现灰度配置"><a href="#根据权重实现灰度配置" class="headerlink" title="根据权重实现灰度配置"></a>根据权重实现灰度配置</h3><hr>
+<p>upstream server {<br>    server 192.168.1.100:8080 max_fails&#x3D;1 fail_timeout&#x3D;60 weight&#x3D;5;<br>    server 192.168.1.101:8080 max_fails&#x3D;1 fail_timeout&#x3D;60 weight&#x3D;1;<br>}<br>server {<br>    listen 80;<br>    server_name <a target="_blank" rel="noopener" href="http://www.server.com/">www.server.com</a>;</p>
+<pre><code>location / &#123;
+    proxy\_pass http://server;
+    proxy\_set\_header Host $host;
+    proxy\_set\_header X-Real-IP $remote\_addr;
+    proxy\_set\_header X-Forwarded-For $proxy\_add\_x\_forwarded\_for;
+    index index.html index.htm;
+&#125;
+</code></pre>
+<p>}</p>
+<h3 id="根据来路-IP-实现灰度配置"><a href="#根据来路-IP-实现灰度配置" class="headerlink" title="根据来路 IP 实现灰度配置"></a>根据来路 IP 实现灰度配置</h3><hr>
+<h4 id="资源在不同服务器上"><a href="#资源在不同服务器上" class="headerlink" title="资源在不同服务器上"></a>资源在不同服务器上</h4><hr>
+<p>upstream server_01 {<br>    server 192.168.1.100:8080 max_fails&#x3D;1 fail_timeout&#x3D;60;<br>}<br>upstream server_02 {<br>    server 192.168.1.101:8080 max_fails&#x3D;1 fail_timeout&#x3D;60;<br>}<br>server {<br>    listen 80;<br>    server_name <a target="_blank" rel="noopener" href="http://www.server.com/">www.server.com</a>;</p>
+<pre><code>set $server &quot;server\_01&quot;;
+if ($remote\_addr ~ &quot;211.118.119.11&quot;)&#123;
+    set $server server\_02;
+&#125;
+location / &#123;
+    proxy\_pass http://$server;
+    proxy\_set\_header Host $host;
+    proxy\_set\_header X-Real-IP $remote\_addr;
+    proxy\_set\_header X-Forwarded-For $proxy\_add\_x\_forwarded\_for;
+    index index.html index.htm;
+&#125;
+</code></pre>
+<p>}</p>
+<h4 id="资源在同一服务器上"><a href="#资源在同一服务器上" class="headerlink" title="资源在同一服务器上"></a>资源在同一服务器上</h4><hr>
+<p>server {<br>    listen 80;<br>    server_name <a target="_blank" rel="noopener" href="http://www.server.com/">www.server.com</a>;</p>
+<pre><code>set $rootdir &quot;/var/www/html&quot;;
+if ($remote\_addr ~ &quot;211.118.119.11&quot;)&#123;
+    set $rootdir &quot;/var/www/test&quot;;
+&#125;
+location / &#123;
+    root $rootdir;
+    proxy\_set\_header Host $host;
+    proxy\_set\_header X-Real-IP $remote\_addr;
+    proxy\_set\_header X-Forwarded-For $proxy\_add\_x\_forwarded\_for;
+    index index.html index.htm;
+&#125;
+</code></pre>
+<p>}</p>
+<h3 id="Nginx-Lua-实现灰度配置"><a href="#Nginx-Lua-实现灰度配置" class="headerlink" title="Nginx+Lua 实现灰度配置"></a>Nginx+Lua 实现灰度配置</h3><hr>
+<p>如果来源 IP 地址是 ipList.conf 中的地址，那么就定位到 test_env，如果来源 IP 地址不在 ipList.conf 中（即有效用户 IP），那么就定位到 product_env。</p>
+<p>local ip_config &#x3D; ngx.shared.config;<br>ClienIP&#x3D;ngx.req.get_headers()[“X-Real-IP”]<br>if ClientIP &#x3D;&#x3D; nil then<br>    ClientIP &#x3D; ngx.req.get_headers()[“x_forworded_for”]<br>end<br>if ClientIP &#x3D;&#x3D; nil then<br>    ClientIP &#x3D; ngx.var.remote_addr<br>end<br>for line in io.lines(“&#x2F;usr&#x2F;local&#x2F;nginx&#x2F;conf&#x2F;lua&#x2F;ipList.conf”) do<br>    if not ip_config:get(line) then<br>        ip_config:set(line, “0”)<br>    end<br>end<br>if ip_config:get(ClientIP) &#x3D;&#x3D; “0” then<br>    ngx.exec(“@test_env”)<br>else<br>    ngx.exec(“@product_env”)<br>end</p>
+<p>ipList.conf 内容格式</p>
+<p>lua_code_cache on;<br>lua_shared_dict config 1m;</p>
+<p>upstream MyServer {<br>    server 192.168.1.199:8099 max_fails&#x3D;3 fail_timeout&#x3D;30s;<br>    server 192.168.1.200:8099 max_fails&#x3D;3 fail_timeout&#x3D;30s;<br>    ip_hash;<br>}<br>server {<br>    listen 80;<br>    server_name jokerzhang.cn;<br>    access_log off;<br>    #access_log logs&#x2F;jokerzhang.log;</p>
+<pre><code>location / &#123;
+    access\_by\_lua\_file /usr/local/nginx/conf/lua/ip\_gray.lua;
+&#125;
+location @test\_env &#123;
+    proxy\_pass http://192.168.1.199:8099;
+    proxy\_set\_header Host $host;
+    proxy\_set\_header X-Real-IP $remote\_addr;
+    proxy\_set\_header X-Forwarded-For $proxy\_add\_x\_forwarded\_for;
+&#125;
+location @product\_env &#123;
+    proxy\_pass http://MyServer;
+    proxy\_set\_header Host $host;
+    proxy\_set\_header X-Real-IP $remote\_addr;
+    proxy\_set\_header X-Forwarded-For $proxy\_add\_x\_forwarded\_for;
+&#125;
+</code></pre>
+<p>}</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/10/11/%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8-nginx-%E5%AE%9E%E7%8E%B0%E7%94%9F%E4%BA%A7%E5%92%8C%E7%81%B0%E5%BA%A6%E7%8E%AF%E5%A2%83%E6%B5%81%E9%87%8F%E5%88%87%E6%8D%A2%EF%BC%9F/">http://code404.icu/2021/10/11/%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8-nginx-%E5%AE%9E%E7%8E%B0%E7%94%9F%E4%BA%A7%E5%92%8C%E7%81%B0%E5%BA%A6%E7%8E%AF%E5%A2%83%E6%B5%81%E9%87%8F%E5%88%87%E6%8D%A2%EF%BC%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/nginx/">nginx</a><a class="post-meta__tags" href="/tags/lua/">lua</a><a class="post-meta__tags" href="/tags/cookie/">cookie</a><a class="post-meta__tags" href="/tags/map/">map</a><a class="post-meta__tags" href="/tags/weight/">weight</a><a class="post-meta__tags" href="/tags/%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83/">灰度发布</a><a class="post-meta__tags" href="/tags/%E9%87%91%E4%B8%9D%E9%9B%80%E5%8F%91%E5%B8%83/">金丝雀发布</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/10/image-7.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/12/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-jenkins-%E5%8F%91%E5%B8%83-android-%E9%A1%B9%E7%9B%AE%EF%BC%9F/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/10/image-8.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">如何使用 Jenkins 发布 Android 项目？</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/10/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8python%E7%A8%8B%E5%BA%8F%E5%81%9A-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%A1%B9%E7%9B%AE-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%EF%BC%9F/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/10/image-6.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">如何使用Python程序做 微服务项目_微服务架构？</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/06/25/nginxluashell%E6%89%A7%E8%A1%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%84%9A%E6%9C%AC%E9%97%AE%E9%A2%98connect-to-unix-tmp-shell-sock-failed-2-no-such-file-or-directory/" title="nginx,lua,shell执行服务器脚本问题connect() to unix:/tmp/shell.sock failed (2: No such file or directory)"><img class="cover" src="https://code404.icu/img/moveypu/2021/06/image-60.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-25</div><div class="title">nginx,lua,shell执行服务器脚本问题connect() to unix:/tmp/shell.sock failed (2: No such file or directory)</div></div></a></div><div><a href="/2021/12/04/fastdfs-nginx-module-file-ini-file-reader-c-line-1036-include-file-http-conf-not-exists-line-include-http-conf/" title="fastdfs-nginx-module file: ini_file_reader.c, line: 1036, include file "http.conf" not exists, line: "#include http.conf""><img class="cover" src="https://code404.icu/img/moveypu/2021/12/image-2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-04</div><div class="title">fastdfs-nginx-module file: ini_file_reader.c, line: 1036, include file "http.conf" not exists, line: "#include http.conf"</div></div></a></div><div><a href="/2021/04/30/linux%E4%B8%8Btomcat%E5%92%8Cnginx%E6%97%A5%E5%BF%97%E5%88%87%E5%89%B2%E8%BD%AE%E8%BD%AC/" title="Linux下Tomcat和nginx日志切割轮转"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/image-42-1024x549.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-30</div><div class="title">Linux下Tomcat和nginx日志切割轮转</div></div></a></div><div><a href="/2021/12/13/nginx-%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A880%E7%AB%AF%E5%8F%A3%E5%90%AF%E5%8A%A8nginx-nginx-emerg-bind-to-0-0-0-080-failed-13-permission-denied/" title="nginx 普通用户使用80端口启动nginx nginx: [emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)"><img class="cover" src="https://code404.icu/img/moveypu/2021/12/image-7.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-13</div><div class="title">nginx 普通用户使用80端口启动nginx nginx: [emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)</div></div></a></div><div><a href="/2021/05/06/nginx-%E4%B9%8B-location-%E5%8C%B9%E9%85%8D%E8%A7%84%E5%88%99-%E5%8F%B2%E4%B8%8A%E6%9C%80%E5%BC%BA%E8%AE%B2%E8%A7%A3code404/" title="nginx 之 location 匹配规则-史上最强讲解code404"><img class="cover" src="https://code404.icu/img/moveypu/2021/05/image-1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-06</div><div class="title">nginx 之 location 匹配规则-史上最强讲解code404</div></div></a></div><div><a href="/2021/07/24/nginx-%E8%AE%BF%E9%97%AE%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86-http-basic-authentication-in-nginx/" title="Nginx 访问权限管理_ HTTP Basic Authentication in Nginx"><img class="cover" src="https://code404.icu/img/moveypu/2021/07/image-64-1024x528.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-24</div><div class="title">Nginx 访问权限管理_ HTTP Basic Authentication in Nginx</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B9%E6%8D%AE-cookie-%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">根据 cookie 实现灰度配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-map-%E6%8C%87%E4%BB%A4%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.</span> <span class="toc-text">使用 map 指令实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B9%E6%8D%AE%E6%9D%83%E9%87%8D%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6%E9%85%8D%E7%BD%AE"><span class="toc-number">4.</span> <span class="toc-text">根据权重实现灰度配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%B9%E6%8D%AE%E6%9D%A5%E8%B7%AF-IP-%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6%E9%85%8D%E7%BD%AE"><span class="toc-number">5.</span> <span class="toc-text">根据来路 IP 实现灰度配置</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B5%84%E6%BA%90%E5%9C%A8%E4%B8%8D%E5%90%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A"><span class="toc-number">5.1.</span> <span class="toc-text">资源在不同服务器上</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%B5%84%E6%BA%90%E5%9C%A8%E5%90%8C%E4%B8%80%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A"><span class="toc-number">5.2.</span> <span class="toc-text">资源在同一服务器上</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Nginx-Lua-%E5%AE%9E%E7%8E%B0%E7%81%B0%E5%BA%A6%E9%85%8D%E7%BD%AE"><span class="toc-number">6.</span> <span class="toc-text">Nginx+Lua 实现灰度配置</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

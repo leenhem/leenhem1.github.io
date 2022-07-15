@@ -1,0 +1,305 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>如何使用 Python 多线程 爬虫？ | 码404</title><meta name="keywords" content="python,threading,共享变量,多线程,爬虫,线程数"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 在 Python 中，多线程最常见的一个场景就是爬虫，例如这样一个需求，有多个结构一样的页面需要爬取，例如下方的URL（豆瓣阿凡达影评，以10个为例）   url_list &#x3D; [      ‘https:&#x2F;&#x2F;movie.douban.com&#x2F;subject&#x2F;1652587&#x2F;reviews?sort&#x3D;time&amp;start&#x3D;0&#39;,      ‘https:&#x2F;&#x2F;mov">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何使用 Python 多线程 爬虫？">
+<meta property="og:url" content="http://code404.icu/2021/10/09/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-python-%E5%A4%9A%E7%BA%BF%E7%A8%8B-%E7%88%AC%E8%99%AB%EF%BC%9F/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 在 Python 中，多线程最常见的一个场景就是爬虫，例如这样一个需求，有多个结构一样的页面需要爬取，例如下方的URL（豆瓣阿凡达影评，以10个为例）   url_list &#x3D; [      ‘https:&#x2F;&#x2F;movie.douban.com&#x2F;subject&#x2F;1652587&#x2F;reviews?sort&#x3D;time&amp;start&#x3D;0&#39;,      ‘https:&#x2F;&#x2F;mov">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/10/image-5.png">
+<meta property="article:published_time" content="2021-10-09T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.905Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="threading">
+<meta property="article:tag" content="共享变量">
+<meta property="article:tag" content="多线程">
+<meta property="article:tag" content="爬虫">
+<meta property="article:tag" content="线程数">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/10/image-5.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/10/09/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-python-%E5%A4%9A%E7%BA%BF%E7%A8%8B-%E7%88%AC%E8%99%AB%EF%BC%9F/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '如何使用 Python 多线程 爬虫？',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/10/image-5.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">如何使用 Python 多线程 爬虫？</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-10-09T00:30:00.000Z" title="发表于 2021-10-09 08:30:00">2021-10-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.905Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Python/">Python</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="如何使用 Python 多线程 爬虫？"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/10/image-5.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>在 Python 中，多线程最常见的一个场景就是爬虫，例如这样一个需求，有多个结构一样的页面需要爬取，例如下方的URL（豆瓣阿凡达影评，以10个为例）</p>
+<p>  url_list &#x3D; [<br>      ‘<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=0&#39;">https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=0&#39;</a>,<br>      ‘<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=20&#39;">https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=20&#39;</a>,<br>      ‘<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=40&#39;">https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=40&#39;</a>,<br>      ‘<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=60&#39;">https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=60&#39;</a>,<br>      ‘<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=80&#39;">https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=80&#39;</a>,<br>      ‘<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=100&#39;">https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=100&#39;</a>,<br>      ‘<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=120&#39;">https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=120&#39;</a>,<br>      ‘<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=140&#39;">https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=140&#39;</a>,<br>      ‘<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=160&#39;">https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=160&#39;</a>,<br>      ‘<a target="_blank" rel="noopener" href="https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=180&#39;\]">https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=180&#39;\]</a></p>
+<p>如果依次爬取，请求第一个页面——得到返回数据——解析数据——提取、存储数据——请求第二个页面，按照这样的思路，那么大量时间都会浪费在请求、返回数据上，如果在等待第一个页面返回数据时去请求第二个页面，就能有效的提高效率，多线程就可以实现这样的功能。</p>
+<p>在Python中实现多线程的方法也很多，我将基于 threading 模块一点一点介绍，注意本文不会太注重于多线程背后的技术概念（面试常问），仅希望用最少的话教会大家如何实现。当然会在最后介绍如何使用threading模块来解决上面的爬虫问题。</p>
+<h3 id="threading基本使用"><a href="#threading基本使用" class="headerlink" title="threading基本使用"></a>threading基本使用</h3><hr>
+<p>让我们先从一个简单的例子开始，定义do_something函数，执行该函数需要消耗1秒</p>
+<p>import time</p>
+<p>start &#x3D; time.perf_counter()</p>
+<p>def do_something():<br>    print(“-&gt; 线程启动”)<br>    time.sleep(1)<br>    print(“-&gt; 线程结束”)</p>
+<p>do_something()</p>
+<p>finish &#x3D; time.perf_counter()</p>
+<p>print(f”全部任务执行完成，耗时 {round(finish - start,2)} 秒”)</p>
+<p>上面的代码不难理解，执行do_something并计算耗时，结果很明显应该是1s</p>
+<p>-&gt; 线程启动<br>-&gt; 线程结束<br>全部任务执行完成，耗时 1.01 秒</p>
+<p>现在如果需要执行两次do_something，按照最基本的思路</p>
+<p>import time</p>
+<p>start &#x3D; time.perf_counter()</p>
+<p>def do_something():<br>    print(“-&gt; 线程启动”)<br>    time.sleep(1)<br>    print(“-&gt; 线程结束”)</p>
+<p>do_something()<br>do_something()</p>
+<p>finish &#x3D; time.perf_counter()</p>
+<p>print(f”全部任务执行完成，耗时 {round(finish - start,2)} 秒”)</p>
+<p>执行上面代码结果也很容易猜到是2秒</p>
+<p>-&gt; 线程启动<br>-&gt; 线程结束<br>-&gt; 线程启动<br>-&gt; 线程结束<br>全部任务执行完成，耗时 2.01 秒</p>
+<p>这就是最常规的 同步 思路，在CPU执行第一个函数，也就是等待1s的时间内，什么也不干，<br><strong>等第一个函数执行完毕后再执行第二个函数</strong><br><img src="https://img-blog.csdnimg.cn/e220aae9da5c4d3b88d8864a239c4968.jpg?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>很明显，这样让CPU干等着啥也不干并不是一个很好的选择，而<strong>多线程</strong>就是解决这一问题的方法之一，<strong>让CPU在等待某个任务完成时去执行更多的操作</strong>，将整个过程简化为下图流程，这样就能充分节省时间图片</p>
+<p>现在使用threading来通过多线程的方式实现上面的过程，非常简单，定义两个线程并依次启动即可👇</p>
+<p>import time<br>import threading</p>
+<p>start &#x3D; time.perf_counter()</p>
+<p>def do_something():<br>    print(“-&gt; 线程启动”)<br>    time.sleep(1)<br>    print(“-&gt; 线程结束”)</p>
+<p>thread1 &#x3D; threading.Thread(target&#x3D;do_something)<br>thread2 &#x3D; threading.Thread(target&#x3D;do_something)</p>
+<p>thread1.start()<br>thread2.start()</p>
+<p>finish &#x3D; time.perf_counter()</p>
+<p>print(f”全部任务执行完成，耗时 {round(finish - start,2)} 秒”)</p>
+<p>执行上面的代码，结果如下</p>
+<p>-&gt; 线程启动<br>-&gt; 线程启动<br>全部任务执行完成，耗时 0.0 秒<br>-&gt; 线程结束<br>-&gt; 线程结束</p>
+<p>可以看到，<strong>两个子线程确实同时启动，但是主线程并未等待两个子线程执行完毕就直接结束</strong>。</p>
+<p>为了解决这个问题，我们可以使用threading.join()方法，意思是在子线程完成运行之前，这个子线程的父线程将一直被阻塞</p>
+<p>换成人话就是<strong>让主线程挂起，等待所有子线程结束再执行</strong>，体现到代码上也很简单，只需要添加两行即可</p>
+<p>import time<br>import threading</p>
+<p>start &#x3D; time.perf_counter()</p>
+<p>def do_something():<br>    print(“-&gt; 线程启动”)<br>    time.sleep(1)<br>    print(“-&gt; 线程结束”)</p>
+<p>thread1 &#x3D; threading.Thread(target&#x3D;do_something)<br>thread2 &#x3D; threading.Thread(target&#x3D;do_something)</p>
+<p>thread1.start()<br>thread2.start()</p>
+<p>thread1.join()<br>thread2.join()</p>
+<p>finish &#x3D; time.perf_counter()</p>
+<p>print(f”全部任务执行完成，耗时 {round(finish - start,2)} 秒”)</p>
+<p>运行结果如下，全部代码在1秒内运行完毕</p>
+<p>-&gt; 线程启动<br>-&gt; 线程启动<br>-&gt; 线程结束<br>-&gt; 线程结束<br>全部任务执行完成，耗时 1.01 秒</p>
+<p>至此，我们就得到了第一个有效的多线程代码，相信你也能大致明白threading的基本使用流程。</p>
+<h3 id="传递参数"><a href="#传递参数" class="headerlink" title="传递参数"></a>传递参数</h3><hr>
+<p>现在来看看如何在多线程之间传递参数，让我们升级代码：do_something函数来接受一个参数，控制他睡眠等待的时间</p>
+<p>def do_something(num):<br>    print(f”-&gt; 线程{num} 启动，睡眠 {num} 秒”)<br>    time.sleep(num)<br>    print(f”-&gt; 线程{num} 结束”)</p>
+<p>在 threading 中，创建线程时可以使用 args 来传递参数，例如现在接收一个参数，则上一小节的代码可以如下修改</p>
+<p>import time<br>import threading</p>
+<p>start &#x3D; time.perf_counter()</p>
+<p>def do_something(num):<br>    print(f”-&gt; 线程{num} 启动，睡眠 {num} 秒”)<br>    time.sleep(num)<br>    print(f”-&gt; 线程{num} 结束”)</p>
+<p>thread1 &#x3D; threading.Thread(target&#x3D;do_something,args &#x3D; [1])<br>thread2 &#x3D; threading.Thread(target&#x3D;do_something,args &#x3D; [2])</p>
+<p>thread1.start()<br>thread2.start()</p>
+<p>thread1.join()<br>thread2.join()</p>
+<p>finish &#x3D; time.perf_counter()</p>
+<p>print(f”全部任务执行完成，耗时 {round(finish - start,2)} 秒”)</p>
+<p>这段代码中，我分别让两个线程等待1、2秒，运行结果显然应该是2秒</p>
+<p>-&gt; 线程1 启动，睡眠 1 秒<br>-&gt; 线程2 启动，睡眠 2 秒<br>-&gt; 线程1 结束<br>-&gt; 线程2 结束<br>全部任务执行完成，耗时 2.01 秒</p>
+<p>如果你的线程函数需要更多的参数，只需要依次向args中追加即可。</p>
+<h3 id="简化代码"><a href="#简化代码" class="headerlink" title="简化代码"></a>简化代码</h3><hr>
+<p>上面的案例中，我们仅开启了两个线程，<strong>如果是更多个线程的话，再依次重复定义、启动就会显得十分繁琐，此时我们可以使用循环来处理</strong>。</p>
+<p>例如开启10个线程，依次睡眠1-10秒，可以先创建一个 list 用于存储每个线程，接着利用循环依次创建线程，启动后追加到刚刚创建的 list 中，之后再依次等待每个线程执行完毕，代码如下</p>
+<p>import time<br>import threading</p>
+<p>start &#x3D; time.perf_counter()</p>
+<p>def do_something(num):<br>    print(f”-&gt; 线程{num} 启动，睡眠 {num} 秒”)<br>    time.sleep(num)<br>    print(f”-&gt; 线程{num} 结束”)</p>
+<p>thread_list &#x3D; []</p>
+<p>for i in range(1,11):</p>
+<pre><code>thread = threading.Thread(target=do\_something, args=\[i\])
+thread.start()
+thread\_list.append(thread)
+</code></pre>
+<p>for t in thread_list:</p>
+<pre><code>t.join()
+</code></pre>
+<p>finish &#x3D; time.perf_counter()</p>
+<p>print(f”全部任务执行完成，耗时 {round(finish - start,2)} 秒”)</p>
+<p>结果是显然的，虽然我们执行了十次do_something，每次用时1-10秒，但总耗时应该为10秒</p>
+<p>-&gt; 线程1 启动，睡眠 1 秒<br>-&gt; 线程2 启动，睡眠 2 秒<br>-&gt; 线程3 启动，睡眠 3 秒<br>-&gt; 线程4 启动，睡眠 4 秒<br>-&gt; 线程5 启动，睡眠 5 秒<br>-&gt; 线程6 启动，睡眠 6 秒<br>-&gt; 线程7 启动，睡眠 7 秒<br>-&gt; 线程8 启动，睡眠 8 秒<br>-&gt; 线程9 启动，睡眠 9 秒<br>-&gt; 线程10 启动，睡眠 10 秒<br>-&gt; 线程1 结束<br>-&gt; 线程2 结束<br>-&gt; 线程3 结束<br>-&gt; 线程4 结束<br>-&gt; 线程5 结束<br>-&gt; 线程6 结束<br>-&gt; 线程7 结束<br>-&gt; 线程8 结束<br>-&gt; 线程9 结束<br>-&gt; 线程10 结束<br>全部任务执行完成，耗时 10.01 秒</p>
+<h3 id="共享变量锁的问题"><a href="#共享变量锁的问题" class="headerlink" title="共享变量锁的问题"></a>共享变量锁的问题</h3><hr>
+<p>现在，你应该已经了解 threading 最基本的用法，只需要将 do_somthing 函数进行修改即可，但是如果你深入使用，还会有其他的问题出现，例如共享变量的问题，让我们继续探讨。</p>
+<p>多线程很常见的一个应用就是爬虫，回到开头的爬虫问题，如果我们希望爬取10个网页的评论，可能会先定一个空dataframe，然后使用多线程都往这个dataframe中写入数据，但由于多个线程同时操作这一个变量，可能会导致评论并不是按照顺序写入的。</p>
+<p>例如第一个页面有10条评论，第一个线程写入了2条后，第二个线程将第二个页面的前两条写入，最终导致十个页面的评论是乱序存储！</p>
+<p>让我们把这个问题抽象出来，还是之前的代码，稍微修改一下<br><img src="https://img-blog.csdnimg.cn/dc95baddc64b4e81b59b867bae77a381.jpg?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>我们先定义了一个空list，线程函数会将传入的数字添加到该list中，在未加锁的情况下，由于线程竞争，虽然我们线程是按照顺序开启，但是最终数字并不是按照顺序写入。</p>
+<p>有没有办法解决呢？当然有，很自然的想法就是<strong>当第一个线程操作该变量时，其他线程等着，写完了再释放，这就是锁</strong>！</p>
+<p>先看代码<br><img src="https://img-blog.csdnimg.cn/3e4a2b8e6b5048ae9659ba5c34adf646.jpg?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>在上面的代码中，我们使用 threding.Lock 创建了一个线程锁，之后在线程函数操作 result 前，首先使用 lock.acquire() 加上锁，之后操作 results ，在修改完后使用 lock.relese() 释放，此时其他线程若想操作 results 则会阻塞，等该线程释放后才能拿走操作中，这样我们就保证了线程是“安全的”！</p>
+<p>最基本的线程锁用法就如上面代码所示，<strong>定义锁 –&gt; 上锁 –&gt; 解锁</strong>，但是一定要注意，lock.acquire() 和 lock.relese()，<strong>如果加了锁但是没有释放，后面的线程将会全部阻塞</strong>！</p>
+<h3 id="限制线程数量"><a href="#限制线程数量" class="headerlink" title="限制线程数量"></a>限制线程数量</h3><hr>
+<p>最后还有一个常见的问题，上面我们需要<strong>执行几次线程函数就开了几个线程</strong>，但是如果需要爬成千上万个网页，开这么多线程cpu一定不同意，代码也会在开启的线程达到一定数量后报错。</p>
+<p>所以如何让程序只启动我们指定的线程数量，例如一次开五个线程，结束一个再添加一个，直到全部任务完成？</p>
+<p>还是锁！在 threading 模块中有一个 BoundedSemaphore（信号量）类，我们可以给他一个初始的信号量（最大线程数），之后每次有线程获得信号量的时候（即 acquire() ）计数器－1，释放信号量时候(release())计数器＋1，计数器为0的时候其它线程就被阻塞无法获得信号量。当计数器为设定好的上限的时候 BoundedSemaphore 就无法进行 release() 操作了。</p>
+<p>体现到代码上则比较简单，还是基于上面的例子修改<br><img src="https://img-blog.csdnimg.cn/8d46c91f13a94ddaaeed1087a059092c.jpg?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>总共需要运行十次，我们定义最大线程数为3，并在线程启动前调用acquire方法增加一个计数，在线程最后释放。</p>
+<p>此时程序一次只能启动三个线程，如图中所示，首先启动123，之后完成123，启动456，当第四个线程结束启动第七个线程······直到全部线程结束。</p>
+<p>这里我们同时使用了上一节说的线程锁来保护变量，用 BoundedSemaphore 锁来控制最大线程数，<strong>在实际写代码时就需要小心检查锁是否正确释放，否则就会报错</strong>！</p>
+<h3 id="一个真实的多线程爬虫案例"><a href="#一个真实的多线程爬虫案例" class="headerlink" title="一个真实的多线程爬虫案例"></a>一个真实的多线程爬虫案例</h3><hr>
+<p>至此，threading 模块最常见的用法就介绍完毕，现在让我们回到本文一开始的问题，有多个（以十个为例）URL需要爬取，既然每个页面需要执行的操作一样，如果等待一个页面爬取完毕再爬第二页面就太浪费时间了。这时就可以仿照上面的思路去使用多线程加速。</p>
+<p>我们只需要将上面的do_something函数修改为对也面的爬取操作，之后的创建启动线程操作不变即可，代码如下</p>
+<p>import time<br>import threading<br>import requests<br>import pandas as pd<br>from faker import Faker<br>from bs4 import BeautifulSoup</p>
+<p>def craw_url(url):<br>    global df<br>    fake &#x3D; Faker()<br>    headers &#x3D; {‘User-Agent’: fake.user_agent()}<br>    r &#x3D; requests.get(url, headers&#x3D;headers)<br>    soup &#x3D; BeautifulSoup(r.content, ‘html.parser’)<br>    review_list &#x3D; soup.find_all(class_&#x3D;”main review-item”)</p>
+<pre><code>for i in range(len(review\_list)):
+
+    rank = review\_list\[i\].select(&#39;span&#39;)\[0\].get(&#39;title&#39;)
+    time1 = review\_list\[i\].select(&#39;span&#39;)\[1\].get(&#39;content&#39;)
+    title = review\_list\[i\].select(&#39;h2&gt;a&#39;)\[0\].text
+    df = df.append(&#123;&#39;时间&#39;: time1,
+                    &#39;评分&#39;: rank,
+                    &#39;标题&#39;: title, &#125;, ignore\_index=True)
+
+print(&quot;-&gt; 爬取完成&quot;)
+</code></pre>
+<p>if __name__ &#x3D;&#x3D; ‘__main__‘:</p>
+<pre><code>start = time.perf\_counter()
+df = pd.DataFrame(columns=\[&#39;时间&#39;, &#39;评分&#39;, &#39;标题&#39;\])
+
+url\_list = \[
+    &#39;https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=0&#39;,
+    &#39;https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=20&#39;,
+    &#39;https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=40&#39;,
+    &#39;https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=60&#39;,
+    &#39;https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=80&#39;,
+    &#39;https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=100&#39;,
+    &#39;https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=120&#39;,
+    &#39;https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=140&#39;,
+    &#39;https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=160&#39;,
+    &#39;https://movie.douban.com/subject/1652587/reviews?sort=time&amp;start=180&#39;\]
+thread\_list = \[\]
+for i in url\_list:
+
+    thread = threading.Thread(target=craw\_url, args=\[i\])
+    thread.start()
+    thread\_list.append(thread)
+
+for t in thread\_list:
+
+    t.join()
+
+finish = time.perf\_counter()
+
+print(f&quot;全部任务执行完成，耗时 &#123;round(finish - start,2)&#125; 秒&quot;)
+</code></pre>
+<p>执行这段代码，差不多仅用了1秒就将全部内容爬取并存储到 dataframe 中，比同步的代码块了近十倍！如果感兴趣的话可以自己尝试一下。</p>
+<p>至此，有关 Python 多线程模块 threading 的基本用法与需要注意的几点就介绍完毕，如果全部认真看完的话，我相信你一定能照猫画虎写出第一个多线程爬虫脚本。</p>
+<p>当然有关 Python 多线程还有很多饱受诟病的争议（GIL），多线程的实现方法也远不止 threading 模块，例如更常见的写法是通过 concurrent.futures 模块以及多进程、协程，这些都留在本系列后续文章中再进一步讨论！</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/10/09/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-python-%E5%A4%9A%E7%BA%BF%E7%A8%8B-%E7%88%AC%E8%99%AB%EF%BC%9F/">http://code404.icu/2021/10/09/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-python-%E5%A4%9A%E7%BA%BF%E7%A8%8B-%E7%88%AC%E8%99%AB%EF%BC%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/python/">python</a><a class="post-meta__tags" href="/tags/threading/">threading</a><a class="post-meta__tags" href="/tags/%E5%85%B1%E4%BA%AB%E5%8F%98%E9%87%8F/">共享变量</a><a class="post-meta__tags" href="/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/">多线程</a><a class="post-meta__tags" href="/tags/%E7%88%AC%E8%99%AB/">爬虫</a><a class="post-meta__tags" href="/tags/%E7%BA%BF%E7%A8%8B%E6%95%B0/">线程数</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/10/image-5.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/10/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8python%E7%A8%8B%E5%BA%8F%E5%81%9A-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%A1%B9%E7%9B%AE-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%EF%BC%9F/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/10/image-6.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">如何使用Python程序做 微服务项目_微服务架构？</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/08/linux%E5%88%9B%E5%BB%BA%E5%A4%A7%E6%96%87%E4%BB%B6dd-yes-fallocate-truncate/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/10/image-4.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">linux创建大文件dd_yes_fallocate_truncate</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/10/21/1329/" title="python 开发Celery异步任务调度与RabbitMQ环境搭建"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image-17-1024x461.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-21</div><div class="title">python 开发Celery异步任务调度与RabbitMQ环境搭建</div></div></a></div><div><a href="/2021/11/11/importerror-libssl-so-10-cannot-open-shared-object-file-no-such-file-or-directory/" title="ImportError: libssl.so.10: cannot open shared object file: No such file or directory"><img class="cover" src="https://code404.icu/img/moveypu/2021/11/image-10.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-11</div><div class="title">ImportError: libssl.so.10: cannot open shared object file: No such file or directory</div></div></a></div><div><a href="/2021/10/22/python-pip%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C-%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6%E5%8C%85-%E6%9F%A5%E8%AF%A2/" title="Python_pip使用手册_安装软件包_查询"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image-18.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-22</div><div class="title">Python_pip使用手册_安装软件包_查询</div></div></a></div><div><a href="/2021/04/12/python-url%E8%BD%AC%E7%A0%81python3%E4%B8%AD%E7%9A%84urlencode%E5%92%8Curldecode-attributeerror-module-urllib-has-no-attribute-parse/" title="python url转码Python3中的urlencode和urldecode AttributeError: module urllib has no attribute parse"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-12</div><div class="title">python url转码Python3中的urlencode和urldecode AttributeError: module urllib has no attribute parse</div></div></a></div><div><a href="/2021/09/17/python-otp%E5%AE%9E%E7%8E%B0%E5%A4%9A%E5%9B%A0%E5%AD%90%E8%AE%A4%E8%AF%81google-authenticator%E5%8F%8A%E7%94%9F%E6%88%90%E4%BA%8C%E7%BB%B4%E7%A0%81/" title="Python OTP实现多因子认证Google Authenticator及生成二维码"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-14.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-17</div><div class="title">Python OTP实现多因子认证Google Authenticator及生成二维码</div></div></a></div><div><a href="/2021/08/14/python-%E5%A6%82%E4%BD%95%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%BD%BF%E7%94%A8-%E5%8D%A0%E4%BD%8D%E7%AC%A6-%E8%AF%A6%E8%A7%A3%E7%A0%81404/" title="Python 如何字符串格式化使用_占位符%_详解码404"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-12-1024x640.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-14</div><div class="title">Python 如何字符串格式化使用_占位符%_详解码404</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#threading%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-number">2.</span> <span class="toc-text">threading基本使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%A0%E9%80%92%E5%8F%82%E6%95%B0"><span class="toc-number">3.</span> <span class="toc-text">传递参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E5%8C%96%E4%BB%A3%E7%A0%81"><span class="toc-number">4.</span> <span class="toc-text">简化代码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B1%E4%BA%AB%E5%8F%98%E9%87%8F%E9%94%81%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-number">5.</span> <span class="toc-text">共享变量锁的问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%99%90%E5%88%B6%E7%BA%BF%E7%A8%8B%E6%95%B0%E9%87%8F"><span class="toc-number">6.</span> <span class="toc-text">限制线程数量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E7%9C%9F%E5%AE%9E%E7%9A%84%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%88%AC%E8%99%AB%E6%A1%88%E4%BE%8B"><span class="toc-number">7.</span> <span class="toc-text">一个真实的多线程爬虫案例</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

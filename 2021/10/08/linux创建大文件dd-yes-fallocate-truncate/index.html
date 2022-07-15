@@ -1,0 +1,210 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>linux创建大文件dd_yes_fallocate_truncate | 码404</title><meta name="keywords" content="linux,大文件,dd,fallocate,truncate,yes,创建"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 在我们日常工作中，为了验证开发的功能，比如：文件上传功能或者算法的处理效率等，经常需要一些大文件进行测试，有时在四处找了一顿之后，发现竟然没有一个合适的，虽然 Linux 中也有一些命令比如：vim、touch 等可以创建文件，但是如果需要一个 100G 或者 1T 的大文件，这些命令就显得力不从心，此时就需要能快速创建大文件命令，接下来将介绍这些命令的常见用法、命令之间的差异、以及使用时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux创建大文件dd_yes_fallocate_truncate">
+<meta property="og:url" content="http://code404.icu/2021/10/08/linux%E5%88%9B%E5%BB%BA%E5%A4%A7%E6%96%87%E4%BB%B6dd-yes-fallocate-truncate/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 在我们日常工作中，为了验证开发的功能，比如：文件上传功能或者算法的处理效率等，经常需要一些大文件进行测试，有时在四处找了一顿之后，发现竟然没有一个合适的，虽然 Linux 中也有一些命令比如：vim、touch 等可以创建文件，但是如果需要一个 100G 或者 1T 的大文件，这些命令就显得力不从心，此时就需要能快速创建大文件命令，接下来将介绍这些命令的常见用法、命令之间的差异、以及使用时">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/10/image-4.png">
+<meta property="article:published_time" content="2021-10-08T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.865Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="大文件">
+<meta property="article:tag" content="dd">
+<meta property="article:tag" content="fallocate">
+<meta property="article:tag" content="truncate">
+<meta property="article:tag" content="yes">
+<meta property="article:tag" content="创建">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/10/image-4.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/10/08/linux%E5%88%9B%E5%BB%BA%E5%A4%A7%E6%96%87%E4%BB%B6dd-yes-fallocate-truncate/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'linux创建大文件dd_yes_fallocate_truncate',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/10/image-4.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">linux创建大文件dd_yes_fallocate_truncate</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-10-08T00:30:00.000Z" title="发表于 2021-10-08 08:30:00">2021-10-08</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.865Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="linux创建大文件dd_yes_fallocate_truncate"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/10/image-4.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>在我们日常工作中，为了验证开发的功能，比如：文件上传功能或者算法的处理效率等，经常需要一些大文件进行测试，有时在四处找了一顿之后，发现竟然没有一个合适的，虽然 Linux 中也有一些命令比如：vim、touch 等可以创建文件，但是如果需要一个 100G 或者 1T 的大文件，这些命令就显得力不从心，此时就需要能快速创建大文件命令，接下来将介绍这些命令的常见用法、命令之间的差异、以及使用时如何选择</p>
+<h3 id="dd"><a href="#dd" class="headerlink" title="dd"></a>dd</h3><hr>
+<p>dd 命令的语法如下</p>
+<p>dd if&#x3D;[source] of&#x3D;[destination] bs&#x3D;[block-size] count&#x3D;[counter]</p>
+<p>从 source 读取并拷贝内容到 destination， source 和 destination 都是文件，前者是读取的文件，后者是写入的文件</p>
+<p>bs 表示块的大小，单位是字节，后缀中带了字母 B的换算单位都是 1000, 比如: 1KB &#x3D; 1000 Bytes、 1MB &#x3D; 1000 * 1000 Bytes、1GB &#x3D; 1000 * 1000 * 1000 Bytes</p>
+<p>后缀省略了字母 B的换算单位是 1024, 比如： 1K &#x3D; 1024 Bytes、 1M &#x3D; 1024 * 1024 Bytes、1G &#x3D; 1024 * 1024 * 1024 Bytes</p>
+<p>count 表示块的数量，表示 dd 命令需要执行多少次读取并写入的操作</p>
+<p>bs 乘以 count 其实就表示目标文件的大小，也即需要创建的文件的大小，比如：下面的命令可以创建一个 10G 大小的文件</p>
+<p>[root@localhost dd_cmd]# dd if&#x3D;&#x2F;dev&#x2F;zero of&#x3D;testfile bs&#x3D;1G count&#x3D;10<br>记录了10+0 的读入<br>记录了10+0 的写出<br>10737418240字节(11 GB)已复制，8.61643 秒，1.2 GB&#x2F;秒<br>[root@localhost dd_cmd]# du -h testfile<br>10G     testfile<br>[root@localhost dd_cmd]#</p>
+<p>上面的命令表示从 &#x2F;dev&#x2F;zero文件每次读取 1G大小的数据并写入当前目录中的 testfile 文件， bs&#x3D;1G count&#x3D;10 表示块大小是1G，总共有10个块， 所以目标文件最终的大小是: 1G * 10 &#x3D; 10G</p>
+<p>&#x2F;dev&#x2F;zero 是一个特殊的字符设备文件，当读取它的时候，它会返回空数据，这里表示从 &#x2F;dev&#x2F;zero读取空的数据写入 testfile 中</p>
+<p>命令 du -h testfile 的结果也说明了 testfile 大小是 10G</p>
+<p>从结果可以得知，用 dd 命令创建一个 10G 大小的文件花费了约 <strong>8.6</strong> 秒</p>
+<h3 id="yes"><a href="#yes" class="headerlink" title="yes"></a>yes</h3><hr>
+<p>前面的 dd 命令创建的是空字符的文件，如果想文件中包含自定义的字符，可以使用 yes 命令，它的作用是循环输出一行指定的字符串，直到进程结束，为了控制文件的大小并打破循环，我们借助 head 命令来实现，使用 yes 命令创建包含指定内容文件的语法如下</p>
+<p>yes [string]  head -c [size of file] &gt; [name of file]</p>
+<p>string 是写入文件每一行的字符串</p>
+<p>head -c [size of file] 是接收指定大小的字符串，单位是字节，后面也可以接 K、KB、M、MB、G、GB等单位</p>
+<p>下面的实例是往 yesfile 文件写入，每行的内容是: this is a test content , 一直到文件大小达到 10G</p>
+<p>[root@localhost dd_cmd]# time yes “this is a test content”  head -c 10G &gt; yesfile</p>
+<p>real    0m11.266s<br>user    0m8.898s<br>sys     0m13.217s<br>[root@localhost dd_cmd]# du -h yesfile<br>10G     yesfile</p>
+<p>从结果可以看出，yes 命令创建一个 10G 的文件花费了 <strong>13.2</strong> 秒，比 dd 命令慢</p>
+<h3 id="fallocate"><a href="#fallocate" class="headerlink" title="fallocate"></a>fallocate</h3><hr>
+<p>fallocate 命令使用下面的语法 创建大文件</p>
+<p>fallocate -l [size of file] [name of file]</p>
+<p>-l 选项表示文件大小，单位是字节，后面可以接 K、KB、M、MB、G、GB等单位</p>
+<p>下面的命令是创建一个 10G 大小的文件</p>
+<p>[root@localhost dd_cmd]# time fallocate -l 10G allocatefile</p>
+<p>real    0m0.002s<br>user    0m0.000s<br>sys     0m0.003s<br>[root@localhost dd_cmd]# du -h allocatefile<br>10G     allocatefile</p>
+<p>上述的 time 命令只是为了统计创建文件的时间，从结果可以看出:fallocate命令创建一个 10G 大小的文件竟然只花费了 <strong>0.003</strong> 秒</p>
+<p>命令 du -h allocatefile 是查看创建的文件大小，从结果可知，allocatefile 文件大小确实是 10G</p>
+<h3 id="truncate"><a href="#truncate" class="headerlink" title="truncate"></a>truncate</h3><hr>
+<p>truncate 命令是缩小或者扩展文件至指定大小，它的语法如下：</p>
+<p>truncate -s [file-size] [name of the file]</p>
+<p>-s 选项表示文件大小，单位是字节，跟 fallocate 命令一样，后面可以接 K、KB、M、MB、G、GB等单位</p>
+<p>下面是使用 truncate 命令创建一个 10G的文件的示例</p>
+<p>[root@localhost dd_cmd]# time truncate -s 10G truncatefile</p>
+<p>real    0m0.002s<br>user    0m0.000s<br>sys     0m0.002s<br>[root@localhost dd_cmd]# du -h truncatefile<br>0       truncatefile</p>
+<p>从结果可以得到，truncate 命令 创建一个 10G的文件也只花费了 <strong>0.002</strong> 秒，和 fallocate 差不多</p>
+<p>但是, du -h truncatefile 命令的结果表明 truncatefile 大小为 0</p>
+<p><strong>原因是 truncate 命令 创建的是一个稀疏文件而不是实际的文件 ，稀疏文件不会占用磁盘空间<br>注意：fallocate 命令只支持 btrfs、ext4、 ocfs2、xfs 这几种文件系统，而 truncate 命令支持所有的现代文件系统</strong></p>
+<h3 id="创建速度的差异"><a href="#创建速度的差异" class="headerlink" title="创建速度的差异"></a>创建速度的差异</h3><hr>
+<p>从上面的几个实例可以看出，同样是创建一个 10G的文件， fallocate 和 truncate 命令只需要不到 0.1 秒的时间，但是 dd 命令需要 8.6 秒的时间，yes命令需要 13.2 秒，这中间相差了几百倍，为什么会有这么大的差别呢？</p>
+<p>fallocate 将空间分配给文件，但是不会往文件中写入任何数据</p>
+<p>truncate 创建的是稀疏文件，和 fallocate 一样，它也不会往文件中写入任何数据</p>
+<p>dd 和 yes 都有写文件操作，而这需要大量的 IO 时间，所以同样创建 10G 的文件，它们比 fallocate 和 truncate 要慢很多</p>
+<h3 id="如何选择"><a href="#如何选择" class="headerlink" title="如何选择"></a>如何选择</h3><hr>
+<p>dd 、yes、fallocate、truncate 这几个命令都可以创建大文件, 在日常的使用中，我们该如何选择呢 ?</p>
+<p>对速度没有很高的要求的情况下，一般首选 dd ，如果希望创建的文件中写入自定义的内容的话，使用 yes</p>
+<p>如果想快速的创建大文件，比如 1 秒内创建一个 100G 的文件，选择 fallocate 和 truncate ，如果还需要确保文件是实际占用磁盘空间的话，就只剩下 fallocate 可选了</p>
+<p>大部分情况下，fallocate 都能满足要求，所以不想仔细分析的话，使用 fallocate 就行了</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><hr>
+<p>本文介绍了Linux下创建大文件的几种方法，并对所提供的方法进行了比较，最后提供了如何选择使用哪种方法的一些建议，文中只对 dd 、yes、fallocate、truncate 命令做了简要的说明，更多的介绍请参考 man 文档</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/10/08/linux%E5%88%9B%E5%BB%BA%E5%A4%A7%E6%96%87%E4%BB%B6dd-yes-fallocate-truncate/">http://code404.icu/2021/10/08/linux%E5%88%9B%E5%BB%BA%E5%A4%A7%E6%96%87%E4%BB%B6dd-yes-fallocate-truncate/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/%E5%A4%A7%E6%96%87%E4%BB%B6/">大文件</a><a class="post-meta__tags" href="/tags/dd/">dd</a><a class="post-meta__tags" href="/tags/fallocate/">fallocate</a><a class="post-meta__tags" href="/tags/truncate/">truncate</a><a class="post-meta__tags" href="/tags/yes/">yes</a><a class="post-meta__tags" href="/tags/%E5%88%9B%E5%BB%BA/">创建</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/10/image-4.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/09/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-python-%E5%A4%9A%E7%BA%BF%E7%A8%8B-%E7%88%AC%E8%99%AB%EF%BC%9F/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/10/image-5.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">如何使用 Python 多线程 爬虫？</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/07/kubectl-get-nodes-%E7%BC%93%E6%85%A2%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5-%E6%89%A7%E8%A1%8C%E9%80%9F%E8%AF%BB%E6%85%A2%EF%BC%9F/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/10/image-3.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">kubectl get nodes 缓慢问题排查_执行速读慢？</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/09/20/1212/" title="org.apache.tomcat.util.net.NioEndpoint$Acceptor.run Socket accept failed java.io.IOException: 打开的文件过多"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-16-1024x512.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-20</div><div class="title">org.apache.tomcat.util.net.NioEndpoint$Acceptor.run Socket accept failed java.io.IOException: 打开的文件过多</div></div></a></div><div><a href="/2021/08/11/awk-%E5%A6%82%E4%BD%95%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C-%E4%B8%8D%E6%8E%92%E5%BA%8F%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C/" title="awk 如何删除重复行_不排序删除重复行"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-9.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-11</div><div class="title">awk 如何删除重复行_不排序删除重复行</div></div></a></div><div><a href="/2021/04/14/centos-163-yum%E6%BA%90%E9%85%8D%E7%BD%AE/" title="centos 163 yum源配置"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-14</div><div class="title">centos 163 yum源配置</div></div></a></div><div><a href="/2021/06/03/centos7%E5%8D%87%E7%BA%A7openssh8-5p1%E9%99%84%E5%B8%A6%E5%AE%89%E8%A3%85%E5%8C%85/" title="CentOS7升级OpenSSH8.5p1附带安装包"><img class="cover" src="https://code404.icu/img/moveypu/2021/06/image-8.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-03</div><div class="title">CentOS7升级OpenSSH8.5p1附带安装包</div></div></a></div><div><a href="/2021/04/10/centos%E5%8D%87%E7%BA%A7%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC-linux%E5%8D%87%E7%BA%A7%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC-redhat%E5%8D%87%E7%BA%A7%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC/" title="CentOS升级内核版本_linux升级内核版本_Redhat升级内核版本"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/2021040911291197.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-10</div><div class="title">CentOS升级内核版本_linux升级内核版本_Redhat升级内核版本</div></div></a></div><div><a href="/2021/07/13/linux-date-%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B-date%E8%8E%B7%E5%8F%967%E5%A4%A9%E5%89%8D%E7%9A%84%E6%97%A5%E6%9C%9F/" title="Linux Date 命令使用示例 date获取7天前的日期"><img class="cover" src="https://code404.icu/img/moveypu/2021/07/image-40.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-13</div><div class="title">Linux Date 命令使用示例 date获取7天前的日期</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dd"><span class="toc-number">2.</span> <span class="toc-text">dd</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#yes"><span class="toc-number">3.</span> <span class="toc-text">yes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fallocate"><span class="toc-number">4.</span> <span class="toc-text">fallocate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#truncate"><span class="toc-number">5.</span> <span class="toc-text">truncate</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E9%80%9F%E5%BA%A6%E7%9A%84%E5%B7%AE%E5%BC%82"><span class="toc-number">6.</span> <span class="toc-text">创建速度的差异</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E9%80%89%E6%8B%A9"><span class="toc-number">7.</span> <span class="toc-text">如何选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">8.</span> <span class="toc-text">小结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

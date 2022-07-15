@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>mvcc: cannot unmarshal event: proto: wrong wireType = 0 for field Key | 码404</title><meta name="keywords" content="kubernets,0 for field Key,cannot unmarshal event,etcd,mvcc,proto,wrong wireType"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 查看etcd的启动日志，发现报错mvcc: cannot unmarshal event: proto: wrong wireType &#x3D; 0 for field Key。经查询资料，此报错是由于服务器非正常关机（意外掉电，强制拔电)后 etcd数据损坏导致的，这个节点之前确实是出现异常关机，etcd无法启动，那么解决此问题就行了 对 etcd db 进行数据校验，发现数据被损坏">
+<meta property="og:type" content="article">
+<meta property="og:title" content="mvcc: cannot unmarshal event: proto: wrong wireType &#x3D; 0 for field Key">
+<meta property="og:url" content="http://code404.icu/2021/10/14/mvcc-cannot-unmarshal-event-proto-wrong-wiretype-0-for-field-key/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 查看etcd的启动日志，发现报错mvcc: cannot unmarshal event: proto: wrong wireType &#x3D; 0 for field Key。经查询资料，此报错是由于服务器非正常关机（意外掉电，强制拔电)后 etcd数据损坏导致的，这个节点之前确实是出现异常关机，etcd无法启动，那么解决此问题就行了 对 etcd db 进行数据校验，发现数据被损坏">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/10/image-10.png">
+<meta property="article:published_time" content="2021-10-14T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.868Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="kubernets">
+<meta property="article:tag" content="0 for field Key">
+<meta property="article:tag" content="cannot unmarshal event">
+<meta property="article:tag" content="etcd">
+<meta property="article:tag" content="mvcc">
+<meta property="article:tag" content="proto">
+<meta property="article:tag" content="wrong wireType">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/10/image-10.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/10/14/mvcc-cannot-unmarshal-event-proto-wrong-wiretype-0-for-field-key/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'mvcc: cannot unmarshal event: proto: wrong wireType = 0 for field Key',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/10/image-10.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">mvcc: cannot unmarshal event: proto: wrong wireType = 0 for field Key</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-10-14T00:30:00.000Z" title="发表于 2021-10-14 08:30:00">2021-10-14</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.868Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/etcd/">etcd</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="mvcc: cannot unmarshal event: proto: wrong wireType = 0 for field Key"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/10/image-10.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>查看etcd的启动日志，发现报错mvcc: cannot unmarshal event: proto: wrong wireType &#x3D; 0 for field Key。经查询资料，此报错是由于服务器非正常关机（意外掉电，强制拔电)后 etcd数据损坏导致的，这个节点之前确实是出现异常关机，etcd无法启动，那么解决此问题就行了</p>
+<h3 id="对-etcd-db-进行数据校验，发现数据被损坏："><a href="#对-etcd-db-进行数据校验，发现数据被损坏：" class="headerlink" title="对 etcd db 进行数据校验，发现数据被损坏："></a>对 etcd db 进行数据校验，发现数据被损坏：</h3><hr>
+<p>[root@node-1 ~]# bolt check &#x2F;var&#x2F;lib&#x2F;etcd&#x2F;member&#x2F;snap&#x2F;db<br>page 1143: multiple references<br>page 1072: multiple references<br>page 1122: multiple references<br>page 1138: multiple references<br>page 1088: multiple references<br>page 630: unreachable unfreed<br>page 999: unreachable unfreed<br>page 1021: unreachable unfreed<br>page 1029: unreachable unfreed<br>page 1098: unreachable unfreed<br>10 errors found<br>invalid value</p>
+<h3 id="修复方法"><a href="#修复方法" class="headerlink" title="修复方法"></a>修复方法</h3><hr>
+<p>通过如下方式可以把损坏的 etcd 节点（例子中node-1上的 etcd1 <a href="https://10.60.1.3:2380）先移除再重新加入集群：">https://10.60.1.3:2380）先移除再重新加入集群：</a></p>
+<h4 id="1、在故障节点停止-etcd服务并删除损坏的-etcd-数据"><a href="#1、在故障节点停止-etcd服务并删除损坏的-etcd-数据" class="headerlink" title="1、在故障节点停止 etcd服务并删除损坏的 etcd 数据"></a>1、在故障节点停止 etcd服务并删除损坏的 etcd 数据</h4><hr>
+<p>[root@node-1 ~] systemctl stop etcd; mv &#x2F;var&#x2F;lib&#x2F;etcd&#x2F;member&#x2F;* ~&#x2F;etcd-backup</p>
+<h4 id="2、在其它节点找到故障etcd-的-member-id-并从-从集群中移除"><a href="#2、在其它节点找到故障etcd-的-member-id-并从-从集群中移除" class="headerlink" title="2、在其它节点找到故障etcd 的 member id 并从 从集群中移除"></a>2、在其它节点找到故障etcd 的 member id 并从 从集群中移除</h4><hr>
+<p>[root@node-2 ~]# etcdctl member list<br>39872ad0e5987746, started, etcd3, <a target="_blank" rel="noopener" href="https://10.60.1.5:2380/">https://10.60.1.5:2380</a>, <a target="_blank" rel="noopener" href="https://10.60.1.5:2379/">https://10.60.1.5:2379</a><br>72af99a4c899158b, unstarted, etcd1, <a target="_blank" rel="noopener" href="https://10.60.1.3:2380/">https://10.60.1.3:2380</a>, <a target="_blank" rel="noopener" href="https://10.60.1.3:2379/">https://10.60.1.3:2379</a><br>cd39f3691f506c2b, started, etcd2, <a target="_blank" rel="noopener" href="https://10.60.1.4:2380/">https://10.60.1.4:2380</a>, <a target="_blank" rel="noopener" href="https://10.60.1.4:2379/">https://10.60.1.4:2379</a><br>[root@node-2 ~]# etcdctl member remove 72af99a4c899158b</p>
+<h4 id="3、重新把-etcd1添加回集群"><a href="#3、重新把-etcd1添加回集群" class="headerlink" title="3、重新把 etcd1添加回集群"></a>3、重新把 etcd1添加回集群</h4><hr>
+<p>[root@node-2 ~]# etcdctl member add etcd1 –peer-urls&#x3D;<a target="_blank" rel="noopener" href="https://10.60.1.3:2380/">https://10.60.1.3:2380</a><br>Member a431fc3546d257c4 added to cluster 9a63314b15ba7312<br>ETCD_NAME&#x3D;”etcd1”<br>ETCD_INITIAL_CLUSTER&#x3D;”etcd3&#x3D;<a href="https://10.60.1.5:2380,etcd1=https://10.60.1.3:2380,etcd2=https://10.60.1.4:2380&quot;">https://10.60.1.5:2380,etcd1=https://10.60.1.3:2380,etcd2=https://10.60.1.4:2380&quot;</a><br>ETCD_INITIAL_CLUSTER_STATE&#x3D;”existing”</p>
+<h4 id="4、在故障节点重启-etcd-服务"><a href="#4、在故障节点重启-etcd-服务" class="headerlink" title="4、在故障节点重启 etcd 服务"></a>4、在故障节点重启 etcd 服务</h4><hr>
+<p>[root@node-1 ~] systemctl start etcd</p>
+<h4 id="5、查看确认etcd-和-Kubernetes集群恢复正常"><a href="#5、查看确认etcd-和-Kubernetes集群恢复正常" class="headerlink" title="5、查看确认etcd 和 Kubernetes集群恢复正常"></a>5、查看确认etcd 和 Kubernetes集群恢复正常</h4><hr>
+<p>1）etcdctl member list确认etcd集群恢复正常<br>2）kubectl get pod –namespace kube-systemgrep apiservergrep node-1确认 apiserver 恢复正常<br>3）kubectl get node grep node-1确认节点处于 Ready 状态</p>
+<p>在故障节点上停止etcd服务并删除损坏的 etcd 数据，现在etcd服务本来就没有启动，删除前先备份数据，最后启动etcd服务</p>
+<p>注意事项：如果在3个控制节点的集群，出现2个节点 etcd 数据损坏，可能造成整个集群无法恢复的风险。请确保不对服务器进行非正常关机操作。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/10/14/mvcc-cannot-unmarshal-event-proto-wrong-wiretype-0-for-field-key/">http://code404.icu/2021/10/14/mvcc-cannot-unmarshal-event-proto-wrong-wiretype-0-for-field-key/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/kubernets/">kubernets</a><a class="post-meta__tags" href="/tags/0-for-field-Key/">0 for field Key</a><a class="post-meta__tags" href="/tags/cannot-unmarshal-event/">cannot unmarshal event</a><a class="post-meta__tags" href="/tags/etcd/">etcd</a><a class="post-meta__tags" href="/tags/mvcc/">mvcc</a><a class="post-meta__tags" href="/tags/proto/">proto</a><a class="post-meta__tags" href="/tags/wrong-wireType/">wrong wireType</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/10/image-10.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/15/%E4%BD%BF%E7%94%A8-ansible-%E5%A6%82%E4%BD%95%E9%83%A8%E7%BD%B2-k8s-kubernets/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/10/image-11.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">使用 ansible 如何部署 k8s_kubernets?</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/13/jenkins%E6%B7%BB%E5%8A%A0node%E8%8A%82%E7%82%B9jenkins-agent-jar-jenkins%E4%BB%8E%E8%8A%82%E7%82%B9%EF%BC%9F/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/10/image-9.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Jenkins添加node节点jenkins-agent.jar_jenkins从节点？</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/10/15/%E4%BD%BF%E7%94%A8-ansible-%E5%A6%82%E4%BD%95%E9%83%A8%E7%BD%B2-k8s-kubernets/" title="使用 ansible 如何部署 k8s_kubernets?"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image-11.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-15</div><div class="title">使用 ansible 如何部署 k8s_kubernets?</div></div></a></div><div><a href="/2021/12/11/k8s%E5%A6%82%E4%BD%95%E4%BF%AE%E6%94%B9%E9%99%90%E5%88%B6%E8%8A%82%E7%82%B9%E5%90%AF%E5%8A%A8%E7%9A%84pod%E6%95%B0%E9%87%8F%EF%BC%9F/" title="k8s如何修改限制节点启动的Pod数量？"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-23-1024x370.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-11</div><div class="title">k8s如何修改限制节点启动的Pod数量？</div></div></a></div><div><a href="/2021/08/30/%E4%BD%BF%E7%94%A8-kubeadm-%E6%90%AD%E5%BB%BA-kubernetes-%E9%9B%86%E7%BE%A4/" title="使用 kubeadm 搭建 Kubernetes 集群"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-27.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-30</div><div class="title">使用 kubeadm 搭建 Kubernetes 集群</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AF%B9-etcd-db-%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E6%A0%A1%E9%AA%8C%EF%BC%8C%E5%8F%91%E7%8E%B0%E6%95%B0%E6%8D%AE%E8%A2%AB%E6%8D%9F%E5%9D%8F%EF%BC%9A"><span class="toc-number">2.</span> <span class="toc-text">对 etcd db 进行数据校验，发现数据被损坏：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E5%A4%8D%E6%96%B9%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">修复方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1%E3%80%81%E5%9C%A8%E6%95%85%E9%9A%9C%E8%8A%82%E7%82%B9%E5%81%9C%E6%AD%A2-etcd%E6%9C%8D%E5%8A%A1%E5%B9%B6%E5%88%A0%E9%99%A4%E6%8D%9F%E5%9D%8F%E7%9A%84-etcd-%E6%95%B0%E6%8D%AE"><span class="toc-number">3.1.</span> <span class="toc-text">1、在故障节点停止 etcd服务并删除损坏的 etcd 数据</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2%E3%80%81%E5%9C%A8%E5%85%B6%E5%AE%83%E8%8A%82%E7%82%B9%E6%89%BE%E5%88%B0%E6%95%85%E9%9A%9Cetcd-%E7%9A%84-member-id-%E5%B9%B6%E4%BB%8E-%E4%BB%8E%E9%9B%86%E7%BE%A4%E4%B8%AD%E7%A7%BB%E9%99%A4"><span class="toc-number">3.2.</span> <span class="toc-text">2、在其它节点找到故障etcd 的 member id 并从 从集群中移除</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3%E3%80%81%E9%87%8D%E6%96%B0%E6%8A%8A-etcd1%E6%B7%BB%E5%8A%A0%E5%9B%9E%E9%9B%86%E7%BE%A4"><span class="toc-number">3.3.</span> <span class="toc-text">3、重新把 etcd1添加回集群</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4%E3%80%81%E5%9C%A8%E6%95%85%E9%9A%9C%E8%8A%82%E7%82%B9%E9%87%8D%E5%90%AF-etcd-%E6%9C%8D%E5%8A%A1"><span class="toc-number">3.4.</span> <span class="toc-text">4、在故障节点重启 etcd 服务</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5%E3%80%81%E6%9F%A5%E7%9C%8B%E7%A1%AE%E8%AE%A4etcd-%E5%92%8C-Kubernetes%E9%9B%86%E7%BE%A4%E6%81%A2%E5%A4%8D%E6%AD%A3%E5%B8%B8"><span class="toc-number">3.5.</span> <span class="toc-text">5、查看确认etcd 和 Kubernetes集群恢复正常</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

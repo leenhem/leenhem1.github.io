@@ -1,0 +1,223 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>如何获取服务器机器码_dmidecode命令详解(获取硬件信息) | 码404</title><meta name="keywords" content="linux,UUID,机器码"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="零、获取linux服务器机器码 dmidecode -t 1grep UUID 上面可以获取机器码，下面是此命令的详细说明 一、dmidecode简介 dmidecode允许你在Linux系统下获取有关硬件方面的信息。dmidecode遵循SMBIOS&#x2F;DMI标准，其输出的信息包括BIOS、系统、主板、处理器、内存、缓存等等。 DMI（Desktop Management Interf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何获取服务器机器码_dmidecode命令详解(获取硬件信息)">
+<meta property="og:url" content="http://code404.icu/2021/07/11/%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9C%BA%E5%99%A8%E7%A0%81-dmidecode%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E8%8E%B7%E5%8F%96%E7%A1%AC%E4%BB%B6%E4%BF%A1%E6%81%AF/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="零、获取linux服务器机器码 dmidecode -t 1grep UUID 上面可以获取机器码，下面是此命令的详细说明 一、dmidecode简介 dmidecode允许你在Linux系统下获取有关硬件方面的信息。dmidecode遵循SMBIOS&#x2F;DMI标准，其输出的信息包括BIOS、系统、主板、处理器、内存、缓存等等。 DMI（Desktop Management Interf">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/07/image-38.png">
+<meta property="article:published_time" content="2021-07-11T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.909Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="UUID">
+<meta property="article:tag" content="机器码">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/07/image-38.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/07/11/%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9C%BA%E5%99%A8%E7%A0%81-dmidecode%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E8%8E%B7%E5%8F%96%E7%A1%AC%E4%BB%B6%E4%BF%A1%E6%81%AF/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '如何获取服务器机器码_dmidecode命令详解(获取硬件信息)',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/07/image-38.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">如何获取服务器机器码_dmidecode命令详解(获取硬件信息)</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-07-11T00:30:00.000Z" title="发表于 2021-07-11 08:30:00">2021-07-11</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.909Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="如何获取服务器机器码_dmidecode命令详解(获取硬件信息)"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/07/image-38.png"></p>
+<h3 id="零、获取linux服务器机器码"><a href="#零、获取linux服务器机器码" class="headerlink" title="零、获取linux服务器机器码"></a>零、获取linux服务器机器码</h3><hr>
+<p>dmidecode -t 1grep UUID</p>
+<p>上面可以获取机器码，下面是此命令的详细说明</p>
+<h3 id="一、dmidecode简介"><a href="#一、dmidecode简介" class="headerlink" title="一、dmidecode简介"></a>一、dmidecode简介</h3><hr>
+<p>dmidecode允许你在Linux系统下获取有关硬件方面的信息。dmidecode遵循SMBIOS&#x2F;DMI标准，其输出的信息包括BIOS、系统、主板、处理器、内存、缓存等等。</p>
+<p>DMI（Desktop Management Interface,DMI）就是帮助收集电脑系统信息的管理系统，DMI信息的收集必须在严格遵照SMBIOS规范的前提下进行。SMBIOS（System Management BIOS）是主板或系统制造者以标准格式显示产品管理信息所需遵循的统一规范。SMBIOS和DMI是由行业指导机构Desktop Management Task Force(DMTF)起草的开放性的技术标准，其中DMI设计适用于任何的平台和操作系统。</p>
+<p>DMI充当了管理工具和系统层之间接口的角色。它建立了标准的可管理系统更加方便了电脑厂商和用户对系统的了解。DMI的主要组成部分是Management Information Format(MIF)数据库。这个数据库包括了所有有关电脑系统和配件的信息。通过DMI，用户可以获取序列号、电脑厂商、串口信息以及其它系统配件信息。</p>
+<h3 id="二、dmidecode的作用"><a href="#二、dmidecode的作用" class="headerlink" title="二、dmidecode的作用"></a>二、dmidecode的作用</h3><hr>
+<p>dmidecode的作用是将DMI数据库中的信息解码，以可读的文本方式显示。由于DMI信息可以人为修改，因此里面的信息不一定是系统准确的信息。</p>
+<h3 id="三、dmidecode命令用法"><a href="#三、dmidecode命令用法" class="headerlink" title="三、dmidecode命令用法"></a>三、dmidecode命令用法</h3><hr>
+<p>不带选项执行dmidecode通常会输出所有的硬件信息。dmidecode有个很有用的选项-t，可以指定类型输出相关信息。假如要获得处理器方面的信息，则可以执行：dmidecode -t processor</p>
+<p>Usage: dmidecode [OPTIONS]</p>
+<p>Options are:</p>
+<p>-d：(default:&#x2F;dev&#x2F;mem)从设备文件读取信息，输出内容与不加参数标准输出相同。</p>
+<p>-h：显示帮助信息。</p>
+<p>-s：只显示指定DMI字符串的信息。(string)</p>
+<p>-t：只显示指定条目的信息。(type)</p>
+<p>-u：显示未解码的原始条目内容。</p>
+<p>– dump-bin FILE: Dump the DMI data to a binary file.</p>
+<p>– from-dump FILE: Read the DMI data from a binary file.</p>
+<p>-V：显示版本信息</p>
+<h3 id="dmidecode的输出格式一般如下"><a href="#dmidecode的输出格式一般如下" class="headerlink" title="dmidecode的输出格式一般如下"></a>dmidecode的输出格式一般如下</h3><hr>
+<p>Handle 0x0002, DMI type 2, 95 bytes.</p>
+<p>Base Board Information</p>
+<pre><code>Manufacturer: IBM
+
+Product Name: Node1 Processor Card
+
+Version: Not Specified
+
+Serial Number: Not Specified
+</code></pre>
+<h3 id="其中记录头（recode-header）包括了"><a href="#其中记录头（recode-header）包括了" class="headerlink" title="其中记录头（recode header）包括了"></a>其中记录头（recode header）包括了</h3><hr>
+<ul>
+<li>recode id(Handle)：DMI表中的记录标识符，这是唯一的，比如上例中的Handle 0x0002.</li>
+<li>DMI type id：记录的类型，譬如说：BIOS，Memory，上例是type 2，即“Base Board Information”.</li>
+<li>recode size：DMI表中对应记录的大小，上例为95 bytes。（不包括文本信息，所有实际输出的内容比这个size要更大）。记录头之后就是记录的值。</li>
+<li>recoded values：记录值可以是多行的，比如上例显示了主板的制造商（Manufacturer）、Product Name、Version以及Serial Number。</li>
+</ul>
+<h3 id="最简单的的显示全部dmi信息"><a href="#最简单的的显示全部dmi信息" class="headerlink" title="最简单的的显示全部dmi信息"></a>最简单的的显示全部dmi信息</h3><hr>
+<p>[root@BAIYU_180 ~]# dmidecode<br>[root@BAIYU_180 ~]# dmidecodewc -l<br>11938</p>
+<p>这样将输出所有的dmi信息，你可能会被一大堆的信息吓坏，通常可以使用下面的方法。</p>
+<h3 id="显示指定类型的信息"><a href="#显示指定类型的信息" class="headerlink" title="显示指定类型的信息"></a>显示指定类型的信息</h3><hr>
+<p>通常我只想查看某类型，比如CPU，内存或者磁盘的信息而不是全部的。这可以使用 -t ( - -type TYPE) 来指定信息类型：</p>
+<p>dmidecode -t bios<br>dmidecode -t bios, processor (这种方式好像不可以用，必须用下面的数字的方式)<br>dmidecode -t 0,4 (显示bios和processor)</p>
+<h3 id="dmidecode到底支持哪些type"><a href="#dmidecode到底支持哪些type" class="headerlink" title="dmidecode到底支持哪些type"></a>dmidecode到底支持哪些type</h3><hr>
+<p>这些可以在man dmidecode里面看到：<br>文本参数支持：<br>bios, system, baseboard, chassis, processor, memory, cache, connector, slot<br>数字参数支持很多：（见附录）</p>
+<h3 id="通过关键字查看信息"><a href="#通过关键字查看信息" class="headerlink" title="通过关键字查看信息"></a>通过关键字查看信息</h3><hr>
+<p>比如只想查看序列号，可以使用:</p>
+<p># dmidecode -s system-serial-number</p>
+<p>-s (–string keyword)支持的keyword包括：<br>bios-vendor,bios-version,bios-release-date,<br>system-manufacturer,system-product-name,system-version,system-serial-number,<br>baseboard-manu-facturer,baseboard-product-name,baseboard-version,baseboard-serial-number,baseboard-asset-tag,<br>chassis-manufacturer,chas-sis-version,chassis-serial-number,chassis-asset-tag,<br>processor-manufacturer,processor-version.</p>
+<h3 id="四、实例"><a href="#四、实例" class="headerlink" title="四、实例"></a>四、实例</h3><hr>
+<p>查看当前内存和支持的最大内存<br>Linux下，可以使用free或者查看meminfo来获得当前的物理内存：</p>
+<p>[root@SC4304 ~]# free<br>            total      used      free    shared    buffers    cached<br>Mem:    132091660    5649612  126442048          0    224492    4052384<br>-&#x2F;+ buffers&#x2F;cache:    1372736  130718924<br>Swap:    209715192          0  209715192<br>[root@SC4305 ~]# free -m<br>            total      used      free    shared    buffers    cached<br>Mem:        128995      6230    122765          0        259      4615<br>-&#x2F;+ buffers&#x2F;cache:      1354    127640<br>Swap:      204799          0    204799</p>
+<p>这里显示了当前服务器的物理内存是128GB。<br>服务器到底能扩展到多大的内存？</p>
+<p>[root@SC4304 ~]# dmidecode -t 16</p>
+<h1 id="dmidecode-2-11"><a href="#dmidecode-2-11" class="headerlink" title="dmidecode 2.11"></a>dmidecode 2.11</h1><h1 id="SMBIOS-entry-point-at-0xb89a5000"><a href="#SMBIOS-entry-point-at-0xb89a5000" class="headerlink" title="SMBIOS entry point at 0xb89a5000"></a>SMBIOS entry point at 0xb89a5000</h1><p>SMBIOS 2.7 present.</p>
+<p>Handle 0x1000, DMI type 16, 23 bytes<br>Physical Memory Array<br>    Location: System Board Or Motherboard<br>    Use: System Memory<br>    Error Correction Type: Multi-bit ECC<br>    Maximum Capacity: 1536 GB<br>    Error Information Handle: Not Provided<br>    Number Of Devices: 24</p>
+<p>从上面的信息我们可以看出：</p>
+<p>内存插槽数：24个<br>最大扩展内存：1536G<br>单跟内存条最大：64G<br>现在内存为：128G</p>
+<p>但是，我们还必须查清这里的128G到底是16_8GB, 2_64GB还是其他？就是查看已使用的插槽数<br>如果是2*64GB，那么可以扩展到1536GB，但是如果插槽已经插满，无法扩展了</p>
+<h3 id="查看内存槽数、哪个槽位插了内存，大小是多少"><a href="#查看内存槽数、哪个槽位插了内存，大小是多少" class="headerlink" title="查看内存槽数、哪个槽位插了内存，大小是多少"></a>查看内存槽数、哪个槽位插了内存，大小是多少</h3><hr>
+<p> [root@SC4305 ~]# dmidecodegrep -A5 ‘Memory Device’grep Size<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed<br>    Size: No Module Installed</p>
+<h3 id="查看最大支持内存数"><a href="#查看最大支持内存数" class="headerlink" title="查看最大支持内存数"></a>查看最大支持内存数</h3><hr>
+<p> [root@SC4305 ~]# dmidecodegrep ‘Maximum Capacity’<br>    Maximum Capacity: 1536 GB</p>
+<h3 id="查看槽位上内存的速率，没插就是unknown"><a href="#查看槽位上内存的速率，没插就是unknown" class="headerlink" title="查看槽位上内存的速率，没插就是unknown"></a>查看槽位上内存的速率，没插就是unknown</h3><hr>
+<p> [root@SC4305 ~]# dmidecodegrep -A16 ‘Memory Device’grep ‘Speed’<br>    Speed: 1600 MHz<br>    Speed: 1600 MHz<br>    Speed: 1600 MHz<br>    Speed: 1600 MHz<br>    Speed: Unknown<br>    Speed: Unknown<br>    Speed: 1600 MHz<br>    Speed: 1600 MHz<br>    Speed: 1600 MHz<br>    Speed: 1600 MHz<br>    Speed: Unknown<br>    Speed: Unknown</p>
+<h3 id="一个查看基本硬件信息的shell脚本"><a href="#一个查看基本硬件信息的shell脚本" class="headerlink" title="一个查看基本硬件信息的shell脚本"></a>一个查看基本硬件信息的shell脚本</h3><hr>
+<p>脚本适用于centos6</p>
+<p>[root@SC4306 test]# cat test.sh<br>#!&#x2F;bin&#x2F;bash<br>echo “IP:”<br>ifconfig grep “inet addr”grep -v 127.0.0.1awk ‘{print $2}’awk -F ‘:’ ‘{print $2}’<br>echo “Product Name:”<br>dmidecode grep Name<br>echo “CPU Info:”<br>dmidecode grep -i cpugrep -i versionawk -F ‘:’ ‘{print $2}’<br>echo “Disk Info:”<br>parted -lgrep ‘Disk &#x2F;dev&#x2F;sd’awk -F ‘,’ ‘{print “  “,$1}’<br>echo “Network Info:”<br>lspci grep Ethernet<br>echo “Memory Info:”<br>dmidecodegrep -A5 “Memory Device”grep Sizegrep -v No<br>echo “Memory number:”`dmidecodegrep -A5 “Memory Device”grep Sizegrep -v Nowc -l`</p>
+<p>输出结果：</p>
+<p>[root@SC4306 test]# bash test.sh<br>IP:<br>10.0.17.6<br>10.0.250.6<br>Product Name:<br>    Product Name: PowerEdge R720<br>    SKU Number: SKU&#x3D;NotProvided;ModelName&#x3D;PowerEdge R720<br>    Product Name: 0DCWD1<br>CPU Info:<br>      Intel(R) Xeon(R) CPU E5-2620 v2 @ 2.10GHz<br>      Intel(R) Xeon(R) CPU E5-2620 v2 @ 2.10GHz<br>Disk Info:<br>    Disk &#x2F;dev&#x2F;sda: 1074GB<br>    Disk &#x2F;dev&#x2F;sdb: 18.9TB<br>Network Info:<br>01:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe<br>01:00.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe<br>02:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe<br>02:00.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5720 Gigabit Ethernet PCIe<br>Memory Info:<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: 16384 MB<br>    Size: 16384 MB<br>Memory number:8</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/07/11/%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9C%BA%E5%99%A8%E7%A0%81-dmidecode%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E8%8E%B7%E5%8F%96%E7%A1%AC%E4%BB%B6%E4%BF%A1%E6%81%AF/">http://code404.icu/2021/07/11/%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9C%BA%E5%99%A8%E7%A0%81-dmidecode%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3%E8%8E%B7%E5%8F%96%E7%A1%AC%E4%BB%B6%E4%BF%A1%E6%81%AF/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/UUID/">UUID</a><a class="post-meta__tags" href="/tags/%E6%9C%BA%E5%99%A8%E7%A0%81/">机器码</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/07/image-38.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/07/12/centos%E7%B3%BB%E7%BB%9F%E4%B8%8A%E6%90%AD%E5%BB%BA-unbound-dns-%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA-dns%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%90%AD%E5%BB%BA/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/07/image-39.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Centos系统上搭建_unbound_dns_服务器搭建_DNS服务器搭建</div></div></a></div><div class="next-post pull-right"><a href="/2021/07/10/linux%E9%85%8D%E7%BD%AE%E8%B6%85%E6%97%B6-%E8%87%AA%E5%8A%A8%E9%80%80%E5%87%BA%E7%99%BB%E5%BD%95tmout/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/07/image-37.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">linux配置超时_自动退出登录TMOUT</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/09/20/1212/" title="org.apache.tomcat.util.net.NioEndpoint$Acceptor.run Socket accept failed java.io.IOException: 打开的文件过多"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-16-1024x512.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-20</div><div class="title">org.apache.tomcat.util.net.NioEndpoint$Acceptor.run Socket accept failed java.io.IOException: 打开的文件过多</div></div></a></div><div><a href="/2021/08/11/awk-%E5%A6%82%E4%BD%95%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C-%E4%B8%8D%E6%8E%92%E5%BA%8F%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C/" title="awk 如何删除重复行_不排序删除重复行"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-9.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-11</div><div class="title">awk 如何删除重复行_不排序删除重复行</div></div></a></div><div><a href="/2021/04/14/centos-163-yum%E6%BA%90%E9%85%8D%E7%BD%AE/" title="centos 163 yum源配置"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-14</div><div class="title">centos 163 yum源配置</div></div></a></div><div><a href="/2021/06/03/centos7%E5%8D%87%E7%BA%A7openssh8-5p1%E9%99%84%E5%B8%A6%E5%AE%89%E8%A3%85%E5%8C%85/" title="CentOS7升级OpenSSH8.5p1附带安装包"><img class="cover" src="https://code404.icu/img/moveypu/2021/06/image-8.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-03</div><div class="title">CentOS7升级OpenSSH8.5p1附带安装包</div></div></a></div><div><a href="/2021/04/10/centos%E5%8D%87%E7%BA%A7%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC-linux%E5%8D%87%E7%BA%A7%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC-redhat%E5%8D%87%E7%BA%A7%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC/" title="CentOS升级内核版本_linux升级内核版本_Redhat升级内核版本"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/2021040911291197.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-10</div><div class="title">CentOS升级内核版本_linux升级内核版本_Redhat升级内核版本</div></div></a></div><div><a href="/2021/07/13/linux-date-%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B-date%E8%8E%B7%E5%8F%967%E5%A4%A9%E5%89%8D%E7%9A%84%E6%97%A5%E6%9C%9F/" title="Linux Date 命令使用示例 date获取7天前的日期"><img class="cover" src="https://code404.icu/img/moveypu/2021/07/image-40.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-13</div><div class="title">Linux Date 命令使用示例 date获取7天前的日期</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9B%B6%E3%80%81%E8%8E%B7%E5%8F%96linux%E6%9C%8D%E5%8A%A1%E5%99%A8%E6%9C%BA%E5%99%A8%E7%A0%81"><span class="toc-number">1.</span> <span class="toc-text">零、获取linux服务器机器码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E3%80%81dmidecode%E7%AE%80%E4%BB%8B"><span class="toc-number">2.</span> <span class="toc-text">一、dmidecode简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E3%80%81dmidecode%E7%9A%84%E4%BD%9C%E7%94%A8"><span class="toc-number">3.</span> <span class="toc-text">二、dmidecode的作用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E3%80%81dmidecode%E5%91%BD%E4%BB%A4%E7%94%A8%E6%B3%95"><span class="toc-number">4.</span> <span class="toc-text">三、dmidecode命令用法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dmidecode%E7%9A%84%E8%BE%93%E5%87%BA%E6%A0%BC%E5%BC%8F%E4%B8%80%E8%88%AC%E5%A6%82%E4%B8%8B"><span class="toc-number">5.</span> <span class="toc-text">dmidecode的输出格式一般如下</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B6%E4%B8%AD%E8%AE%B0%E5%BD%95%E5%A4%B4%EF%BC%88recode-header%EF%BC%89%E5%8C%85%E6%8B%AC%E4%BA%86"><span class="toc-number">6.</span> <span class="toc-text">其中记录头（recode header）包括了</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E7%AE%80%E5%8D%95%E7%9A%84%E7%9A%84%E6%98%BE%E7%A4%BA%E5%85%A8%E9%83%A8dmi%E4%BF%A1%E6%81%AF"><span class="toc-number">7.</span> <span class="toc-text">最简单的的显示全部dmi信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%98%BE%E7%A4%BA%E6%8C%87%E5%AE%9A%E7%B1%BB%E5%9E%8B%E7%9A%84%E4%BF%A1%E6%81%AF"><span class="toc-number">8.</span> <span class="toc-text">显示指定类型的信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dmidecode%E5%88%B0%E5%BA%95%E6%94%AF%E6%8C%81%E5%93%AA%E4%BA%9Btype"><span class="toc-number">9.</span> <span class="toc-text">dmidecode到底支持哪些type</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%80%9A%E8%BF%87%E5%85%B3%E9%94%AE%E5%AD%97%E6%9F%A5%E7%9C%8B%E4%BF%A1%E6%81%AF"><span class="toc-number">10.</span> <span class="toc-text">通过关键字查看信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%AE%9E%E4%BE%8B"><span class="toc-number">11.</span> <span class="toc-text">四、实例</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#dmidecode-2-11"><span class="toc-number"></span> <span class="toc-text">dmidecode 2.11</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#SMBIOS-entry-point-at-0xb89a5000"><span class="toc-number"></span> <span class="toc-text">SMBIOS entry point at 0xb89a5000</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%86%85%E5%AD%98%E6%A7%BD%E6%95%B0%E3%80%81%E5%93%AA%E4%B8%AA%E6%A7%BD%E4%BD%8D%E6%8F%92%E4%BA%86%E5%86%85%E5%AD%98%EF%BC%8C%E5%A4%A7%E5%B0%8F%E6%98%AF%E5%A4%9A%E5%B0%91"><span class="toc-number">1.</span> <span class="toc-text">查看内存槽数、哪个槽位插了内存，大小是多少</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%9C%80%E5%A4%A7%E6%94%AF%E6%8C%81%E5%86%85%E5%AD%98%E6%95%B0"><span class="toc-number">2.</span> <span class="toc-text">查看最大支持内存数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E6%A7%BD%E4%BD%8D%E4%B8%8A%E5%86%85%E5%AD%98%E7%9A%84%E9%80%9F%E7%8E%87%EF%BC%8C%E6%B2%A1%E6%8F%92%E5%B0%B1%E6%98%AFunknown"><span class="toc-number">3.</span> <span class="toc-text">查看槽位上内存的速率，没插就是unknown</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E4%B8%AA%E6%9F%A5%E7%9C%8B%E5%9F%BA%E6%9C%AC%E7%A1%AC%E4%BB%B6%E4%BF%A1%E6%81%AF%E7%9A%84shell%E8%84%9A%E6%9C%AC"><span class="toc-number">4.</span> <span class="toc-text">一个查看基本硬件信息的shell脚本</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

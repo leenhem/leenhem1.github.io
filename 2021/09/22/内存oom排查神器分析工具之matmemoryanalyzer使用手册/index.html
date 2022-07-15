@@ -1,0 +1,295 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>内存OOM排查神器分析工具之mat(MemoryAnalyzer)使用手册 | 码404</title><meta name="keywords" content="OOM,内存溢出,mat,MemoryAnalyzer,内存分析"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 大家都知道，在存储用户输入的密码时候，会使用一些hash算法对密码进行加工，比如sha-1、bcrypt。这些信息同样不允许在日志输出里出现，必须做脱敏处理。但是对于一个拥有系统权限的攻击者来说，这些防护依然是不够的。攻击者可能会直接从内存中获取明文数据，尤其对于Java来说，由于提供了jmap一类非常方便的工具，可以把整个堆内存的数据dump下来。比如，“我的世界”一类使用Java开发的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="内存OOM排查神器分析工具之mat(MemoryAnalyzer)使用手册">
+<meta property="og:url" content="http://code404.icu/2021/09/22/%E5%86%85%E5%AD%98oom%E6%8E%92%E6%9F%A5%E7%A5%9E%E5%99%A8%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E4%B9%8Bmatmemoryanalyzer%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 大家都知道，在存储用户输入的密码时候，会使用一些hash算法对密码进行加工，比如sha-1、bcrypt。这些信息同样不允许在日志输出里出现，必须做脱敏处理。但是对于一个拥有系统权限的攻击者来说，这些防护依然是不够的。攻击者可能会直接从内存中获取明文数据，尤其对于Java来说，由于提供了jmap一类非常方便的工具，可以把整个堆内存的数据dump下来。比如，“我的世界”一类使用Java开发的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/09/image-19.png">
+<meta property="article:published_time" content="2021-09-22T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.899Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="OOM">
+<meta property="article:tag" content="内存溢出">
+<meta property="article:tag" content="mat">
+<meta property="article:tag" content="MemoryAnalyzer">
+<meta property="article:tag" content="内存分析">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/09/image-19.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/09/22/%E5%86%85%E5%AD%98oom%E6%8E%92%E6%9F%A5%E7%A5%9E%E5%99%A8%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E4%B9%8Bmatmemoryanalyzer%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '内存OOM排查神器分析工具之mat(MemoryAnalyzer)使用手册',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/09/image-19.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">内存OOM排查神器分析工具之mat(MemoryAnalyzer)使用手册</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-09-22T00:30:00.000Z" title="发表于 2021-09-22 08:30:00">2021-09-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.899Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%BC%80%E5%8F%91/">开发</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Java/">Java</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="内存OOM排查神器分析工具之mat(MemoryAnalyzer)使用手册"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/09/image-19.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>大家都知道，在存储用户输入的密码时候，会使用一些hash算法对密码进行加工，比如sha-1、bcrypt。这些信息同样不允许在日志输出里出现，必须做脱敏处理。但是对于一个拥有系统权限的攻击者来说，这些防护依然是不够的。攻击者可能会直接从内存中获取明文数据，尤其对于Java来说，由于提供了jmap一类非常方便的工具，可以把整个堆内存的数据dump下来。比如，“我的世界”一类使用Java开发的游戏，会比其他语言的游戏更加容易破解一些，所以我们在JVM中，如果把密码存储为char数组，安全性会稍微高一些。</p>
+<p>这是一把双刃剑，在保证安全的前提下，我们也可以借助一些外部的分析工具，帮助我们方便的找到问题根本。</p>
+<p>可以有两种方式来获取内存的快照。我们前面提到，通过配置一些参数，可以在发生OOM的时候，被动dump一份堆栈信息，这是一种。另一种，就是通过jmap主动去获取内存的快照。</p>
+<p>jmap命令在Java9之后，使用jhsdb命令替代，它们在用法上，区别不大。注意，这些命令本身会占用操作系统的资源，在某些情况下会造成服务响应缓慢，所以不要频繁执行。</p>
+<p>jmap -dump:format&#x3D;b,file&#x3D;heap.bin 37340<br>jhsdb jmap  –binaryheap –pid  37340</p>
+<h3 id="1、工具介绍"><a href="#1、工具介绍" class="headerlink" title="1、工具介绍"></a>1、工具介绍</h3><hr>
+<p>专业的事情要有专业的工具来做，今天给大家介绍的是一款专业的开源分析工具，叫做MAT。</p>
+<p><a target="_blank" rel="noopener" href="https://www.eclipse.org/mat/MAT%E5%B7%A5%E5%85%B7%E6%98%AF%E5%9F%BA%E4%BA%8Eeclipse%E5%B9%B3%E5%8F%B0%E5%BC%80%E5%8F%91%E7%9A%84%EF%BC%8C%E6%9C%AC%E8%BA%AB%E6%98%AF%E4%B8%80%E4%B8%AAJava%E7%A8%8B%E5%BA%8F%EF%BC%8C%E6%89%80%E4%BB%A5%E5%A6%82%E6%9E%9C%E4%BD%A0%E7%9A%84%E5%A0%86%E5%BF%AB%E7%85%A7%E6%AF%94%E8%BE%83%E5%A4%A7%E7%9A%84%E8%AF%9D%EF%BC%8C%E5%B0%B1%E9%9C%80%E8%A6%81%E4%B8%80%E5%8F%B0%E5%86%85%E5%AD%98%E6%AF%94%E8%BE%83%E5%A4%A7%E7%9A%84%E5%88%86%E6%9E%90%E6%9C%BA%E5%99%A8%EF%BC%8C%E5%B9%B6%E7%BB%99MAT%E6%9C%AC%E8%BA%AB%E5%8A%A0%E5%A4%A7%E5%88%9D%E5%A7%8B%E5%86%85%E5%AD%98%EF%BC%8C%E8%BF%99%E4%B8%AA%E5%8F%AF%E4%BB%A5%E4%BF%AE%E6%94%B9%E5%AE%89%E8%A3%85%E7%9B%AE%E5%BD%95%E4%B8%AD%E7%9A%84MemoryAnalyzer.ini%E6%96%87%E4%BB%B6%E3%80%82">https://www.eclipse.org/mat/MAT工具是基于eclipse平台开发的，本身是一个Java程序，所以如果你的堆快照比较大的话，就需要一台内存比较大的分析机器，并给MAT本身加大初始内存，这个可以修改安装目录中的MemoryAnalyzer.ini文件。</a></p>
+<p>可以看一下MAT工具的截图，主要功能都体现在工具栏上。其中，默认的启动界面，展示了占用内存最高的一些对象，并有一些常用的快捷方式。通常，发生内存泄漏的对象，会在快照中占用比较大的比重，分析这些比较大的对象，是我们切入问题的第一步。<br><img src="https://img-blog.csdnimg.cn/34fc067d16fc40938531ae17be2001db.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>点击对象，可以浏览对象的引用关系。这是一个非常有用的功能。</p>
+<ul>
+<li>outgoing references 对象的引出。</li>
+<li>incoming references 对象的引入。</li>
+<li>path to GC Roots 这是快速分析的一个常用功能，显示和GC Roots之间的路径。<br><img src="https://img-blog.csdnimg.cn/6b246221923b4d79991944985e1d035d.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>另外一个比较重要的概念，就是浅堆（Shallow Heap）和深堆（Retained Heap），在MAT上经常看到这两个数值。<br><img src="https://img-blog.csdnimg.cn/7af543e2de754db7b2dcf6ff2524b394.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>浅堆代表了对象本身的内存占用。包括对象自身的内存占用，以及“为了引用”其他对象所占用的内存。</li>
+</ul>
+<p>深堆是一个统计结果，会循环计算引用的具体对象所占用的内存。但是深堆和“对象大小”有一点不同，深堆指的是一个对象被垃圾回收后，能够释放的内存大小，这些被释放的对象集合，叫做保留集（Retained Set）。<br><img src="https://img-blog.csdnimg.cn/99e26fd1e55441468cec3ac431e7aecc.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>如上图，A对象浅堆大小1KB，B对象2KB，C对象100KB。A对象同时引用了B对象和C对象，但由于C对象也被D引用，所以A对象的深堆大小为3KB（1KB+2KB）。</p>
+<p>A对象大小（1KB+2KB+100KB）&gt; A对象深堆 &gt; A对象浅堆。</p>
+<h3 id="2、内存泄漏检测"><a href="#2、内存泄漏检测" class="headerlink" title="2、内存泄漏检测"></a>2、内存泄漏检测</h3><hr>
+<p>如果问题特别突出，可以通过Find Leaks菜单快速找出问题。<br><img src="https://img-blog.csdnimg.cn/f2edc35dbe6d45a09f98c6bc4a087ee9.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>如图，展示了名称叫做huge-thread的线程，持有了超过96%的对象，数据被一个HashMap所持有。</p>
+<p><img src="https://img-blog.csdnimg.cn/0c296fcc65e24bf593659bf40c943ca1.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>对于特别明显的内存泄漏，在这里能够帮助我们迅速定位，但通常内存泄漏问题会比较隐蔽，我们需要更加复杂的分析。</p>
+<h3 id="3、支配树视图"><a href="#3、支配树视图" class="headerlink" title="3、支配树视图"></a>3、支配树视图</h3><hr>
+<p>支配树视图对数据进行了归类，体现了对象之间的依赖关系。如图，我们通常会根据“深堆”进行倒序排序，可以很容易的看到占用内存比较高的几个对象。点击前面的箭头，即可一层层展开支配关系。</p>
+<p>图中显示的是其中的1MB数据，从左侧的inspector视图，可以看到这1MB的byte数组具体内容。<br><img src="https://img-blog.csdnimg.cn/ddaf038d27c142c2ac2d6ef270819519.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>从支配树视图同样能够找到我们创建的两个循环依赖。但它们并没有显示这个过程。</p>
+<p><img src="https://img-blog.csdnimg.cn/0b316c45c3c648efb229da52b73259c1.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>支配树视图的概念有一点点复杂，我们只需要了解这个概念即可。</p>
+<p><img src="https://img-blog.csdnimg.cn/f08d9f4b4fa94c15aa43f9e7a797de32.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_16,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>如上图，左边是引用关系，右边是支配树视图。可以看到A、B、C被当作是“虚拟”的根。支配关系是可传递的，因为C支配E，E支配G，所以C也支配G。</p>
+<p>另外，到对象C的路径中，可以经过A，也可以经过B，因此对象C的直接支配者也是根对象。同理，对象E是H的支配者。</p>
+<p>我们再来看比较特殊的D和F。对象F与对象D相互引用，因为到对象F的所有路径必然经过对象D，因此，对象D是对象F的直接支配者。</p>
+<p>可以看到支配树视图并不一定总是能看到对象的真实应用关系，但对我们分析问题的影响并不是很大。</p>
+<p>这个视图是非常好用的，甚至可以根据package进行归类，对目标类的查找是非常快捷的。<br><img src="https://img-blog.csdnimg.cn/0253cd69932346a6879aa4f757aff9fe.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>编译下面这段代码，可以展开视图，实际观测一下支配树，这和我们上面介绍的是一致的。</p>
+<p>public class DorminatorTreeDemo {<br>    static class A {<br>        C c;</p>
+<pre><code>    byte\[\] data = new byte\[1024 \* 1024 \* 2\];
+&#125;
+
+static class B &#123;
+    C c;
+    byte\[\] data = new byte\[1024 \* 1024 \* 3\];
+&#125;
+
+static class C &#123;
+    D d;
+    E e;
+    byte\[\] data = new byte\[1024 \* 1024 \* 5\];
+&#125;
+
+static class D &#123;
+    F f;
+    byte\[\] data = new byte\[1024 \* 1024 \* 7\];
+&#125;
+
+static class E &#123;
+    G g;
+    byte\[\] data = new byte\[1024 \* 1024 \* 11\];
+&#125;
+
+static class F &#123;
+    D d;
+    H h;
+    byte\[\] data = new byte\[1024 \* 1024 \* 13\];
+&#125;
+
+static class G &#123;
+    H h;
+    byte\[\] data = new byte\[1024 \* 1024 \* 17\];
+&#125;
+
+static class H &#123;
+    byte\[\] data = new byte\[1024 \* 1024 \* 19\];
+&#125;
+
+A makeRef(A a, B b) &#123;
+    C c = new C();
+    D d = new D();
+    E e = new E();
+    F f = new F();
+    G g = new G();
+    H h = new H();
+    a.c = c;
+    b.c = c;
+    c.e = e;
+    c.d = d;
+    d.f = f;
+    e.g = g;
+    f.d = d;
+    f.h = h;
+    g.h = h;
+    return a;
+&#125;
+
+static A a = new A();
+static B b = new B();
+
+public static void main(String\[\] args) throws Exception &#123;
+
+    new DorminatorTreeDemo().makeRef(a, b);
+
+    Thread.sleep(Integer.MAX\_VALUE);
+&#125;
+</code></pre>
+<p>}</p>
+<p><img src="https://img-blog.csdnimg.cn/556c66b1f81c4cc6bf1750915243013f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h3 id="4、线程视图"><a href="#4、线程视图" class="headerlink" title="4、线程视图"></a>4、线程视图</h3><hr>
+<p>想要看具体的引用关系，可以通过线程视图。我们在第5小节，就了解到线程其实是可以作为GC Roots的。如图展示了线程内对象的引用关系，以及方法调用关系，相对比jstack获取的栈dump，我们能够更加清晰的看到内存中具体的数据。</p>
+<p>如下图，我们找到了huge-thread，依次展开找到holder对象，可以看到循环依赖已经陷入了无限循环的状态。这在查看一些Java对象的时候，经常发生，不要感到奇怪。<br><img src="https://img-blog.csdnimg.cn/5eaa8d4359304bffb3207ea9844afaf2.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h3 id="5、柱状图视图"><a href="#5、柱状图视图" class="headerlink" title="5、柱状图视图"></a>5、柱状图视图</h3><hr>
+<p>我们返回头来再看一下柱状图视图，可以看到除了对象的大小，还有类的实例个数。结合MAT提供的不同显示方式，往往能够直接定位问题。也可以通过正则可以过滤一些信息，我们在这里输入MAT，过滤猜测的、可能出现问题的类。可以看到我们创建的这些自定义对象，不多不少正好一百个。<br><img src="https://img-blog.csdnimg.cn/6bb96eac592c453b92bd7f2798981c8a.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>右键点击类，然后选择incoming，这会列出所有的引用关系。</p>
+<p><img src="https://img-blog.csdnimg.cn/4f6546989cfa4c0b8c73be98abd62299.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>再次选择某个引用关系，然后选择菜单“Path To GC Roots”，即可显示到GC Roots的全路径。通常在排查内存泄漏的时候，会选择排除虚弱软等引用。</p>
+<p><img src="https://img-blog.csdnimg.cn/835615ac0d8a46578789938e13c15938.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/29c0ec151029413e919473572031c6b3.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>使用这种方式，即可在引用之间进行跳转，方便的找到所需要的信息。</p>
+<p><img src="https://img-blog.csdnimg.cn/748e0f1e410048f3b959023a338f77f7.png" alt="在这里插入图片描述"></p>
+<p>再给大家介绍一个比较高级的功能。</p>
+<p>我们对于堆的快照，其实是一个“瞬时态”，有时候仅仅分析这个瞬时状态，并不一定能确定问题，这就需要对两个或者多个快照进行对比，来确定一个增长趋势。</p>
+<p><img src="https://img-blog.csdnimg.cn/72398c7e91e2485286d168bb87494d33.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>可以将代码中的100改成10或其他数字，再次dump一份快照进行比较。如图，通过分析某类对象的增长，即可辅助问题定位。</p>
+<h3 id="6、高级功能-OQL"><a href="#6、高级功能-OQL" class="headerlink" title="6、高级功能-OQL"></a>6、高级功能-OQL</h3><hr>
+<p>MAT支持一种类似于SQL的查询语言OQL（Object Query Language），这个查询语言VisualVM工具也支持。<br><img src="https://img-blog.csdnimg.cn/c8e638f70a8145d5b927be8b79ee57b0.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>以下是几个例子，大家可以实际实践一下。</p>
+<p>查询A4MAT对象。</p>
+<p>SELECT * FROM  Objects4MAT$A4MAT </p>
+<p>正则查询MAT结尾的对象。</p>
+<p>SELECT * FROM “.*MAT” </p>
+<p>查询String类的char数组。</p>
+<p>SELECT OBJECTS s.value FROM java.lang.String s<br>SELECT OBJECTS mat.b4MAT FROM  Objects4MAT$A4MAT mat</p>
+<p>根据内存地址查找对象。</p>
+<p>select * from 0x55a034c8 </p>
+<p>使用INSTANCEOF关键字，查找所有子类。</p>
+<p>SELECT * FROM INSTANCEOF java.util.AbstractCollection </p>
+<p>查询长度大于1000的byte数组。</p>
+<p>SELECT * FROM byte[] s WHERE s.@length&gt;1000</p>
+<p>查询包含java字样的所有字符串。</p>
+<p>SELECT * FROM java.lang.String s WHERE toString(s) LIKE “.*java.*“ </p>
+<p>查找所有深堆大小大于1万的对象。</p>
+<p>SELECT * FROM INSTANCEOF java.lang.Object o WHERE o.@retainedHeapSize&gt;10000</p>
+<p>如果你忘记这些属性的名称的话，MAT是可以自动补全的。<br><img src="https://img-blog.csdnimg.cn/26e417fb528c4bb68ebfb7d681da5321.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>OQL有比较多的语法和用法，深入可以参考</p>
+<p><a target="_blank" rel="noopener" href="http://tech.novosoft-us.com/products/oql/_book.htm">http://tech.novosoft-us.com/products/oql\_book.htm</a><br>一般，我们使用上面这些简单的查询语句就够用了。</p>
+<p>OQL还有一个好处，就是可以分享。如果你和同事同时在分析一个大堆，你不必告诉他先点哪一步，再点哪一步，共享给他一个OQL语句就可以了。</p>
+<p>如下图，MAT贴心的提供了复制OQL的功能，但是用在其他快照上，不会起作用，因为它复制的是如下的内容。<br><img src="https://img-blog.csdnimg.cn/2076183635a740bfad3821333b7deed7.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h3 id="7、总结"><a href="#7、总结" class="headerlink" title="7、总结"></a>7、总结</h3><hr>
+<p>我们把问题设定为内存泄漏，但其实OOM或者频繁GC不一定就是内存泄漏，它也可能是由于某次或者某批请求频繁创建了大量对象，所以一些严重的、频繁的GC问题也能在这里找到原因。有些情况下，占用内存最多的对象，并不一定是引起内存泄漏问题的元凶，但我们也有一个比较通用的分析过程。</p>
+<p>并不是所有的堆都值得分析的。我们分析在做这个耗时的分析之前，需要有个依据。比如，经过初步调优之后，GC的停顿时间还是较长，我们需要找到频繁GC的原因；再比如，我们发现了内存泄漏，需要找到是谁在搞鬼。</p>
+<p>首先，我们高度关注快照载入后的初始分析。占用内存高的topN对象，大概率是问题产生者。</p>
+<p>如果不能通过大对象发现问题，就需要对快照进行深入分析。使用柱状图和支配树视图，配合引入引出和各种排序，能够对内存的使用进行整体的摸底。由于我们能够看到内存中的具体数据，排查一些异常数据就容易的多。</p>
+<p>可以在程序运行的不同时间点，获取多份内存快照，对比之后问题会更加容易发现。我们还是用一个例子来看。有一个应用，使用了Kafka消息队列，开了一般大小的消费缓冲区，Kafka会复用这个缓冲区，按理说不应该有内存问题，但是应用却频繁发生GC。通过对比请求高峰和低峰期间的内存快照，我们发现有工程师把消费数据放入了另外一个 “内存队列”，写了一些画蛇添足的代码，结果在业务高峰期一股脑把数据加载到了内存中。</p>
+<p>上面这些问题通过分析业务代码，也不难发现其关联性。问题如果非常隐蔽，就需要使用OQL等语言，对问题一一排查、确认。</p>
+<p>可以看到，MAT工具的上手是有一定门槛的，除了其操作模式，还需要对我们前面介绍的理论知识有深入的理解。比如GC Roots，各种引用级别等。</p>
+<p>在很多场景，MAT并不仅仅用于内存泄漏的排查。由于我们能够看到内存上的具体数据，在排查一些难度非常高的bug时，MAT也有用武之地。比如，因为某些脏数据，引起了程序的执行异常。这个时候，想要找到它们，不要忘了MAT这个老朋友。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/09/22/%E5%86%85%E5%AD%98oom%E6%8E%92%E6%9F%A5%E7%A5%9E%E5%99%A8%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E4%B9%8Bmatmemoryanalyzer%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/">http://code404.icu/2021/09/22/%E5%86%85%E5%AD%98oom%E6%8E%92%E6%9F%A5%E7%A5%9E%E5%99%A8%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E4%B9%8Bmatmemoryanalyzer%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/OOM/">OOM</a><a class="post-meta__tags" href="/tags/%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA/">内存溢出</a><a class="post-meta__tags" href="/tags/mat/">mat</a><a class="post-meta__tags" href="/tags/MemoryAnalyzer/">MemoryAnalyzer</a><a class="post-meta__tags" href="/tags/%E5%86%85%E5%AD%98%E5%88%86%E6%9E%90/">内存分析</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/09/image-19.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/09/23/go%E8%AF%AD%E8%A8%80%E5%A6%82%E4%BD%95%E8%BF%9E%E6%8E%A5mysql%E6%95%B0%E6%8D%AE%E5%BA%93/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/09/image-20.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">go语言如何连接Mysql数据库</div></div></a></div><div class="next-post pull-right"><a href="/2021/09/21/1220/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/09/image-18-1024x512.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">MySQL 遇到 Too many open files 时，哪项配置在生效？</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/09/01/java%E6%9C%8D%E5%8A%A1-gc%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BAoom%E9%97%AE%E9%A2%98%E5%A6%82%E4%BD%95%E5%AE%9A%E4%BD%8D%EF%BC%9F/" title="Java服务_GC内存溢出OOM问题如何定位？"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-29-1024x689.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-01</div><div class="title">Java服务_GC内存溢出OOM问题如何定位？</div></div></a></div><div><a href="/2021/09/28/jmap-unable-to-open-socket-file-target-process-not-responding-or-hotsport-vm-not-loaded%E8%A7%A3%E5%86%B3/" title="jmap Unable to open socket file: target process not responding or HotSport VM not loaded解决"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-25-1024x444.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-28</div><div class="title">jmap Unable to open socket file: target process not responding or HotSport VM not loaded解决</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1%E3%80%81%E5%B7%A5%E5%85%B7%E4%BB%8B%E7%BB%8D"><span class="toc-number">2.</span> <span class="toc-text">1、工具介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2%E3%80%81%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E6%A3%80%E6%B5%8B"><span class="toc-number">3.</span> <span class="toc-text">2、内存泄漏检测</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3%E3%80%81%E6%94%AF%E9%85%8D%E6%A0%91%E8%A7%86%E5%9B%BE"><span class="toc-number">4.</span> <span class="toc-text">3、支配树视图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4%E3%80%81%E7%BA%BF%E7%A8%8B%E8%A7%86%E5%9B%BE"><span class="toc-number">5.</span> <span class="toc-text">4、线程视图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5%E3%80%81%E6%9F%B1%E7%8A%B6%E5%9B%BE%E8%A7%86%E5%9B%BE"><span class="toc-number">6.</span> <span class="toc-text">5、柱状图视图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6%E3%80%81%E9%AB%98%E7%BA%A7%E5%8A%9F%E8%83%BD-OQL"><span class="toc-number">7.</span> <span class="toc-text">6、高级功能-OQL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7%E3%80%81%E6%80%BB%E7%BB%93"><span class="toc-number">8.</span> <span class="toc-text">7、总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

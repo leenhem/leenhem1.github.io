@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>后台任务稳定运行方案--不受终端关闭或者远程（ssh等）连接失败影响 | 码404</title><meta name="keywords" content="nohup"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 我们经常会碰到这样的问题，用 ssh 登录了远程的 Linux 服务器，运行了一些耗时较长的任务， 结果却由于网络的不稳定导致任务中途失败。如何让命令提交后不受本地关闭终端窗口&#x2F;网络断开连接的干扰呢？下面举了一些例子， 您可以针对不同的场景选择不同的方式来处理这个问题。 从Linux知识可以看出，at的单次任务提交以后，就脱离了该终端的控制，是一种方案，其实例行任务方案cront">
+<meta property="og:type" content="article">
+<meta property="og:title" content="后台任务稳定运行方案--不受终端关闭或者远程（ssh等）连接失败影响">
+<meta property="og:url" content="http://code404.icu/2021/07/18/%E5%90%8E%E5%8F%B0%E4%BB%BB%E5%8A%A1%E7%A8%B3%E5%AE%9A%E8%BF%90%E8%A1%8C%E6%96%B9%E6%A1%88-%E4%B8%8D%E5%8F%97%E7%BB%88%E7%AB%AF%E5%85%B3%E9%97%AD%E6%88%96%E8%80%85%E8%BF%9C%E7%A8%8B%EF%BC%88ssh/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 我们经常会碰到这样的问题，用 ssh 登录了远程的 Linux 服务器，运行了一些耗时较长的任务， 结果却由于网络的不稳定导致任务中途失败。如何让命令提交后不受本地关闭终端窗口&#x2F;网络断开连接的干扰呢？下面举了一些例子， 您可以针对不同的场景选择不同的方式来处理这个问题。 从Linux知识可以看出，at的单次任务提交以后，就脱离了该终端的控制，是一种方案，其实例行任务方案cront">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/07/image-45.png">
+<meta property="article:published_time" content="2021-07-18T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.901Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="nohup">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/07/image-45.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/07/18/%E5%90%8E%E5%8F%B0%E4%BB%BB%E5%8A%A1%E7%A8%B3%E5%AE%9A%E8%BF%90%E8%A1%8C%E6%96%B9%E6%A1%88-%E4%B8%8D%E5%8F%97%E7%BB%88%E7%AB%AF%E5%85%B3%E9%97%AD%E6%88%96%E8%80%85%E8%BF%9C%E7%A8%8B%EF%BC%88ssh/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '后台任务稳定运行方案--不受终端关闭或者远程（ssh等）连接失败影响',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/07/image-45.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">后台任务稳定运行方案--不受终端关闭或者远程（ssh等）连接失败影响</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-07-18T00:30:00.000Z" title="发表于 2021-07-18 08:30:00">2021-07-18</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.901Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="后台任务稳定运行方案--不受终端关闭或者远程（ssh等）连接失败影响"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/07/image-45.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>我们经常会碰到这样的问题，用 ssh 登录了远程的 Linux 服务器，运行了一些耗时较长的任务， 结果却由于网络的不稳定导致任务中途失败。如何让命令提交后不受本地关闭终端窗口&#x2F;网络断开连接的干扰呢？下面举了一些例子， 您可以针对不同的场景选择不同的方式来处理这个问题。</p>
+<p>从Linux知识可以看出，at的单次任务提交以后，就脱离了该终端的控制，是一种方案，其实例行任务方案crontab也可以，不过它是循环执行的，如果实在想不起来其他方案，crontab运行以后，再注释掉改任务也是一种方法。</p>
+<h3 id="nohup-使用方式"><a href="#nohup-使用方式" class="headerlink" title="nohup 使用方式"></a>nohup 使用方式</h3><hr>
+<p>方法有很多，这里先只讲 nohup 这种方式。</p>
+<p>nohup 是 Linux 的一个常用命令，当你想要在退出账户或者关闭终端后进程仍在运行时，就可以使用 nohup 命令。nohup 就是不挂断的意思（no hang up）。</p>
+<h3 id="hangup-名称的来由"><a href="#hangup-名称的来由" class="headerlink" title="hangup 名称的来由"></a>hangup 名称的来由</h3><hr>
+<p>在 Unix 的早期版本中，每个终端都会通过 modem 和系统通讯。当用户 logout 时，modem 就会挂断（hang up）电话。同理，当 modem 断开连接时，就会给终端发送 hangup 信号来通知其关闭所有子进程。</p>
+<p>顾名思义，nohup 的用途就是让提交的命令忽略 hangup 信号。让我们先来看一下 nohup 的帮助信息：</p>
+<p>nohup –help<br>Usage: nohup COMMAND [ARG]…<br>  or:  nohup OPTION<br>Run COMMAND, ignoring hangup signals.</p>
+<pre><code>  --help     display this help and exit
+  --version  output version information and exit
+</code></pre>
+<p>If standard input is a terminal, redirect it from an unreadable file.<br>If standard output is a terminal, append output to ‘nohup.out’ if possible,<br>‘$HOME&#x2F;nohup.out’ otherwise.<br>If standard error is a terminal, redirect it to standard output.<br>To save output to FILE, use ‘nohup COMMAND &gt; FILE’.</p>
+<p>NOTE: your shell may have its own version of nohup, which usually supersedes<br>the version described here.  Please refer to your shell’s documentation<br>for details about the options it supports.</p>
+<p>GNU coreutils online help: <a target="_blank" rel="noopener" href="https://www.gnu.org/software/coreutils/">https://www.gnu.org/software/coreutils/</a><br>Report nohup translation bugs to <a target="_blank" rel="noopener" href="https://translationproject.org/team/">https://translationproject.org/team/</a><br>Full documentation at: <a target="_blank" rel="noopener" href="https://www.gnu.org/software/coreutils/nohup">https://www.gnu.org/software/coreutils/nohup</a><br>or available locally via: info ‘(coreutils) nohup invocation’</p>
+<p>可见，nohup 的使用是十分方便的，只需在要处理的命令前加上 nohup 即可，标准输出和标准错误缺省会被重定向到 nohup.out 文件中。一般我们可在结尾加上”&amp;“来将命令同时放入后台运行，也可用”&gt;filename 2&gt;&amp;1”来更改缺省的重定向文件名。</p>
+<h3 id="基本使用"><a href="#基本使用" class="headerlink" title="基本使用"></a>基本使用</h3><hr>
+<p>[root@somehost test]# nohup ping <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a> &amp;<br>[1] 416<br>[root@somehost test]# nohup: ignoring input and appending output to ‘nohup.out’<br>[root@somehost test]# ps -ef grep 416<br>leenhem    416     9  0 16:32 tty1     00:00:00 ping <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a><br>leenhem    418     9  0 16:32 tty1     00:00:00 grep –color&#x3D;auto 416</p>
+<p>可见我们把 ping <a target="_blank" rel="noopener" href="http://www.baidu.com/">www.baidu.com</a> 放到后台执行了，由于没有指定重定向，默认情况下标准输出和标准错误缺省会被重定向到当前目录的 nohup.out 文件中：</p>
+<p>[root@somehost test]#  tail -f nohup.out<br>PING <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a> (182.92.75.185) 56(84) bytes of data.<br>64 bytes from 182.92.75.185 (182.92.75.185): icmp_seq&#x3D;1 ttl&#x3D;44 time&#x3D;6.01 ms<br>64 bytes from 182.92.75.185 (182.92.75.185): icmp_seq&#x3D;2 ttl&#x3D;44 time&#x3D;6.65 ms</p>
+<p>— <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a> ping statistics —<br>2 packets transmitted, 2 received, 0% packet loss, time 1002ms<br>rtt min&#x2F;avg&#x2F;max&#x2F;mdev &#x3D; 6.012&#x2F;6.332&#x2F;6.652&#x2F;0.320 ms<br>PING <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a> (182.92.75.185) 56(84) bytes of data.<br>64 bytes from 182.92.75.185 (182.92.75.185): icmp_seq&#x3D;1 ttl&#x3D;44 time&#x3D;6.11 ms<br>64 bytes from 182.92.75.185 (182.92.75.185): icmp_seq&#x3D;2 ttl&#x3D;44 time&#x3D;6.49 ms<br>64 bytes from 182.92.75.185 (182.92.75.185): icmp_seq&#x3D;3 ttl&#x3D;44 time&#x3D;6.71 ms</p>
+<h3 id="重定向标准输出"><a href="#重定向标准输出" class="headerlink" title="重定向标准输出"></a>重定向标准输出</h3><hr>
+<p>[root@somehost test]# nohup ping <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a> &gt; ping.txt &amp;<br>[2] 429<br>[root@somehost test]# nohup: ignoring input and redirecting stderr to stdout<br>[root@somehost test]# tail -f ping.txt<br>PING <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a> (182.92.75.185) 56(84) bytes of data.<br>64 bytes from 182.92.75.185 (182.92.75.185): icmp_seq&#x3D;1 ttl&#x3D;44 time&#x3D;6.10 ms<br>64 bytes from 182.92.75.185 (182.92.75.185): icmp_seq&#x3D;2 ttl&#x3D;44 time&#x3D;6.55 ms<br>64 bytes from 182.92.75.185 (182.92.75.185): icmp_seq&#x3D;3 ttl&#x3D;44 time&#x3D;6.56 ms</p>
+<h3 id="重定向标准输出和标准错误"><a href="#重定向标准输出和标准错误" class="headerlink" title="重定向标准输出和标准错误"></a>重定向标准输出和标准错误</h3><hr>
+<p>[root@somehost test]# nohup ping <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a> &gt; ping.txt 2&gt;&amp;1 &amp;<br>[1] 4441<br>[root@somehost test]# ttail -f ping.txt<br>nohup: ignoring input<br>PING <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a> (182.92.75.185) 56(84) bytes of data.<br>64 bytes from 182.92.75.185 (182.92.75.185): icmp_seq&#x3D;1 ttl&#x3D;44 time&#x3D;6.05 ms<br>64 bytes from 182.92.75.185 (182.92.75.185): icmp_seq&#x3D;2 ttl&#x3D;44 time&#x3D;6.50 ms</p>
+<p>与示例二相比，多了2&gt;&amp;1，下面来解释下这是什么意思。</p>
+<h3 id="扩展"><a href="#扩展" class="headerlink" title="扩展"></a>扩展</h3><hr>
+<p>基本符号的含义</p>
+<ul>
+<li>0 表示 stdin 标准输入</li>
+<li>1 表示 stdout 标准输出</li>
+<li>2 表示 stderr 标准错误</li>
+</ul>
+<p>command &gt; file 命令其实是一个缩写，实际上是 command 产生的标准输出重定向到 file 中，也就是说相当于执行了 command 1 &gt; file。</p>
+<p>2&gt;&amp;1</p>
+<p>2 是标准错误，1是标准输出，&amp;1可以理解为用标准输出的引用。实际就是把标准错误也重定向到file中。</p>
+<p>综上，nohup ping <a target="_blank" rel="noopener" href="http://www.code404.icu/">www.code404.icu</a> &gt; ping.txt 2&gt;&amp;1 &amp; 的意思是后台执行ping命令，把标准输出和错误标准错误都重定向ping.txt文件里。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/07/18/%E5%90%8E%E5%8F%B0%E4%BB%BB%E5%8A%A1%E7%A8%B3%E5%AE%9A%E8%BF%90%E8%A1%8C%E6%96%B9%E6%A1%88-%E4%B8%8D%E5%8F%97%E7%BB%88%E7%AB%AF%E5%85%B3%E9%97%AD%E6%88%96%E8%80%85%E8%BF%9C%E7%A8%8B%EF%BC%88ssh/">http://code404.icu/2021/07/18/%E5%90%8E%E5%8F%B0%E4%BB%BB%E5%8A%A1%E7%A8%B3%E5%AE%9A%E8%BF%90%E8%A1%8C%E6%96%B9%E6%A1%88-%E4%B8%8D%E5%8F%97%E7%BB%88%E7%AB%AF%E5%85%B3%E9%97%AD%E6%88%96%E8%80%85%E8%BF%9C%E7%A8%8B%EF%BC%88ssh/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/nohup/">nohup</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/07/image-45.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/07/19/ip%E5%9C%B0%E5%9D%80%E6%98%AF%E6%80%8E%E4%B9%88%E7%BB%84%E6%88%90%E7%9A%84%EF%BC%9F/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/07/image-46.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">IP地址是怎么组成的？</div></div></a></div><div class="next-post pull-right"><a href="/2021/07/17/ssh%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8Cnohup%E5%91%BD%E4%BB%A4%E4%B8%8D%E9%80%80%E5%87%BA/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/07/image-44.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">ssh远程执行nohup命令不退出</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/11/18/%E5%9C%A8-linux%E4%B8%AD%E5%A6%82%E4%BD%95%E5%90%8E%E5%8F%B0%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC-nohup-%E5%91%BD%E4%BB%A4/" title="在 Linux中如何后台运行脚本 nohup 命令"><img class="cover" src="https://code404.icu/img/moveypu/2021/11/2021111802263952.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-18</div><div class="title">在 Linux中如何后台运行脚本 nohup 命令</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#nohup-%E4%BD%BF%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">nohup 使用方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hangup-%E5%90%8D%E7%A7%B0%E7%9A%84%E6%9D%A5%E7%94%B1"><span class="toc-number">3.</span> <span class="toc-text">hangup 名称的来由</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">基本使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E5%AE%9A%E5%90%91%E6%A0%87%E5%87%86%E8%BE%93%E5%87%BA"><span class="toc-number">5.</span> <span class="toc-text">重定向标准输出</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E5%AE%9A%E5%90%91%E6%A0%87%E5%87%86%E8%BE%93%E5%87%BA%E5%92%8C%E6%A0%87%E5%87%86%E9%94%99%E8%AF%AF"><span class="toc-number">6.</span> <span class="toc-text">重定向标准输出和标准错误</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%A9%E5%B1%95"><span class="toc-number">7.</span> <span class="toc-text">扩展</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

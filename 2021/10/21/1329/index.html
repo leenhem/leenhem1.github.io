@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>python 开发Celery异步任务调度与RabbitMQ环境搭建 | 码404</title><meta name="keywords" content="Celery,Django,python,任务调度,异步"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 Celery是一个Python任务队列系统，用于处理跨线程或网络节点的工作任务分配。它使异步任务管理变得容易。您的应用程序只需要将消息推送到像RabbitMQ这样的代理，Celery worker会弹出它们并安排任务执行。 Celery celery 的5个角色  Task 就是任务，有异步任务(Async Task)和定时任务(Celery Beat) Broker 中间人，接收生产者发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python 开发Celery异步任务调度与RabbitMQ环境搭建">
+<meta property="og:url" content="http://code404.icu/2021/10/21/1329/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 Celery是一个Python任务队列系统，用于处理跨线程或网络节点的工作任务分配。它使异步任务管理变得容易。您的应用程序只需要将消息推送到像RabbitMQ这样的代理，Celery worker会弹出它们并安排任务执行。 Celery celery 的5个角色  Task 就是任务，有异步任务(Async Task)和定时任务(Celery Beat) Broker 中间人，接收生产者发">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/10/image-17-1024x461.png">
+<meta property="article:published_time" content="2021-10-21T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.838Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="Celery">
+<meta property="article:tag" content="Django">
+<meta property="article:tag" content="python">
+<meta property="article:tag" content="任务调度">
+<meta property="article:tag" content="异步">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/10/image-17-1024x461.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/10/21/1329/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'python 开发Celery异步任务调度与RabbitMQ环境搭建',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/10/image-17-1024x461.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">python 开发Celery异步任务调度与RabbitMQ环境搭建</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-10-21T00:30:00.000Z" title="发表于 2021-10-21 08:30:00">2021-10-21</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.838Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Python/">Python</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="python 开发Celery异步任务调度与RabbitMQ环境搭建"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/10/image-17-1024x461.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>Celery是一个Python任务队列系统，用于处理跨线程或网络节点的工作任务分配。它使异步任务管理变得容易。<br>您的应用程序只需要将消息推送到像RabbitMQ这样的代理，Celery worker会弹出它们并安排任务执行。</p>
+<h3 id="Celery"><a href="#Celery" class="headerlink" title="Celery"></a>Celery</h3><hr>
+<p>celery 的5个角色</p>
+<ul>
+<li>Task 就是任务，有异步任务(Async Task)和定时任务(Celery Beat)</li>
+<li>Broker 中间人，接收生产者发来的消息即Task，将任务存入队列。<br>任务的消费者是Worker。<br>Celery 本身不提供队列服务，推荐用Redis或RabbitMQ实现队列服务。</li>
+<li>Worker 执行任务的单元，它实时监控消息队列，如果有任务就获取任务并执行它。</li>
+<li>Beat 定时任务调度器，根据配置定时将任务发送给Broker。</li>
+</ul>
+<p>Backend 用于存储任务的执行结果。</p>
+<p><img src="https://img-blog.csdnimg.cn/1f2f1a0dabde4630b5f8bf473e833b83.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_19,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><hr>
+<ol>
+<li>django环境v2.1.2</li>
+<li>安装celery版本</li>
+</ol>
+<p>pip install celery&#x3D;&#x3D;3.1.26.post2</p>
+<ol start="4">
+<li>安装django-celery包</li>
+</ol>
+<p>pip install django-celery&#x3D;&#x3D;3.3.1</p>
+<h3 id="RabbitMQ-环境"><a href="#RabbitMQ-环境" class="headerlink" title="RabbitMQ 环境"></a>RabbitMQ 环境</h3><hr>
+<p>Broker(RabbitMQ) 负责创建任务队列，根据一些路由规则将任务分派到任务队列，然后将任务从任务队列交付给 worker<br>先使用docker 搭建RabbitMQ 环境,rabbitMQ 镜像仓库地址 <a target="_blank" rel="noopener" href="https://hub.docker.com//_/rabbitmq%E6%89%BE%E5%B8%A6%E6%9C%89">https://hub.docker.com/\_/rabbitmq找带有</a> mangement的版本，会带web后台管理界面</p>
+<p>下载 3.8.0-management 镜像</p>
+<p>docker pull rabbitmq:3.8.0-management</p>
+<p>启动容器,设置账号 admin 和密码 123456</p>
+<p>docker run -d –name rabbitmq3.8 -p 5672:5672 -p 15672:15672 –hostname myRabbit -e RABBITMQ_DEFAULT_USER&#x3D;admin -e RABBITMQ_DEFAULT_PASS&#x3D;123456 rabbitmq:3.8.0-management</p>
+<p>宿主机需开放 5672 和 15672 这 2 个端口，5672 是后端接口访问的端口，15672 是前端 web 管理后台页面地址，输入<a href="http://ip:15672可以访问">http://ip:15672可以访问</a> web 网站</p>
+<p><img src="https://img-blog.csdnimg.cn/d2c14dc841b7466d84921a7cc3896816.png" alt="在这里插入图片描述"></p>
+<p>输入前面设置的账号 admin 和密码 123456 可以直接登录</p>
+<p><img src="https://img-blog.csdnimg.cn/cfab555b1cf140caad646c9f200767ea.png" alt="在这里插入图片描述"></p>
+<h3 id="Django-中使用-Celery"><a href="#Django-中使用-Celery" class="headerlink" title="Django 中使用 Celery"></a>Django 中使用 Celery</h3><hr>
+<p>要在 Django 项目中使用 Celery，您必须首先定义 Celery 库的一个实例（称为“应用程序”）</p>
+<p>如果你有一个现代的 Django 项目布局，比如：</p>
+<p>- proj&#x2F;</p>
+<ul>
+<li>manage.py</li>
+<li>proj&#x2F;<ul>
+<li>__init__.py</li>
+<li>settings.py</li>
+<li>urls.py</li>
+</ul>
+</li>
+</ul>
+<p>那么推荐的方法是创建一个新的proj&#x2F;proj&#x2F;celery.py模块来定义 Celery 实例：</p>
+<p>import os</p>
+<p>from celery import Celery</p>
+<h1 id="Set-the-default-Django-settings-module-for-the-‘celery’-program"><a href="#Set-the-default-Django-settings-module-for-the-‘celery’-program" class="headerlink" title="Set the default Django settings module for the ‘celery’ program."></a>Set the default Django settings module for the ‘celery’ program.</h1><p>os.environ.setdefault(‘DJANGO_SETTINGS_MODULE’, ‘proj.settings’)</p>
+<p>app &#x3D; Celery(‘proj’)</p>
+<h1 id="Using-a-string-here-means-the-worker-doesn’t-have-to-serialize"><a href="#Using-a-string-here-means-the-worker-doesn’t-have-to-serialize" class="headerlink" title="Using a string here means the worker doesn’t have to serialize"></a>Using a string here means the worker doesn’t have to serialize</h1><h1 id="the-configuration-object-to-child-processes"><a href="#the-configuration-object-to-child-processes" class="headerlink" title="the configuration object to child processes."></a>the configuration object to child processes.</h1><h1 id="namespace-x3D-’CELERY’-means-all-celery-related-configuration-keys"><a href="#namespace-x3D-’CELERY’-means-all-celery-related-configuration-keys" class="headerlink" title="- namespace&#x3D;’CELERY’ means all celery-related configuration keys"></a>- namespace&#x3D;’CELERY’ means all celery-related configuration keys</h1><h1 id="should-have-a-CELERY-prefix"><a href="#should-have-a-CELERY-prefix" class="headerlink" title="should have a `CELERY_` prefix."></a>should have a `CELERY_` prefix.</h1><p>app.config_from_object(‘django.conf:settings’, namespace&#x3D;’CELERY’)</p>
+<h1 id="Load-task-modules-from-all-registered-Django-apps"><a href="#Load-task-modules-from-all-registered-Django-apps" class="headerlink" title="Load task modules from all registered Django apps."></a>Load task modules from all registered Django apps.</h1><p>app.autodiscover_tasks()</p>
+<p>@app.task(bind&#x3D;True)<br>def debug_task(self):<br>    print(f’Request: {self.request!r}’)</p>
+<p>其中debug_task是测试的任务，可以注掉</p>
+<p># @app.task(bind&#x3D;True)</p>
+<h1 id="def-debug-task-self"><a href="#def-debug-task-self" class="headerlink" title="def debug_task(self):"></a>def debug_task(self):</h1><h1 id="print-‘Request-0-r-’-format-self-request"><a href="#print-‘Request-0-r-’-format-self-request" class="headerlink" title="print(‘Request: {0!r}’.format(self.request))"></a>print(‘Request: {0!r}’.format(self.request))</h1><p>上面一段只需改这句，’proj’是自己django项目的app名称</p>
+<p>app &#x3D; Celery(‘proj’)</p>
+<p>然后你需要在你的proj&#x2F;proj&#x2F;<strong>init</strong>.py 模块中导入这个应用程序。这确保在 Django 启动时加载应用程序，以便@shared_task装饰器（稍后提到）将使用它：</p>
+<p># This will make sure the app is always imported when</p>
+<h1 id="Django-starts-so-that-shared-task-will-use-this-app"><a href="#Django-starts-so-that-shared-task-will-use-this-app" class="headerlink" title="Django starts so that shared_task will use this app."></a>Django starts so that shared_task will use this app.</h1><p>from .celery import app as celery_app</p>
+<p>__all__ &#x3D; (‘celery_app’,)</p>
+<p>上面这段固定的，不用改</p>
+<h3 id="tasks任务"><a href="#tasks任务" class="headerlink" title="tasks任务"></a>tasks任务</h3><hr>
+<p>在app下新建tasks.py,必须要是tasks.py文件名称，django会自动查找到app下的该文件</p>
+<p>@shared_task<br>def add(x, y):<br>    print(“task———-1111111111111111111111”)<br>    return x + y</p>
+<p>@shared_task<br>def mul(x, y):<br>    return x * y</p>
+<p>tasks.py可以写任务函数add、mul，让它生效的最直接的方法就是添加app.task 或shared_task 这个装饰器</p>
+<h3 id="添加setting配置"><a href="#添加setting配置" class="headerlink" title="添加setting配置"></a>添加setting配置</h3><hr>
+<p>setting.py添加配置</p>
+<ul>
+<li>broker参数表示用来连接broker的URL，rabbitmq采用的是一种称为’amqp’的协议，如果rabbitmq运行在默认设置下，celery不需要其他信息，只要amqp:&#x2F;&#x2F;即可。</li>
+<li>backend参数是可选的，如果想要查询任务状态或者任务执行结果时必填, Celery中的后端用于存储任务结果。<br>rpc意味着将结果作为AMQP消息发送回去。</li>
+</ul>
+<p>#   RabbitMQ配置BROKER_URL 和backend<br>BROKER_URL &#x3D; ‘amqp:&#x2F;&#x2F;admin:<a href="mailto:&#x31;&#x32;&#x33;&#52;&#x35;&#54;&#x40;&#49;&#57;&#50;&#46;&#x31;&#54;&#56;&#46;&#49;&#46;&#x31;&#x31;">&#x31;&#x32;&#x33;&#52;&#x35;&#54;&#x40;&#49;&#57;&#50;&#46;&#x31;&#54;&#56;&#46;&#49;&#46;&#x31;&#x31;</a>:5672&#x2F;&#x2F;‘<br>CELERY_RESULT_BACKEND &#x3D; ‘rpc:&#x2F;&#x2F;‘</p>
+<p>CELERY_TASK_SERIALIZER &#x3D; ‘json’<br>CELERY_RESULT_SERIALIZER &#x3D; ‘json’<br>CELERY_ACCEPT_CONTENT&#x3D;[‘json’]<br>CELERY_TIMEZONE &#x3D; ‘Asia&#x2F;Shanghai’<br>CELERY_ENABLE_UTC &#x3D; True</p>
+<h3 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h3><hr>
+<p>views.py创建视图</p>
+<p>from .tasks import add, mul</p>
+<p>def task_demo(request):<br>    res &#x3D; add.delay(10, 20)<br>    print(res.task_id)  # 返回task_id<br>    return JsonResponse({“code”: 0, “res”: res.task_id})</p>
+<h3 id="启动worker"><a href="#启动worker" class="headerlink" title="启动worker"></a>启动worker</h3><hr>
+<p>前面pip已经安装过celery应用了，celery是一个独立的应用，可以启动worker</p>
+<p>celery -A MyDjango worker -l info</p>
+<p>其中MyDjango是你自己的django项目名称</p>
+<p>运行日志</p>
+<p> ————– celery@DESKTOP-HJ487C8 v3.1.26.post2 (Cipater)<br>—- **** —–<br>— * ***  * – Windows-10-10.0.17134-SP0<br>– * - **** —</p>
+<ul>
+<li>** ———- [config]</li>
+<li>** ———- .&gt; app:         yoyo:0x1ea1a96e9b0</li>
+<li>** ———- .&gt; transport:   amqp:&#x2F;&#x2F;admin:**@192.168.1.11:5672&#x2F;&#x2F;</li>
+<li>** ———- .&gt; results:     rpc:&#x2F;&#x2F;</li>
+<li>*** — * — .&gt; concurrency: 4 (prefork)</li>
+</ul>
+<p>– ******* —-<br>— ***** —– [queues]<br> ————– .&gt; celery           exchange&#x3D;celery(direct) key&#x3D;celery</p>
+<p>[tasks]<br>  . yoyo.tasks.add<br>  . yoyo.tasks.mul</p>
+<p>[2021-10-18 22:45:03,155: INFO&#x2F;MainProcess] Connected to amqp:&#x2F;&#x2F;admin:**@192.168.1.11:5672&#x2F;&#x2F;<br>[2021-10-18 22:45:03,347: INFO&#x2F;MainProcess] mingle: searching for neighbors<br>[2021-10-18 22:45:04,897: INFO&#x2F;MainProcess] mingle: all alone<br>[2021-10-18 22:45:05,406: WARNING&#x2F;MainProcess] e:\python36\lib\site-packages\celery\fixups\django.py:265:<br>UserWarning: Using settings.DEBUG leads to a memory leak, never use this setting in production environments!<br>  warnings.warn(‘Using settings.DEBUG leads to a memory leak, never ‘<br>[2021-10-18 22:45:05,407: WARNING&#x2F;MainProcess] celery@DESKTOP-HJ487C8 ready.</p>
+<p>运行的时候，当我们看到” Connected to amqp”说明已经连接成功了！</p>
+<h3 id="shell交互环境"><a href="#shell交互环境" class="headerlink" title="shell交互环境"></a>shell交互环境</h3><hr>
+<p>在django shell交互环境调试运行任务</p>
+<p>D:\202107django\MyDjango&gt;python manage.py shell<br>Python 3.6.6 (v3.6.6:4cf1f54eb7, Jun 27 2018, 03:37:03) [MSC v.1900 64 bit (AMD64)] on win32<br>Type “help”, “copyright”, “credits” or “license” for more information.<br>(InteractiveConsole)</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>from yoyo.tasks import add,mul<br>from celery.result import AsyncResult</p>
+<p>res &#x3D; add.delay(11, 12)<br>res<br>&lt;AsyncResult: c5ff83a4-4840-4b36-8869-5ce6081904f1&gt;<br>res.status<br>‘SUCCESS’</p>
+<p>res.backend<br>&lt;celery.backends.redis.RedisBackend object at 0x0000015E011C3128&gt;</p>
+<p>res.task_id<br>‘c5ff83a4-4840-4b36-8869-5ce6081904f1’</p>
+<p>get_task &#x3D; AsyncResult(id&#x3D;res.task_id)<br>get_task<br>&lt;AsyncResult: c5ff83a4-4840-4b36-8869-5ce6081904f1&gt;<br>get_task.result<br>23</p>
+</blockquote>
+</blockquote>
+</blockquote>
+<p>res.status是查看任务状态<br>res.task_id 是获取任务的id<br>res.result 获取任务结果<br>根据任务的id查询任务的执行结果AsyncResult(id&#x3D;res.task_id).result获取</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/10/21/1329/">http://code404.icu/2021/10/21/1329/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Celery/">Celery</a><a class="post-meta__tags" href="/tags/Django/">Django</a><a class="post-meta__tags" href="/tags/python/">python</a><a class="post-meta__tags" href="/tags/%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6/">任务调度</a><a class="post-meta__tags" href="/tags/%E5%BC%82%E6%AD%A5/">异步</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/10/image-17-1024x461.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/22/python-pip%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C-%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6%E5%8C%85-%E6%9F%A5%E8%AF%A2/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/10/image-18.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Python_pip使用手册_安装软件包_查询</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/20/python%E5%BC%80%E5%8F%91celery%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E4%B8%8Eredis%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/10/image-16-1024x428.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">python开发celery异步任务调度与redis环境搭建</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/10/20/python%E5%BC%80%E5%8F%91celery%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E4%B8%8Eredis%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" title="python开发celery异步任务调度与redis环境搭建"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image-16-1024x428.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-20</div><div class="title">python开发celery异步任务调度与redis环境搭建</div></div></a></div><div><a href="/2021/08/31/python%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1-%E5%A4%9A%E7%A7%8D%E6%96%B9%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1/" title="Python如何实现定时任务_多种方式实现定时任务"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-28.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-31</div><div class="title">Python如何实现定时任务_多种方式实现定时任务</div></div></a></div><div><a href="/2021/10/24/python%E5%BC%80%E5%8F%91celery%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E4%B8%8E%E5%AE%9A%E6%97%B6%E8%A7%A6%E5%8F%91-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1beat/" title="python开发celery异步任务调度与定时触发_定时任务beat"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image-20.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-24</div><div class="title">python开发celery异步任务调度与定时触发_定时任务beat</div></div></a></div><div><a href="/2021/11/11/importerror-libssl-so-10-cannot-open-shared-object-file-no-such-file-or-directory/" title="ImportError: libssl.so.10: cannot open shared object file: No such file or directory"><img class="cover" src="https://code404.icu/img/moveypu/2021/11/image-10.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-11</div><div class="title">ImportError: libssl.so.10: cannot open shared object file: No such file or directory</div></div></a></div><div><a href="/2021/10/22/python-pip%E4%BD%BF%E7%94%A8%E6%89%8B%E5%86%8C-%E5%AE%89%E8%A3%85%E8%BD%AF%E4%BB%B6%E5%8C%85-%E6%9F%A5%E8%AF%A2/" title="Python_pip使用手册_安装软件包_查询"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image-18.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-22</div><div class="title">Python_pip使用手册_安装软件包_查询</div></div></a></div><div><a href="/2021/04/12/python-url%E8%BD%AC%E7%A0%81python3%E4%B8%AD%E7%9A%84urlencode%E5%92%8Curldecode-attributeerror-module-urllib-has-no-attribute-parse/" title="python url转码Python3中的urlencode和urldecode AttributeError: module urllib has no attribute parse"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-12</div><div class="title">python url转码Python3中的urlencode和urldecode AttributeError: module urllib has no attribute parse</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Celery"><span class="toc-number">2.</span> <span class="toc-text">Celery</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number">3.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#RabbitMQ-%E7%8E%AF%E5%A2%83"><span class="toc-number">4.</span> <span class="toc-text">RabbitMQ 环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Django-%E4%B8%AD%E4%BD%BF%E7%94%A8-Celery"><span class="toc-number">5.</span> <span class="toc-text">Django 中使用 Celery</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Set-the-default-Django-settings-module-for-the-%E2%80%98celery%E2%80%99-program"><span class="toc-number"></span> <span class="toc-text">Set the default Django settings module for the ‘celery’ program.</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Using-a-string-here-means-the-worker-doesn%E2%80%99t-have-to-serialize"><span class="toc-number"></span> <span class="toc-text">Using a string here means the worker doesn’t have to serialize</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#the-configuration-object-to-child-processes"><span class="toc-number"></span> <span class="toc-text">the configuration object to child processes.</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#namespace-x3D-%E2%80%99CELERY%E2%80%99-means-all-celery-related-configuration-keys"><span class="toc-number"></span> <span class="toc-text">- namespace&#x3D;’CELERY’ means all celery-related configuration keys</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#should-have-a-CELERY-prefix"><span class="toc-number"></span> <span class="toc-text">should have a &#96;CELERY_&#96; prefix.</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Load-task-modules-from-all-registered-Django-apps"><span class="toc-number"></span> <span class="toc-text">Load task modules from all registered Django apps.</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#def-debug-task-self"><span class="toc-number"></span> <span class="toc-text">def debug_task(self):</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#print-%E2%80%98Request-0-r-%E2%80%99-format-self-request"><span class="toc-number"></span> <span class="toc-text">print(‘Request: {0!r}’.format(self.request))</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Django-starts-so-that-shared-task-will-use-this-app"><span class="toc-number"></span> <span class="toc-text">Django starts so that shared_task will use this app.</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#tasks%E4%BB%BB%E5%8A%A1"><span class="toc-number">1.</span> <span class="toc-text">tasks任务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B7%BB%E5%8A%A0setting%E9%85%8D%E7%BD%AE"><span class="toc-number">2.</span> <span class="toc-text">添加setting配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E8%A7%86%E5%9B%BE"><span class="toc-number">3.</span> <span class="toc-text">创建视图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%90%AF%E5%8A%A8worker"><span class="toc-number">4.</span> <span class="toc-text">启动worker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#shell%E4%BA%A4%E4%BA%92%E7%8E%AF%E5%A2%83"><span class="toc-number">5.</span> <span class="toc-text">shell交互环境</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

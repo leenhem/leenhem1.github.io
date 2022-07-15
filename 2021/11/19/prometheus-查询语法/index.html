@@ -1,0 +1,336 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Prometheus 查询语法 | 码404</title><meta name="keywords" content="Prometheus,PromQL,查询,语法"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="概述 Prometheus是一套使用Go语言进行编写的监控工具，专注于基础监控，默认仅保留15天的监控数据，15天的监控数据，已经足够运维人员去排查和分析运维故障。Prometheus有专门的PQL语言，可以对采集上来的指标进行多维度、函数分析，具有高度的指标定制化能力。本文将同大家一起学习Prometheus的PQL语法，验证并记录下过程。 PQL重要概念 即时向量 一个时间点某指标的值，如：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Prometheus 查询语法">
+<meta property="og:url" content="http://code404.icu/2021/11/19/prometheus-%E6%9F%A5%E8%AF%A2%E8%AF%AD%E6%B3%95/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="概述 Prometheus是一套使用Go语言进行编写的监控工具，专注于基础监控，默认仅保留15天的监控数据，15天的监控数据，已经足够运维人员去排查和分析运维故障。Prometheus有专门的PQL语言，可以对采集上来的指标进行多维度、函数分析，具有高度的指标定制化能力。本文将同大家一起学习Prometheus的PQL语法，验证并记录下过程。 PQL重要概念 即时向量 一个时间点某指标的值，如：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/11/IMG_0404-768x403-1.png">
+<meta property="article:published_time" content="2021-11-19T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.881Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="Prometheus">
+<meta property="article:tag" content="PromQL">
+<meta property="article:tag" content="查询">
+<meta property="article:tag" content="语法">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/11/IMG_0404-768x403-1.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/11/19/prometheus-%E6%9F%A5%E8%AF%A2%E8%AF%AD%E6%B3%95/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Prometheus 查询语法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/11/IMG_0404-768x403-1.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Prometheus 查询语法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-11-19T00:30:00.000Z" title="发表于 2021-11-19 08:30:00">2021-11-19</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.881Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4%E7%9B%91%E6%8E%A7/">运维监控</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Prometheus/">Prometheus</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Prometheus 查询语法"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/11/IMG_0404-768x403-1.png"></p>
+<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><hr>
+<p>Prometheus是一套使用Go语言进行编写的监控工具，专注于基础监控，默认仅保留15天的监控数据，15天的监控数据，已经足够运维人员去排查和分析运维故障。Prometheus有专门的PQL语言，可以对采集上来的指标进行多维度、函数分析，具有高度的指标定制化能力。本文将同大家一起学习Prometheus的PQL语法，验证并记录下过程。</p>
+<h3 id="PQL重要概念"><a href="#PQL重要概念" class="headerlink" title="PQL重要概念"></a>PQL重要概念</h3><hr>
+<h4 id="即时向量"><a href="#即时向量" class="headerlink" title="即时向量"></a>即时向量</h4><hr>
+<p>一个时间点某指标的值，如：</p>
+<p>node_cpu_seconds_total{mode&#x3D;”idle”}</p>
+<p><img src="https://img-blog.csdnimg.cn/295107a6353643a8a18efb37c483c69e.png" alt="在这里插入图片描述"></p>
+<h4 id="区间向量"><a href="#区间向量" class="headerlink" title="区间向量"></a>区间向量</h4><hr>
+<p>指的是在某段时间内metric的取值，每个时间点都包含一系列的值，如：</p>
+<p>node_cpu_seconds_total{mode&#x3D;”idle”}[5m]</p>
+<p><img src="https://img-blog.csdnimg.cn/68255ad6479446fa8a51db51112ce2fb.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<h4 id="指标类型"><a href="#指标类型" class="headerlink" title="指标类型"></a>指标类型</h4><hr>
+<ul>
+<li>Gauge，度量值，这个值是有变化的，如CPU使用率，有高有低</li>
+<li>Counter，累计值，从程序开始，只增不减，如开机运行时长</li>
+</ul>
+<h4 id="标签"><a href="#标签" class="headerlink" title="标签"></a>标签</h4><hr>
+<p>一个指标，可以包括多个标签（label），用来指示这个指标的具体表示信息，起到对一个指标的修饰作用，标签可使用正则表达式进行匹配。</p>
+<p>如node_cpu_seconds_total指标，直接查询该指标，会打印出该指标的全部标签数据。</p>
+<p><img src="https://img-blog.csdnimg.cn/160ad5b641df4f26a5e9709b3d07a040.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>拿关系型数据比较，可以这么类似比喻，node_cpu_seconds_total为表，cpu，instance，job，mode，value为其字段，表数据总为最新的数据，数据量总数等于各个字段的枚举值相乘。</p>
+<p>当我们给这个Metric指标做了标签过滤时，相当于执行了where限制性语句，如node_cpu_seconds_total{mode&#x3D;“idle”}，只过滤出包含mode字段，并且其值为idle，类似于SQL语句。</p>
+<p>select * from node_cpu_seconds_total where mode &#x3D; ‘idle’</p>
+<p>标签支持正则表达式，使用&#x3D;<del>(Rexp)，如node_cpu_seconds_total{mode&#x3D;</del>“idleiowait”}，类似于SQL语句。</p>
+<p>select * from node_cpu_seconds_total where mode &#x3D; ‘idle’ or mode &#x3D; ‘iowait’</p>
+<p>标签过滤器可以有多个，用逗号进行隔开，相当于执行了where … and … 语句，如node_cpu_seconds_total{mode&#x3D;“idle”,cpu&#x3D;‘0’}，类似于SQL语句。</p>
+<p>select * from node_cpu_seconds_total where mode &#x3D; ‘idle’ and cpu &#x3D; ‘0’</p>
+<p>配合标签，我们可以精确的找到我们需要用于展示或者计算的指标值。</p>
+<h4 id="偏移量offset"><a href="#偏移量offset" class="headerlink" title="偏移量offset"></a>偏移量offset</h4><hr>
+<p>指标通过偏移量offset关键字，可以查询相对于当前时间点之前的数据，默认获取当前最新数据，如node_cpu_seconds_total offset 5m，获取5分钟前该指标的数据。</p>
+<h4 id="注释"><a href="#注释" class="headerlink" title="注释"></a>注释</h4><hr>
+<p>PQL使用”#”对语法进行注释。</p>
+<h4 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h4><hr>
+<h5 id="sum"><a href="#sum" class="headerlink" title="sum"></a>sum</h5><hr>
+<ul>
+<li>sum函数可以对瞬时向量进行求和，如sum(node_cpu_seconds_total)，将统计所有值的总和。类似于select sum(value) from node_cpu_seconds_total</li>
+<li>sum后面可以加 by 关键字，表示通过那个维度进行数据统计求和，如sum by (mode) (node_cpu_seconds_total) 类似于 select sum(vaule) from node_cpu_seconds_total group by mode</li>
+</ul>
+<h5 id="min"><a href="#min" class="headerlink" title="min"></a>min</h5><hr>
+<ul>
+<li>min函数可以对瞬时向量进行求最小值，min(node_cpu_seconds_total)。类似于select min(value) from node_cpu_seconds_total</li>
+<li>同样，也支持by关键字，进行某个维度的求最小值</li>
+</ul>
+<h5 id="max"><a href="#max" class="headerlink" title="max"></a>max</h5><hr>
+<ul>
+<li>max函数可以对瞬时向量进行求最大值，max(node_cpu_seconds_total)。类似于select max(value) from node_cpu_seconds_total</li>
+<li>同样，也支持by关键字，进行某个维度的求最大值</li>
+</ul>
+<h5 id="avg"><a href="#avg" class="headerlink" title="avg"></a>avg</h5><hr>
+<ul>
+<li>avg函数可以对瞬时向量进行求平均avg(node_cpu_seconds_total)。类似于select avg(value) from node_cpu_seconds_total</li>
+<li>同样，也支持by关键字，进行某个维度的求最均值</li>
+</ul>
+<h5 id="count"><a href="#count" class="headerlink" title="count"></a>count</h5><hr>
+<ul>
+<li>count函数可以对瞬时向量个数求总数，如count(node_cpu_seconds_total)类似于select count(*) from node_cpu_seconds_total</li>
+<li>同样，也支持by关键字，进行某个维度的求最总个数</li>
+</ul>
+<h5 id="topk"><a href="#topk" class="headerlink" title="topk"></a>topk</h5><hr>
+<ul>
+<li>topk函数可以对瞬时向量的值从大到小进行排列，并获取前N个值，需要传入两个参数，一个是N，一个是指标，如topk(5,node_cpu_seconds_total)，类似于select * from (select * from node_cpu_seconds_total order by value desc) where rownum&lt;&#x3D;5</li>
+<li>同样，也支持by关键字，进行某个维度进行计算</li>
+</ul>
+<h5 id="bottomk"><a href="#bottomk" class="headerlink" title="bottomk"></a>bottomk</h5><hr>
+<ul>
+<li>同topk相反，这里不再赘述。</li>
+</ul>
+<h4 id="计算"><a href="#计算" class="headerlink" title="计算"></a>计算</h4><hr>
+<h5 id="加法运算"><a href="#加法运算" class="headerlink" title="+ 加法运算"></a>+ 加法运算</h5><hr>
+<ul>
+<li>指标支持加法运算，一个即时向量，由于标签值不一致，所以会有多个值，这些值可以跟另外一个即时向量进行相加，这里的相加要保持一个原则，那就是需要具有同一个标签值的才会相加。node_cpu_seconds_total + node_cpu_seconds_total，这相当于所有值都多加一个原来的值，总体的值的数量是保持不变的。</li>
+<li>相加的两个瞬时向量个数不一致情况：node_cpu_seconds_total和node_cpu_seconds_total{mode&#x3D;“idle”}，后者经过过滤后，数量上明显比第一个少，此时输出的结果个数同过滤后数量少的个数一致。</li>
+<li>两个即时向量都不具备有同样的标签值情况：如node_cpu_seconds_total + node_memory_Active_bytes，此时由于没有任何一个值具有相同的标签值，所以结果为nodata，此时我们可以用ignoring关键字，对标签值进行忽略，使他们可以进行相加。由于node_cpu_seconds_total比node_memory_Active_bytes多了cpu和mode标签，所以node_cpu_seconds_total数量个数一般大于node_memory_Active_bytes个数，所以需要使用group_left，node_cpu_seconds_total + ignoring(cpu,mode) group_left node_memory_Active_bytes，结果集以左边的node_cpu_seconds_total个数为准，如果加号两个即时向量位置相反，则可以使用group_right，如node_memory_Active_bytes + ignoring(cpu,mode) group_right node_cpu_seconds_total</li>
+</ul>
+<h5 id="减法运算"><a href="#减法运算" class="headerlink" title="- 减法运算"></a>- 减法运算</h5><hr>
+<ul>
+<li>类似加法运算</li>
+</ul>
+<h5 id="乘法运算"><a href="#乘法运算" class="headerlink" title="* 乘法运算"></a>* 乘法运算</h5><hr>
+<ul>
+<li>类似加法运算</li>
+</ul>
+<h5 id="x2F-除法运算"><a href="#x2F-除法运算" class="headerlink" title="&#x2F; 除法运算"></a>&#x2F; 除法运算</h5><hr>
+<ul>
+<li>类似加法运算</li>
+</ul>
+<h4 id="逻辑比较"><a href="#逻辑比较" class="headerlink" title="逻辑比较"></a>逻辑比较</h4><hr>
+<h5 id="x3D-判断是否相等"><a href="#x3D-判断是否相等" class="headerlink" title="=&#x3D; 判断是否相等"></a>=&#x3D; 判断是否相等</h5><hr>
+<ul>
+<li>=&#x3D;用于判断左右两边的值是否相等，如果相等则为1（true），如果不等则为0（false），如node_cpu_seconds_total &#x3D;&#x3D;BOOL 0 判断是否有存在0值</li>
+</ul>
+<h5 id="x3D-判断是否不等"><a href="#x3D-判断是否不等" class="headerlink" title="!&#x3D; 判断是否不等"></a>!&#x3D; 判断是否不等</h5><hr>
+<ul>
+<li>类似&#x3D;&#x3D;</li>
+</ul>
+<h5 id="gt-x3D-大于等于"><a href="#gt-x3D-大于等于" class="headerlink" title="&gt;&#x3D; 大于等于"></a>&gt;&#x3D; 大于等于</h5><hr>
+<ul>
+<li>&gt;&#x3D;用于判断左边的值是否大于或等于右边的值，如果满足，则为1（true），如果不满足则为0（false）</li>
+</ul>
+<h5 id="lt-x3D-小于等于"><a href="#lt-x3D-小于等于" class="headerlink" title="&lt;&#x3D;小于等于"></a>&lt;&#x3D;小于等于</h5><hr>
+<ul>
+<li>类似大于等于</li>
+</ul>
+<h5 id="gt-大于"><a href="#gt-大于" class="headerlink" title="&gt; 大于"></a>&gt; 大于</h5><hr>
+<ul>
+<li>类似大于等于</li>
+</ul>
+<h5 id="lt-小于"><a href="#lt-小于" class="headerlink" title="&lt; 小于"></a>&lt; 小于</h5><hr>
+<ul>
+<li>类似大于等于</li>
+</ul>
+<h4 id="数据集操作"><a href="#数据集操作" class="headerlink" title="数据集操作"></a>数据集操作</h4><hr>
+<h5 id="and"><a href="#and" class="headerlink" title="and"></a>and</h5><hr>
+<ul>
+<li>对多个指标的数据集进行标签判断，获取两个指标集具有共同的标签的值node_cpu_seconds_total and node_cpu_guest_seconds_total，类似sql select * from node_cpu_seconds_total a,node_cpu_guest_seconds_total b where a.cpu &#x3D; b.cpu and a.instance &#x3D; b.instance and a.job&#x3D;b.job and a.mode &#x3D; b.mode</li>
+</ul>
+<h5 id="or"><a href="#or" class="headerlink" title="or"></a>or</h5><hr>
+<ul>
+<li>对多个指标集数据进行展示，如果有标签重复，则仅显示其中一个标签的值。</li>
+</ul>
+<h5 id="unless"><a href="#unless" class="headerlink" title="unless"></a>unless</h5><hr>
+<ul>
+<li>对多个指标的数据集进行标签判断，获取两个指标集不具有共同的标签的值，结果集以最左边为准，如node_memory_Active_bytes unless node_cpu_seconds_total和node_cpu_seconds_total unless node_memory_Active_bytes结果是不一样的。</li>
+</ul>
+<h3 id="函数-1"><a href="#函数-1" class="headerlink" title="函数"></a>函数</h3><hr>
+<p>用于即时向量的函数</p>
+<h4 id="abs"><a href="#abs" class="headerlink" title="abs"></a>abs</h4><hr>
+<ul>
+<li>abs返回即时向量的绝对值</li>
+</ul>
+<h4 id="absent"><a href="#absent" class="headerlink" title="absent"></a>absent</h4><hr>
+<ul>
+<li>absent用于检测即时向量中，某个标签是否存在，如果不存在，则value为1，如检查标签为node_arp_entries{instance&#x3D;“localhost:9100”}是否存在有元素，如果存在则返回nodata，如果不存在value则为1</li>
+<li>常用于检测指标是否丢失。</li>
+</ul>
+<h4 id="ceil"><a href="#ceil" class="headerlink" title="ceil"></a>ceil</h4><hr>
+<ul>
+<li>用于将浮点数向上化为最接近的一个整数，如值为0.1，则为向上取整，成为1。</li>
+</ul>
+<h4 id="floor"><a href="#floor" class="headerlink" title="floor"></a>floor</h4><hr>
+<ul>
+<li>用于将浮点数向下化为最接近的一个整数，如值为0.1，则为向下取整，成为0。</li>
+</ul>
+<h4 id="clamp-max"><a href="#clamp-max" class="headerlink" title="clamp_max"></a>clamp_max</h4><hr>
+<ul>
+<li>该函数需要两个参数，一个是向量，另外一个是封顶值，如果一个向量的值超过该封顶值，该向量的值则为封顶值。</li>
+</ul>
+<h4 id="clamp-min"><a href="#clamp-min" class="headerlink" title="clamp_min"></a>clamp_min</h4><hr>
+<ul>
+<li>该函数需要两个参数，一个是向量，另外一个是触底值，如果一个向量的值超过该触底值，该向量的值则为触底值。</li>
+</ul>
+<p><strong>用于区间向量的函数</strong></p>
+<p>区间向量的函数执行完成后，便成为了即时向量。</p>
+<h4 id="absent-over-time"><a href="#absent-over-time" class="headerlink" title="absent_over_time"></a>absent_over_time</h4><hr>
+<ul>
+<li>absent_over_time用于检测在给定的区间向量中，是否存在有元素，如果没有则value为1。</li>
+</ul>
+<h4 id="changes"><a href="#changes" class="headerlink" title="changes"></a>changes</h4><hr>
+<ul>
+<li>返回给定的区间向量中，对比于当前值，发生变化的元素的数量。</li>
+</ul>
+<h4 id="delta"><a href="#delta" class="headerlink" title="delta"></a>delta</h4><hr>
+<ul>
+<li>返回区间向量中，第一个元素和最后一个元素之间的变化值，时间区间也参与算法计算，所以即时第一个元素和最后一个元素均为整数，该值也未必是整数。</li>
+<li>须作用在gauge类型的指标</li>
+</ul>
+<h4 id="deriv"><a href="#deriv" class="headerlink" title="deriv"></a>deriv</h4><hr>
+<ul>
+<li>返回区间向量中，满足线性规律的每秒变化值</li>
+<li>须作用在gauge类型的指标</li>
+</ul>
+<h4 id="idelta"><a href="#idelta" class="headerlink" title="idelta"></a>idelta</h4><hr>
+<ul>
+<li>该函数计算区间向量间，最后两个元素的差值，如果区间内没有两个元素，则返回nodata</li>
+<li>须作用在gauge类型的指标</li>
+</ul>
+<h4 id="irate"><a href="#irate" class="headerlink" title="irate"></a>irate</h4><hr>
+<ul>
+<li>该函数计算区间向量间，最后两个元素的差值，并且除以区间的秒数，如果区间内没有两个元素，则返回nodata。</li>
+</ul>
+<h4 id="over-time"><a href="#over-time" class="headerlink" title="_over_time"></a>_over_time</h4><hr>
+<ul>
+<li>该函数技术按区间向量的最大（max）、最小（min）、平均（avg）、求和（sum）、求总数（）等汇聚值。</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/11/19/prometheus-%E6%9F%A5%E8%AF%A2%E8%AF%AD%E6%B3%95/">http://code404.icu/2021/11/19/prometheus-%E6%9F%A5%E8%AF%A2%E8%AF%AD%E6%B3%95/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Prometheus/">Prometheus</a><a class="post-meta__tags" href="/tags/PromQL/">PromQL</a><a class="post-meta__tags" href="/tags/%E6%9F%A5%E8%AF%A2/">查询</a><a class="post-meta__tags" href="/tags/%E8%AF%AD%E6%B3%95/">语法</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/11/IMG_0404-768x403-1.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/11/20/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8find%E5%91%BD%E4%BB%A4%E6%9F%A5%E6%89%BE%E7%B3%BB%E7%BB%9F%E6%96%87%E4%BB%B6/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/11/image-11.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">如何使用find命令查找系统文件?</div></div></a></div><div class="next-post pull-right"><a href="/2021/11/18/%E5%9C%A8-linux%E4%B8%AD%E5%A6%82%E4%BD%95%E5%90%8E%E5%8F%B0%E8%BF%90%E8%A1%8C%E8%84%9A%E6%9C%AC-nohup-%E5%91%BD%E4%BB%A4/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/11/2021111802263952.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">在 Linux中如何后台运行脚本 nohup 命令</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/05/08/api-%E6%96%B9%E5%BC%8F-push-%E6%95%B0%E6%8D%AE%E5%88%B0-pushgateway/" title="API 方式 Push 数据到 PushGateway"><img class="cover" src="https://code404.icu/img/moveypu/2021/05/image-5.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-08</div><div class="title">API 方式 Push 数据到 PushGateway</div></div></a></div><div><a href="/2021/05/07/prometheus-%E4%BD%BF%E7%94%A8-pushgateway-%E8%BF%9B%E8%A1%8C%E6%95%B0%E6%8D%AE%E4%B8%8A%E6%8A%A5%E9%87%87%E9%9B%86/" title="Prometheus 使用 PushGateway 进行数据上报采集"><img class="cover" src="https://code404.icu/img/moveypu/2021/05/image-5.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-07</div><div class="title">Prometheus 使用 PushGateway 进行数据上报采集</div></div></a></div><div><a href="/2021/06/19/prometheus-%E7%9B%91%E6%8E%A7-%E4%B8%BB%E6%9C%BA%E5%AD%98%E6%B4%BB-%E7%9B%91%E6%8E%A7-blackbox-exporter/" title="prometheus 监控 主机存活 监控 blackbox_exporter"><img class="cover" src="https://code404.icu/img/moveypu/2021/06/image-44.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-19</div><div class="title">prometheus 监控 主机存活 监控 blackbox_exporter</div></div></a></div><div><a href="/2021/06/20/prometheus-%E7%9B%91%E6%8E%A7-%E6%9C%8D%E5%8A%A1%E6%98%AF%E5%90%A6%E5%8F%AF%E7%94%A8-%E5%8F%AF%E7%94%A8%E6%80%A7%E7%9B%91%E6%8E%A7-blackbox-exporte/" title="prometheus 监控 服务是否可用 可用性监控 blackbox_exporte"><img class="cover" src="https://code404.icu/img/moveypu/2021/06/image-44.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-20</div><div class="title">prometheus 监控 服务是否可用 可用性监控 blackbox_exporte</div></div></a></div><div><a href="/2021/11/25/%E5%A6%82%E4%BD%95%E6%90%AD%E5%BB%BA-loki%E5%BC%80%E6%BA%90%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9F/" title="如何搭建 Loki开源日志系统？"><img class="cover" src="https://code404.icu/img/moveypu/2021/11/2021112501292883.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-25</div><div class="title">如何搭建 Loki开源日志系统？</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A6%82%E8%BF%B0"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PQL%E9%87%8D%E8%A6%81%E6%A6%82%E5%BF%B5"><span class="toc-number">2.</span> <span class="toc-text">PQL重要概念</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8D%B3%E6%97%B6%E5%90%91%E9%87%8F"><span class="toc-number">2.1.</span> <span class="toc-text">即时向量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8C%BA%E9%97%B4%E5%90%91%E9%87%8F"><span class="toc-number">2.2.</span> <span class="toc-text">区间向量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8C%87%E6%A0%87%E7%B1%BB%E5%9E%8B"><span class="toc-number">2.3.</span> <span class="toc-text">指标类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%87%E7%AD%BE"><span class="toc-number">2.4.</span> <span class="toc-text">标签</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%81%8F%E7%A7%BB%E9%87%8Foffset"><span class="toc-number">2.5.</span> <span class="toc-text">偏移量offset</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%B3%A8%E9%87%8A"><span class="toc-number">2.6.</span> <span class="toc-text">注释</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%87%BD%E6%95%B0"><span class="toc-number">2.7.</span> <span class="toc-text">函数</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#sum"><span class="toc-number">2.7.1.</span> <span class="toc-text">sum</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#min"><span class="toc-number">2.7.2.</span> <span class="toc-text">min</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#max"><span class="toc-number">2.7.3.</span> <span class="toc-text">max</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#avg"><span class="toc-number">2.7.4.</span> <span class="toc-text">avg</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#count"><span class="toc-number">2.7.5.</span> <span class="toc-text">count</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#topk"><span class="toc-number">2.7.6.</span> <span class="toc-text">topk</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#bottomk"><span class="toc-number">2.7.7.</span> <span class="toc-text">bottomk</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97"><span class="toc-number">2.8.</span> <span class="toc-text">计算</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%8A%A0%E6%B3%95%E8%BF%90%E7%AE%97"><span class="toc-number">2.8.1.</span> <span class="toc-text">+ 加法运算</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E5%87%8F%E6%B3%95%E8%BF%90%E7%AE%97"><span class="toc-number">2.8.2.</span> <span class="toc-text">- 减法运算</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#%E4%B9%98%E6%B3%95%E8%BF%90%E7%AE%97"><span class="toc-number">2.8.3.</span> <span class="toc-text">* 乘法运算</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#x2F-%E9%99%A4%E6%B3%95%E8%BF%90%E7%AE%97"><span class="toc-number">2.8.4.</span> <span class="toc-text">&#x2F; 除法运算</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%80%BB%E8%BE%91%E6%AF%94%E8%BE%83"><span class="toc-number">2.9.</span> <span class="toc-text">逻辑比较</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#x3D-%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E7%9B%B8%E7%AD%89"><span class="toc-number">2.9.1.</span> <span class="toc-text">&#x3D;&#x3D; 判断是否相等</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#x3D-%E5%88%A4%E6%96%AD%E6%98%AF%E5%90%A6%E4%B8%8D%E7%AD%89"><span class="toc-number">2.9.2.</span> <span class="toc-text">!&#x3D; 判断是否不等</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#gt-x3D-%E5%A4%A7%E4%BA%8E%E7%AD%89%E4%BA%8E"><span class="toc-number">2.9.3.</span> <span class="toc-text">&gt;&#x3D; 大于等于</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#lt-x3D-%E5%B0%8F%E4%BA%8E%E7%AD%89%E4%BA%8E"><span class="toc-number">2.9.4.</span> <span class="toc-text">&lt;&#x3D;小于等于</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#gt-%E5%A4%A7%E4%BA%8E"><span class="toc-number">2.9.5.</span> <span class="toc-text">&gt; 大于</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#lt-%E5%B0%8F%E4%BA%8E"><span class="toc-number">2.9.6.</span> <span class="toc-text">&lt; 小于</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%95%B0%E6%8D%AE%E9%9B%86%E6%93%8D%E4%BD%9C"><span class="toc-number">2.10.</span> <span class="toc-text">数据集操作</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#and"><span class="toc-number">2.10.1.</span> <span class="toc-text">and</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#or"><span class="toc-number">2.10.2.</span> <span class="toc-text">or</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#unless"><span class="toc-number">2.10.3.</span> <span class="toc-text">unless</span></a></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%BD%E6%95%B0-1"><span class="toc-number">3.</span> <span class="toc-text">函数</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#abs"><span class="toc-number">3.1.</span> <span class="toc-text">abs</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#absent"><span class="toc-number">3.2.</span> <span class="toc-text">absent</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ceil"><span class="toc-number">3.3.</span> <span class="toc-text">ceil</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#floor"><span class="toc-number">3.4.</span> <span class="toc-text">floor</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#clamp-max"><span class="toc-number">3.5.</span> <span class="toc-text">clamp_max</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#clamp-min"><span class="toc-number">3.6.</span> <span class="toc-text">clamp_min</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#absent-over-time"><span class="toc-number">3.7.</span> <span class="toc-text">absent_over_time</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#changes"><span class="toc-number">3.8.</span> <span class="toc-text">changes</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#delta"><span class="toc-number">3.9.</span> <span class="toc-text">delta</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#deriv"><span class="toc-number">3.10.</span> <span class="toc-text">deriv</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#idelta"><span class="toc-number">3.11.</span> <span class="toc-text">idelta</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#irate"><span class="toc-number">3.12.</span> <span class="toc-text">irate</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#over-time"><span class="toc-number">3.13.</span> <span class="toc-text">_over_time</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

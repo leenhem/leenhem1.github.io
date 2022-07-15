@@ -1,0 +1,190 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>使用秘钥登录linux服务器 | 码404</title><meta name="keywords" content="linux,证书,SSh,密钥登录,禁用密码"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 有时候我们希望不用每次登录linux服务器都要输入密码，那么这个时候可以选择ssh密钥登录，就是rsa公钥放到服务器上，私钥放在客户端上，每次登录的时候，用密钥登录；这样更方便也更安全 两台主机(服务器)秘钥登录流程图 我们从A主机(左边)秘钥登录到B服务器(右边) A主机生成公钥 生成公钥私钥，一般不需要特殊设置一路回车默认下一步即可 &gt; ssh-keygenGenerating">
+<meta property="og:type" content="article">
+<meta property="og:title" content="使用秘钥登录linux服务器">
+<meta property="og:url" content="http://code404.icu/2021/12/10/%E4%BD%BF%E7%94%A8%E7%A7%98%E9%92%A5%E7%99%BB%E5%BD%95linux%E6%9C%8D%E5%8A%A1%E5%99%A8/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 有时候我们希望不用每次登录linux服务器都要输入密码，那么这个时候可以选择ssh密钥登录，就是rsa公钥放到服务器上，私钥放在客户端上，每次登录的时候，用密钥登录；这样更方便也更安全 两台主机(服务器)秘钥登录流程图 我们从A主机(左边)秘钥登录到B服务器(右边) A主机生成公钥 生成公钥私钥，一般不需要特殊设置一路回车默认下一步即可 &gt; ssh-keygenGenerating">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/12/image-6.png">
+<meta property="article:published_time" content="2021-12-10T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.899Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="证书">
+<meta property="article:tag" content="SSh">
+<meta property="article:tag" content="密钥登录">
+<meta property="article:tag" content="禁用密码">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/12/image-6.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/12/10/%E4%BD%BF%E7%94%A8%E7%A7%98%E9%92%A5%E7%99%BB%E5%BD%95linux%E6%9C%8D%E5%8A%A1%E5%99%A8/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '使用秘钥登录linux服务器',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/12/image-6.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">使用秘钥登录linux服务器</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-12-10T00:30:00.000Z" title="发表于 2021-12-10 08:30:00">2021-12-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.899Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4%E7%9B%91%E6%8E%A7/">运维监控</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="使用秘钥登录linux服务器"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/12/image-6.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>有时候我们希望不用每次登录linux服务器都要输入密码，那么这个时候可以选择ssh密钥登录，就是rsa公钥放到服务器上，私钥放在客户端上，每次登录的时候，用密钥登录；这样更方便也更安全</p>
+<h3 id="两台主机-服务器-秘钥登录流程图"><a href="#两台主机-服务器-秘钥登录流程图" class="headerlink" title="两台主机(服务器)秘钥登录流程图"></a>两台主机(服务器)秘钥登录流程图</h3><hr>
+<p>我们从A主机(左边)秘钥登录到B服务器(右边)<br><img src="https://img-blog.csdnimg.cn/5d5c7e5ddc22411e86799c6843981825.webp?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="请添加图片描述"></p>
+<h3 id="A主机生成公钥"><a href="#A主机生成公钥" class="headerlink" title="A主机生成公钥"></a>A主机生成公钥</h3><hr>
+<p>生成公钥私钥，一般不需要特殊设置一路回车默认下一步即可</p>
+<p>&gt; ssh-keygen<br>Generating public&#x2F;private rsa key pair.<br>Enter file in which to save the key (&#x2F;root&#x2F;.ssh&#x2F;id_rsa):<br>Enter passphrase (empty for no passphrase):<br>Enter same passphrase again:<br>Your identification has been saved in &#x2F;root&#x2F;.ssh&#x2F;id_rsa.<br>Your public key has been saved in &#x2F;root&#x2F;.ssh&#x2F;id_rsa.pub.<br>The key fingerprint is:<br>SHA256:+ims1qKnA9kAUbwuaGmGLdg+V4w1PMj7RO4gMHI7NCU root@JD<br>The key’s randomart image is:<br>+—[RSA 2048]—-+<br>.+.<br>. E .<br>.  &#x3D; o<br>&#x3D; &#x3D; o *<br>&#x3D;%.o B oS<br>O&#x3D;O + &#x3D;.<br>+&#x3D; o O.          </p>
+<ul>
+<li>&#x3D; *. .<br>  oO.o .o</li>
+</ul>
+<p>+—-[SHA256]—–+</p>
+<h3 id="查看公钥"><a href="#查看公钥" class="headerlink" title="查看公钥"></a>查看公钥</h3><hr>
+<p>&gt; ls -al ~&#x2F;.ssh<br>-rw——-   1 root root  1675 May  7 21:39 id_rsa &#x2F;&#x2F;私钥<br>-rw-r–r–   1 root root   389 May  7 21:39 id_rsa.pub &#x2F;&#x2F;公钥</p>
+<blockquote>
+<p>cat id_rsa.pub<br>ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDULg8kwT2rW8Z&#x2F;r0h5lvO6KziZWV1roM&#x2F;0eKVnkxeKOF9A0JAL46WF4ZA2XsNfG2camxTekC0ZwArB6uvFQTR8RZtDCwdsdsdsds6K3ytR&#x2F;FOzira6z+7xbk6LvPylaCLfjfMmta04Q7dsdsdsdsdsds5MDr7oY73TWt2XToDA3FynMnl9MQjO4SoTU&#x2F;Z1PiKsdOoCnbeP&#x2F;O6KL+6sh9tbd5HoPPLm8LtDCeebZNhvZSulsbeTFZ5Z+HzPLostXJVhRFtiwUlaemAhXngVdIB5D9feXCYdQiP3NM0zAI94XUFCFyaSnZdv3+OTqHmxJ root@local</p>
+</blockquote>
+<h3 id="id-rsa-pub公钥要发送到B服务器"><a href="#id-rsa-pub公钥要发送到B服务器" class="headerlink" title="id_rsa.pub公钥要发送到B服务器"></a>id_rsa.pub公钥要发送到B服务器</h3><hr>
+<p>B服务器添加A主机的公钥<br>在B服务器对应登录账号的家目录下的.ssh&#x2F;authorized_keys文件添加A主机的公钥<br>比如我们要使用code404账号进行秘钥登录,就是配置&#x2F;home&#x2F;code404&#x2F;.ssh&#x2F;authorized_keys</p>
+<p>&gt; cat &#x2F;home&#x2F;code404&#x2F;.ssh&#x2F;authorized_keys<br>ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDULg8kwT2rW8Z&#x2F;r0h5lvO6KziZWV1roM&#x2F;0eKVnkxeKOF9A0JAL46WF4ZA2XsNfG2camxTekC0ZwArB6uvFQTR8RZtDCwdsdsdsds6K3ytR&#x2F;FOzira6z+7xbk6LvPylaCLfjfMmta04Q7dsdsdsdsdsds5MDr7oY73TWt2XToDA3FynMnl9MQjO4SoTU&#x2F;Z1PiKsdOoCnbeP&#x2F;O6KL+6sh9tbd5HoPPLm8LtDCeebZNhvZSulsbeTFZ5Z+HzPLostXJVhRFtiwUlaemAhXngVdIB5D9feXCYdQiP3NM0zAI94XUFCFyaSnZdv3+OTqHmxJ root@local</p>
+<h3 id="给公钥及目录添加权限"><a href="#给公钥及目录添加权限" class="headerlink" title="给公钥及目录添加权限"></a>给公钥及目录添加权限</h3><hr>
+<p>&gt; chmod 600 &#x2F;home&#x2F;code404&#x2F;.ssh&#x2F;authorized_keys</p>
+<blockquote>
+<p>chmod 700 &#x2F;home&#x2F;code404&#x2F;.ssh</p>
+</blockquote>
+<h3 id="sshd服务安全配置-开启秘钥登录"><a href="#sshd服务安全配置-开启秘钥登录" class="headerlink" title="sshd服务安全配置 开启秘钥登录"></a>sshd服务安全配置 开启秘钥登录</h3><hr>
+<p>&gt; vim &#x2F;etc&#x2F;ssh&#x2F;sshd_config<br>RSAAuthentication yes<br>PubkeyAuthentication yes</p>
+<h3 id="重启sshd服务"><a href="#重启sshd服务" class="headerlink" title="重启sshd服务"></a>重启sshd服务</h3><hr>
+<p>密钥方式登录成功后，再禁用密码登录<br>一定要秘钥登录成功后,再禁用密码登录。</p>
+<p>&gt; service sshd restart</p>
+<blockquote>
+<p>vim &#x2F;etc&#x2F;ssh&#x2F;sshd_config<br>PasswordAuthentication no</p>
+</blockquote>
+<blockquote>
+<p>service sshd restart</p>
+</blockquote>
+<h3 id="秘钥登录测试-A主机的命令行输入"><a href="#秘钥登录测试-A主机的命令行输入" class="headerlink" title="秘钥登录测试 A主机的命令行输入"></a>秘钥登录测试 A主机的命令行输入</h3><hr>
+<p>&gt; ssh code404@B服务器ip<br>Last login: Tue Mar 11 11:23:22 2021</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/12/10/%E4%BD%BF%E7%94%A8%E7%A7%98%E9%92%A5%E7%99%BB%E5%BD%95linux%E6%9C%8D%E5%8A%A1%E5%99%A8/">http://code404.icu/2021/12/10/%E4%BD%BF%E7%94%A8%E7%A7%98%E9%92%A5%E7%99%BB%E5%BD%95linux%E6%9C%8D%E5%8A%A1%E5%99%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/%E8%AF%81%E4%B9%A6/">证书</a><a class="post-meta__tags" href="/tags/SSh/">SSh</a><a class="post-meta__tags" href="/tags/%E5%AF%86%E9%92%A5%E7%99%BB%E5%BD%95/">密钥登录</a><a class="post-meta__tags" href="/tags/%E7%A6%81%E7%94%A8%E5%AF%86%E7%A0%81/">禁用密码</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/12/image-6.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/12/11/k8s%E5%A6%82%E4%BD%95%E4%BF%AE%E6%94%B9%E9%99%90%E5%88%B6%E8%8A%82%E7%82%B9%E5%90%AF%E5%8A%A8%E7%9A%84pod%E6%95%B0%E9%87%8F%EF%BC%9F/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/09/image-23-1024x370.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">k8s如何修改限制节点启动的Pod数量？</div></div></a></div><div class="next-post pull-right"><a href="/2021/12/09/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEhaproxy/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/12/image-5.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">普通用户安装配置haproxy</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/09/20/1212/" title="org.apache.tomcat.util.net.NioEndpoint$Acceptor.run Socket accept failed java.io.IOException: 打开的文件过多"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-16-1024x512.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-20</div><div class="title">org.apache.tomcat.util.net.NioEndpoint$Acceptor.run Socket accept failed java.io.IOException: 打开的文件过多</div></div></a></div><div><a href="/2021/08/11/awk-%E5%A6%82%E4%BD%95%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C-%E4%B8%8D%E6%8E%92%E5%BA%8F%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C/" title="awk 如何删除重复行_不排序删除重复行"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-9.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-11</div><div class="title">awk 如何删除重复行_不排序删除重复行</div></div></a></div><div><a href="/2021/04/14/centos-163-yum%E6%BA%90%E9%85%8D%E7%BD%AE/" title="centos 163 yum源配置"><img class="cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-14</div><div class="title">centos 163 yum源配置</div></div></a></div><div><a href="/2021/06/03/centos7%E5%8D%87%E7%BA%A7openssh8-5p1%E9%99%84%E5%B8%A6%E5%AE%89%E8%A3%85%E5%8C%85/" title="CentOS7升级OpenSSH8.5p1附带安装包"><img class="cover" src="https://code404.icu/img/moveypu/2021/06/image-8.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-06-03</div><div class="title">CentOS7升级OpenSSH8.5p1附带安装包</div></div></a></div><div><a href="/2021/04/10/centos%E5%8D%87%E7%BA%A7%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC-linux%E5%8D%87%E7%BA%A7%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC-redhat%E5%8D%87%E7%BA%A7%E5%86%85%E6%A0%B8%E7%89%88%E6%9C%AC/" title="CentOS升级内核版本_linux升级内核版本_Redhat升级内核版本"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/2021040911291197.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-10</div><div class="title">CentOS升级内核版本_linux升级内核版本_Redhat升级内核版本</div></div></a></div><div><a href="/2021/07/13/linux-date-%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B-date%E8%8E%B7%E5%8F%967%E5%A4%A9%E5%89%8D%E7%9A%84%E6%97%A5%E6%9C%9F/" title="Linux Date 命令使用示例 date获取7天前的日期"><img class="cover" src="https://code404.icu/img/moveypu/2021/07/image-40.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-13</div><div class="title">Linux Date 命令使用示例 date获取7天前的日期</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%A4%E5%8F%B0%E4%B8%BB%E6%9C%BA-%E6%9C%8D%E5%8A%A1%E5%99%A8-%E7%A7%98%E9%92%A5%E7%99%BB%E5%BD%95%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="toc-number">2.</span> <span class="toc-text">两台主机(服务器)秘钥登录流程图</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#A%E4%B8%BB%E6%9C%BA%E7%94%9F%E6%88%90%E5%85%AC%E9%92%A5"><span class="toc-number">3.</span> <span class="toc-text">A主机生成公钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9F%A5%E7%9C%8B%E5%85%AC%E9%92%A5"><span class="toc-number">4.</span> <span class="toc-text">查看公钥</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#id-rsa-pub%E5%85%AC%E9%92%A5%E8%A6%81%E5%8F%91%E9%80%81%E5%88%B0B%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="toc-number">5.</span> <span class="toc-text">id_rsa.pub公钥要发送到B服务器</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%99%E5%85%AC%E9%92%A5%E5%8F%8A%E7%9B%AE%E5%BD%95%E6%B7%BB%E5%8A%A0%E6%9D%83%E9%99%90"><span class="toc-number">6.</span> <span class="toc-text">给公钥及目录添加权限</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sshd%E6%9C%8D%E5%8A%A1%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE-%E5%BC%80%E5%90%AF%E7%A7%98%E9%92%A5%E7%99%BB%E5%BD%95"><span class="toc-number">7.</span> <span class="toc-text">sshd服务安全配置 开启秘钥登录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E5%90%AFsshd%E6%9C%8D%E5%8A%A1"><span class="toc-number">8.</span> <span class="toc-text">重启sshd服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A7%98%E9%92%A5%E7%99%BB%E5%BD%95%E6%B5%8B%E8%AF%95-A%E4%B8%BB%E6%9C%BA%E7%9A%84%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%BE%93%E5%85%A5"><span class="toc-number">9.</span> <span class="toc-text">秘钥登录测试 A主机的命令行输入</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

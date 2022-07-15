@@ -1,0 +1,185 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>postman使用教程1-安装与使用 | 码404</title><meta name="keywords" content="Postman,接口测试"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="前言postman用于测试http协议接口，无论是开发, 还是测试人员, 都有必要学习使用postman来测试接口, 用起来非常方便。 环境安装postman 可以直接在chrome 上安装插件，当然大部分的同学是没法连接到谷歌商店的，我们可以在电脑本地安装postman 客户端工具。Postman 也可作为适用于Mac，Windows（32位&#x2F; 64位）和Linux（32位&amp;#x2F">
+<meta property="og:type" content="article">
+<meta property="og:title" content="postman使用教程1-安装与使用">
+<meta property="og:url" content="http://code404.icu/2021/06/04/postman%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B1-%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="前言postman用于测试http协议接口，无论是开发, 还是测试人员, 都有必要学习使用postman来测试接口, 用起来非常方便。 环境安装postman 可以直接在chrome 上安装插件，当然大部分的同学是没法连接到谷歌商店的，我们可以在电脑本地安装postman 客户端工具。Postman 也可作为适用于Mac，Windows（32位&#x2F; 64位）和Linux（32位&amp;#x2F">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/06/image-19.png">
+<meta property="article:published_time" content="2021-06-04T00:34:28.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.881Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="Postman">
+<meta property="article:tag" content="接口测试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/06/image-19.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/06/04/postman%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B1-%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'postman使用教程1-安装与使用',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/06/image-19.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">postman使用教程1-安装与使用</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-06-04T00:34:28.000Z" title="发表于 2021-06-04 08:34:28">2021-06-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.881Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Postman/">Postman</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="postman使用教程1-安装与使用"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/06/image-19.png"></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>postman用于测试http协议接口，无论是开发, 还是测试人员, 都有必要学习使用postman来测试接口, 用起来非常方便。</p>
+<h2 id="环境安装"><a href="#环境安装" class="headerlink" title="环境安装"></a>环境安装</h2><p>postman 可以直接在chrome 上安装插件，当然大部分的同学是没法连接到谷歌商店的，我们可以在电脑本地安装postman 客户端工具。<br>Postman 也可作为适用于Mac，Windows（32位&#x2F; 64位）和Linux（32位&#x2F; 64位）操作系统的本机桌面应用程序使用。</p>
+<p>Postman官网下载地址 <a target="_blank" rel="noopener" href="https://www.postman.com/downloads/%EF%BC%9A">https://www.postman.com/downloads/：</a></p>
+<ul>
+<li>Postman for MAC <a target="_blank" rel="noopener" href="https://dl.pstmn.io/download/latest/osx">https://dl.pstmn.io/download/latest/osx</a></li>
+<li>Postman for windows 64 <a target="_blank" rel="noopener" href="https://dl.pstmn.io/download/latest/win64">https://dl.pstmn.io/download/latest/win64</a></li>
+<li>Postman for windows X86 <a target="_blank" rel="noopener" href="https://dl.pstmn.io/download/latest/win32">https://dl.pstmn.io/download/latest/win32</a></li>
+<li>Postman for linux <a target="_blank" rel="noopener" href="https://dl.pstmn.io/download/latest/linux64">https://dl.pstmn.io/download/latest/linux64</a></li>
+</ul>
+<p>以windows 10系统安装为例，下载安装包Postman-win64-7.1.1-Setup.exe，双击安装</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-9.png"></p>
+<h2 id="测试接口"><a href="#测试接口" class="headerlink" title="测试接口"></a>测试接口</h2><h3 id="接口名称：获取今日天气"><a href="#接口名称：获取今日天气" class="headerlink" title="接口名称：获取今日天气"></a>接口名称：获取今日天气</h3><p>详细说明：<a target="_blank" rel="noopener" href="https://www.nowapi.com/api/weather.today?url=www.code404.icu">https://www.nowapi.com/api/weather.today?url=www.code404.icu</a></p>
+<p>请求示例(json): <a target="_blank" rel="noopener" href="http://api.k780.com:88/?app=weather.today&amp;weaid=101020100&amp;appkey=10003&amp;sign=b59bc3ef6191eb9f747dd4e83c99f2a4&amp;format=json">http://api.k780.com:88/?app=weather.today&amp;weaid=101020100&amp;appkey=10003&amp;sign=b59bc3ef6191eb9f747dd4e83c99f2a4&amp;format=json</a></p>
+<h4 id="请求参数说明："><a href="#请求参数说明：" class="headerlink" title="请求参数说明："></a>请求参数说明：</h4><p>app 是获取哪天的数据，weather.today是获取今天的，weather.future获取未来五天的<br>wedid 是城市气象编号，与中国天气网编号一致，如上海：101020100<br>key和sign是身份验证，注册一个可以换成自己的，上例中的10003是公众帐号，<br>formt是返回格式，支持 json，xml,除了formt不是必须的以外，其他参数都是必须提供的。</p>
+<h4 id="接口返回格式："><a href="#接口返回格式：" class="headerlink" title="接口返回格式："></a>接口返回格式：</h4><p>{<br>    “success”: “1”,<br>    “result”: {<br>        “weaid”: “36”,<br>        “days”: “2021-05-06”,<br>        “week”: “星期四”,<br>        “cityno”: “shanghai”,<br>        “citynm”: “上海”,<br>        “cityid”: “101020100”,<br>        “temperature”: “24℃&#x2F;19℃”,<br>        “temperature_curr”: “22℃”,<br>        “humidity”: “31%”,<br>        “aqi”: “57”,<br>        “weather”: “小雨”,<br>        “weather_curr”: “多云”,<br>        “weather_icon”: “<a target="_blank" rel="noopener" href="http://api.k780.com/upload/weather/d/1.gif&quot;">http://api.k780.com/upload/weather/d/1.gif&quot;</a>,<br>        “weather_icon1”: “”,<br>        “wind”: “东北风”,<br>        “winp”: “1级”,<br>        “temp_high”: “24”,<br>        “temp_low”: “19”,<br>        “temp_curr”: “22”,<br>        “humi_high”: “0”,<br>        “humi_low”: “0”,<br>        “weatid”: “2”,<br>        “weatid1”: “”,<br>        “windid”: “1”,<br>        “winpid”: “1”,<br>        “weather_iconid”: “1”<br>    }<br>}</p>
+<h4 id="Collection下添加-request-请求"><a href="#Collection下添加-request-请求" class="headerlink" title="Collection下添加 request 请求"></a>Collection下添加 request 请求</h4><p>点左上角 New - 添加 Collection ，Collection是收集器，可以理解成一个测试项目，这个项目下添加需测试的接口</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-10.png"></p>
+<p>添加收集器名称和描述</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-11.png"></p>
+<p>create 添加成功后，添加一个请求</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-12.png"></p>
+<p>添加需要测试的请求，保存到收集器里面</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-13.png"></p>
+<p>展开之后就可以看到添加的get请求了</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-14.png"></p>
+<h3 id="测试天气预报接口"><a href="#测试天气预报接口" class="headerlink" title="测试天气预报接口"></a>测试天气预报接口</h3><p>以测试天气接口为例：<a target="_blank" rel="noopener" href="http://api.k780.com:88/?app=weather.today&amp;weaid=101020100&amp;appkey=10003&amp;sign=b59bc3ef6191eb9f747dd4e83c99f2a4&amp;format=json">http://api.k780.com:88/?app=weather.today&amp;weaid=101020100&amp;appkey=10003&amp;sign=b59bc3ef6191eb9f747dd4e83c99f2a4&amp;format=json</a></p>
+<p>可以直接复制整个url地址到地址栏，会自动生成 QueryParams 键值对</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-15-1024x517.png"></p>
+<p>点send按钮，就可以看到response内容了</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-16.png"></p>
+<h4 id="Query-Params"><a href="#Query-Params" class="headerlink" title="Query Params"></a>Query Params</h4><p>Query Params参数有2种编辑方式，可以在表格填写键值对</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-17-1024x454.png"></p>
+<p>也可以点开Bulk Edit写多个键值对，中间用冒号隔开，多个参数换行</p>
+<p>app:weather.today<br>weaid:101020100<br>appkey:10003<br>sign:b59bc3ef6191eb9f747dd4e83c99f2a4<br>format:json</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-18-1024x406.png"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/06/04/postman%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B1-%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/">http://code404.icu/2021/06/04/postman%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B1-%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Postman/">Postman</a><a class="post-meta__tags" href="/tags/%E6%8E%A5%E5%8F%A3%E6%B5%8B%E8%AF%95/">接口测试</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/06/image-19.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/06/05/rabbitmq%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E6%9C%8D%E5%8A%A1%E9%AB%98%E5%8F%AF%E7%94%A8%E6%90%AD%E5%BB%BA%E6%89%8B%E5%86%8C/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/06/image-21.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">RabbitMQ消息队列服务高可用搭建手册</div></div></a></div><div class="next-post pull-right"><a href="/2021/06/03/centos7%E5%8D%87%E7%BA%A7openssh8-5p1%E9%99%84%E5%B8%A6%E5%AE%89%E8%A3%85%E5%8C%85/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/06/image-8.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">CentOS7升级OpenSSH8.5p1附带安装包</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/09/25/postman-%E5%A6%82%E4%BD%95%E8%B0%83%E8%AF%95%E5%8A%A0%E5%AF%86%E6%8E%A5%E5%8F%A3%EF%BC%9F/" title="Postman 如何调试加密接口？"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-22.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-25</div><div class="title">Postman 如何调试加密接口？</div></div></a></div><div><a href="/2021/10/28/%E5%A6%82%E4%BD%95-%E6%B1%89%E5%8C%96-postman-%E4%B8%AD%E6%96%87%E7%89%88%EF%BC%9F/" title="如何 汉化 Postman 中文版？"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image-24-1024x450.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-28</div><div class="title">如何 汉化 Postman 中文版？</div></div></a></div><div><a href="/2021/12/12/%E5%A6%82%E4%BD%95%E5%8D%8Ajmeter%E6%80%A7%E8%83%BD%E6%B5%8B%E8%AF%95%E5%93%8D%E5%BA%94%E7%BB%93%E6%9E%9C%E4%BF%9D%E5%AD%98%E5%88%B0%E6%9C%AC%E5%9C%B0%EF%BC%9F/" title="如何半Jmeter性能测试响应结果保存到本地？"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image-2-1024x361.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-12</div><div class="title">如何半Jmeter性能测试响应结果保存到本地？</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%8E%AF%E5%A2%83%E5%AE%89%E8%A3%85"><span class="toc-number">2.</span> <span class="toc-text">环境安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E6%8E%A5%E5%8F%A3"><span class="toc-number">3.</span> <span class="toc-text">测试接口</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8E%A5%E5%8F%A3%E5%90%8D%E7%A7%B0%EF%BC%9A%E8%8E%B7%E5%8F%96%E4%BB%8A%E6%97%A5%E5%A4%A9%E6%B0%94"><span class="toc-number">3.1.</span> <span class="toc-text">接口名称：获取今日天气</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%AF%B7%E6%B1%82%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="toc-number">3.1.1.</span> <span class="toc-text">请求参数说明：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%8E%A5%E5%8F%A3%E8%BF%94%E5%9B%9E%E6%A0%BC%E5%BC%8F%EF%BC%9A"><span class="toc-number">3.1.2.</span> <span class="toc-text">接口返回格式：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Collection%E4%B8%8B%E6%B7%BB%E5%8A%A0-request-%E8%AF%B7%E6%B1%82"><span class="toc-number">3.1.3.</span> <span class="toc-text">Collection下添加 request 请求</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E8%AF%95%E5%A4%A9%E6%B0%94%E9%A2%84%E6%8A%A5%E6%8E%A5%E5%8F%A3"><span class="toc-number">3.2.</span> <span class="toc-text">测试天气预报接口</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Query-Params"><span class="toc-number">3.2.1.</span> <span class="toc-text">Query Params</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

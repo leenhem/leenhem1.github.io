@@ -1,0 +1,296 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Linux Shell脚本调试模式 | 码404</title><meta name="keywords" content="linux,Bash,Debug,shell,shell脚本,调试模式"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="简介 shell 是用户和操作系统交互的一个程序，经常用于执行一些自动化或者重复繁琐的任务，现在所有的 Linux 系统基本都自带了该程序，我们只需要编写好shell脚本，直接执行就可以了，不需要额外安装软件、配置编译环境，可以说使用起来非常的方便，但是它在调试方面常常令人头大，本文主要介绍shell脚本常用的调试方法 调试常用选项调试shell脚本时，常常用到几个调试选项，让脚本在执行的过程中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux Shell脚本调试模式">
+<meta property="og:url" content="http://code404.icu/2021/08/13/linux-shell%E8%84%9A%E6%9C%AC%E8%B0%83%E8%AF%95%E6%A8%A1%E5%BC%8F/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="简介 shell 是用户和操作系统交互的一个程序，经常用于执行一些自动化或者重复繁琐的任务，现在所有的 Linux 系统基本都自带了该程序，我们只需要编写好shell脚本，直接执行就可以了，不需要额外安装软件、配置编译环境，可以说使用起来非常的方便，但是它在调试方面常常令人头大，本文主要介绍shell脚本常用的调试方法 调试常用选项调试shell脚本时，常常用到几个调试选项，让脚本在执行的过程中">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/08/image-11.png">
+<meta property="article:published_time" content="2021-08-13T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.859Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="linux">
+<meta property="article:tag" content="Bash">
+<meta property="article:tag" content="Debug">
+<meta property="article:tag" content="shell">
+<meta property="article:tag" content="shell脚本">
+<meta property="article:tag" content="调试模式">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/08/image-11.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/08/13/linux-shell%E8%84%9A%E6%9C%AC%E8%B0%83%E8%AF%95%E6%A8%A1%E5%BC%8F/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'Linux Shell脚本调试模式',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/08/image-11.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">Linux Shell脚本调试模式</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-13T00:30:00.000Z" title="发表于 2021-08-13 08:30:00">2021-08-13</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.859Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="Linux Shell脚本调试模式"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/08/image-11.png"></p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><hr>
+<p>shell 是用户和操作系统交互的一个程序，经常用于执行一些自动化或者重复繁琐的任务，现在所有的 Linux 系统基本都自带了该程序，我们只需要编写好shell脚本，直接执行就可以了，不需要额外安装软件、配置编译环境，可以说使用起来非常的方便，但是它在调试方面常常令人头大，本文主要介绍shell脚本常用的调试方法</p>
+<h3 id="调试常用选项"><a href="#调试常用选项" class="headerlink" title="调试常用选项"></a>调试常用选项</h3><p>调试shell脚本时，常常用到几个调试选项，让脚本在执行的过程中，会输出一些调试信息，根据调试信息，就可以定位出具体出问题的代码</p>
+<p>具体的选项以及说明如下：</p>
+<p>选项</p>
+<p>说明</p>
+<p>-x</p>
+<p>输出结果之前，先输出执行的命令</p>
+<p>-u</p>
+<p>遇到不存在的变量就会报错，并停止执行</p>
+<p>-e</p>
+<p>发生错误时，终止执行</p>
+<p>-n</p>
+<p>检查语法错误</p>
+<p>-o pipefail</p>
+<p>管道子命令发生错误，终止执行</p>
+<h3 id="跟踪脚本的执行"><a href="#跟踪脚本的执行" class="headerlink" title="跟踪脚本的执行"></a>跟踪脚本的执行</h3><hr>
+<ul>
+<li>输出调试信息</li>
+</ul>
+<p>通常，脚本执行之后，只有结果输出，当运行多条命令的时候，就会连续输出多条结果，无法分清哪条命令对应哪条结果, 使用 -x选项，会先输出将要执行的那一行命令的调试信息，然后再执行命令</p>
+<p>现有脚本ta.sh，功能是输出当前日期, 内容如下</p>
+<p>#!&#x2F;bin&#x2F;bash<br>echo “today is :”$(date +’%Y-%m-%d’)</p>
+<p>我们使用 -x 选项来执行脚本，结果如下</p>
+<p>[root@VM-0-2-centos shell_debug]# bash -x ta.sh<br>++ date +%Y-%m-%d</p>
+<ul>
+<li>echo ‘today is :2021-07-10’<br>today is :2021-07-10</li>
+</ul>
+<p>从结果中可以看到，在执行前打印出了每一行命令，行前面的 + 号表示调试信息，它实际是环境变量 PS4 的值, PS4 的第一个字符会根据嵌套层次进行重复，命令所处的层次越深，前面的 + 号越多</p>
+<p>结果中第一行表示执行 date +’%Y-%m-%d’ 命令，它处于第内层，所以打印两个 + 号 ，第二行表示执行 echo “today is :”$(date +’%Y-%m-%d’) 命令，它处于外层，只打印一个 + 号</p>
+<p>把 -x 选项放到 #!&#x2F;bin&#x2F;bash 语句后面，执行的时候不带 -x 也能实现同样的效果，上述脚本只需要把 #!&#x2F;bin&#x2F;bash 改成 #!&#x2F;bin&#x2F;bash -x 即可</p>
+<ul>
+<li>输出行号</li>
+</ul>
+<p>上面示例中脚本内容很少，试想下，如果脚本内容达到了几百行或者几千行之后，输出每一行命令的提示信息，阅读起来就很费劲了，在这种情况下，我们在每行输出前加上行号，可以直接定位到具体的行</p>
+<p>修改下 ta.sh 脚本，修改后的内容如下</p>
+<p>#!&#x2F;bin&#x2F;bash </p>
+<p>PS4&#x3D;’+${BASH_SOURCE}:${LINENO} ‘<br>echo “start…”<br>set -x<br>echo “today is :”$(date +’%Y-%m-%d’)<br>set +x<br>echo “end…”</p>
+<p>修改之后的脚本加入了 PS4 变量, 它是调试信息的前缀，默认值是 “+”, 我们可以修改它的值，达到输出的调试信息中包含行号的目的</p>
+<p>上述代码中 “${BASH_SOURCE}” 表示 当前执行的shell脚本的相对路径，在这里用来表示脚本文件名，”${LINENO}” 表示行号，修改 PS4 之后，输出的调试信息就会包括 脚本名字以及行号</p>
+<p>我们执行脚本，看下结果</p>
+<p>[root@VM-0-2-centos shell_debug]# bash -x ta.sh </p>
+<ul>
+<li>PS4&#x3D;’+${BASH_SOURCE}:${LINENO} ‘</li>
+</ul>
+<p>+ta.sh:4 echo start…<br>start…<br>++ta.sh:5 date +%Y-%m-%d<br>+ta.sh:5 echo ‘today is :2021-07-10’<br>today is :2021-07-10<br>+ta.sh:6 echo end…<br>end…</p>
+<p>从结果可以看出，每一行命令的调试信息中都包含了文件名和行号</p>
+<ul>
+<li>输出部分调试信息</li>
+</ul>
+<p>有时，我们只需要输出部分调试信息，这个时候就需要我们手动去设置 -x 选项了，把需要输出调试信息的命令放到 set -x 和set +x 之间</p>
+<p>修改下 ta.sh 脚本，内容如下</p>
+<p>#!&#x2F;bin&#x2F;bash</p>
+<p>echo “test…”</p>
+<p>set -x<br>echo “today is :”$(date +’%Y-%m-%d’)<br>set +x</p>
+<p>echo “finish…”</p>
+<p>执行脚本，结果如下</p>
+<p>[root@VM-0-2-centos shell_debug]# .&#x2F;ta.sh<br>[root@VM-0-2-centos shell_debug]# .&#x2F;ta.sh<br>test…<br>++ date +%Y-%m-%d</p>
+<ul>
+<li>echo ‘today is :2021-07-10’<br>today is :2021-07-10</li>
+<li>set +x<br>finish…</li>
+</ul>
+<p>从结果可以看出，只有 echo today is :”$(date +’%Y-%m-%d’) 命令输出了调试信息，set -x 相当于开启调试信息，set +x 则是关闭调试信息</p>
+<p>这里需要注意下，脚本中使用了 set -x 时 , 执行的时候就不要再加 -x 了</p>
+<h3 id="日志打印"><a href="#日志打印" class="headerlink" title="日志打印"></a>日志打印</h3><hr>
+<p>通过打印日志来调试shell脚本是常用的方式，在一行命令前后打印变量值或者命令结果，通过日志来判断是否有错误</p>
+<p>但是，当脚本比较长的时候，需要打印的日志就有点儿多了，而且，调试完了后，这些调试日志就不再需要了，这时就要一行行的删掉日志打印</p>
+<p>下面介绍一种方法，把脚本中所有的日志打印加一个开关，当开关打开的时候，就会输出调试相关的日志，不需要的时候，直接关闭开关即可</p>
+<p>现有脚本 debug1.sh, 内容如下</p>
+<p>#!&#x2F;bin&#x2F;bash</p>
+<p>#调试开关, on 表示开启,其他表示关闭<br>IS_DEBUG&#x3D;”on”<br>#调试开关函数<br>function _DEBUG()<br>{<br>   [ “$IS_DEBUG” &#x3D;&#x3D; “on” ] &amp;&amp; $@<br>}</p>
+<p>va&#x3D;1<br>_DEBUG echo ‘old value:’$va<br>#变量val加1<br>let va++<br>echo ‘new value:’$va</p>
+<p>上述脚本中，IS_DEBUG变量是调试开关，“on” 表示开启，其他表示关闭</p>
+<p>_DEBUG() 是调试开关函数，它的功能是：如果 IS_DEBUG 为 “on” ，执行后面的命令，否则忽略</p>
+<p>先打开调试开关， 执行脚本，结果如下</p>
+<p>[root@VM-0-2-centos shell_debug]# .&#x2F;debug1.sh<br>old value:1<br>new value:2</p>
+<p>再关闭调试开关，执行脚本，结果如下</p>
+<p>[root@VM-0-2-centos shell_debug]# .&#x2F;debug1.sh<br>new value:2</p>
+<p>从上面两组测试结果可以看出，当打开调试开关，也即设置 IS_DEBUG&#x3D;“on” 后， 语句 _DEBUG echo ‘old value:’$va 会执行 echo ‘old value:’$va 命令，当 IS_DEBUG&#x3D;“off” 时, 就会忽略 echo ‘old value:’$va 命令</p>
+<p>所以，当调试的时候，打开调试开关，调试完成之后，脚本不需要做任何修改，只需要关闭开关，调试相关的命令就都不会执行了</p>
+<h3 id="常见的错误处理"><a href="#常见的错误处理" class="headerlink" title="常见的错误处理"></a>常见的错误处理</h3><hr>
+<ul>
+<li>不存在的变量</li>
+</ul>
+<p>执行脚本的时候，遇到不存在的变量，默认会忽略它</p>
+<p>现有脚本 td.sh, 内容如下</p>
+<p>#!&#x2F;bin&#x2F;bash<br>echo “start…”<br>echo $ta<br>echo “end…”</p>
+<p>脚本中 ta 是一个不存在的变量，脚本执行结果如下</p>
+<p>[root@VM-0-2-centos shell_debug]# .&#x2F;td.sh<br>start…</p>
+<p>end…</p>
+<p>可以看到，echo $ta 输出了一个空行，脚本直接忽略了不存在的 ta 变量， 并且继续执行后面的命令</p>
+<p>这种情况通常并不是我们希望的结果，遇到不存在的变量，应该直接报错，并停止执行后面的命令，在脚本开头加上 set -u 语句或者执行脚本的时候加上 -u ，可以得到我们期望的结果</p>
+<p>在脚本开头加上 set -u 语句，整个脚本内容如下</p>
+<p>#!&#x2F;bin&#x2F;bash</p>
+<p>set -u<br>echo “start…”<br>echo $ta<br>echo “end…”</p>
+<p>执行脚本，结果如下</p>
+<p>[root@VM-0-2-centos shell_debug]# .&#x2F;td.sh<br>start…<br>.&#x2F;td.sh: line 5: ta: unbound variable</p>
+<p>可以看到，加了 set -u 语句之后，遇到不存在的变量 ta, 直接报错，并且停止执行后面的命令</p>
+<p>当然，我们使用 bash -u td.sh 命令执行脚本也会得到相同的结果</p>
+<ul>
+<li>语法错误</li>
+</ul>
+<p>语法错误是shell脚本执行错误的原因之一，执行脚本的时候加上 -n, 当脚本有语法错误，不会继续执行，而是打印错误信息</p>
+<p>现有脚本 te.sh, 内容如下</p>
+<p>#!&#x2F;bin&#x2F;bash</p>
+<p>if [ $# -le 0 ];then<br>   echo “no param..”</p>
+<p>输入 bash -n te.sh 命令，并回车，结果如下</p>
+<p>[root@VM-0-2-centos shell_debug]# bash -n te.sh<br>te.sh: line 5: syntax error: unexpected end of file</p>
+<p>上面的脚本中的 if 缺少结尾的 fi, 所以执行 bash -n te.sh 命令之后会出现语法错误的提示</p>
+<p>这个选项很实用，特别是当我们写完shell脚本之后，不要急着执行，先使用 -n 选项检查下有没有语法错误，它可以帮我们提前发现错误</p>
+<ul>
+<li>发生错误，终止执行</li>
+</ul>
+<p>一般情况下，脚本执行时发生错误了，还是会继续执行后面的命令</p>
+<p>现有脚本 tf.sh, 内容如下</p>
+<p>#!&#x2F;bin&#x2F;bash</p>
+<p>echo “start…”<br>abc<br>echo “end…”</p>
+<p>执行脚本，结果如下</p>
+<p>[root@VM-0-2-centos shell_debug]# .&#x2F;tf.sh<br>start…<br>.&#x2F;tf.sh: line 4: abc: command not found<br>end…</p>
+<p>从结果可以看到，脚本中第四行的 abc 是未知的命令，执行时发生了错误，但是脚本还是继续向后执行，一直到结束</p>
+<p>这种行为不利于脚本的安全和错误排查，在实际应用中，发生了错误应该停止执行脚本，防止错误越积越多，我们可以使用 -e 选项来避免这个问题</p>
+<p>加上 -e 选项，再次执行上述脚本，结果如下</p>
+<p>[root@VM-0-2-centos shell_debug]# bash -e .&#x2F;tf.sh<br>start…<br>.&#x2F;tf.sh: line 4: abc: command not found</p>
+<p>从上面结果可以知道，脚本执行到第四行的时候发生了错误，此时脚本停止往下执行了</p>
+<ul>
+<li>管道下 子命令失败，终止执行</li>
+</ul>
+<p>上面提到的 -e 选项有个特殊的情况，不适用于管道命令，管道命令是通过管道符 “” 组合的命令， 具体的看下面的例子吧</p>
+<p>现有脚本 tg.sh, 内容如下</p>
+<p>#!&#x2F;bin&#x2F;bash</p>
+<p>echo “start…”<br>abc  echo “111”<br>echo “end…”</p>
+<p>脚本的第四行， abc echo “111” 是管道命令，我们执行 bash -e .&#x2F;tg.sh 命令后，结果如下</p>
+<p>[root@VM-0-2-centos shell_debug]# bash -e .&#x2F;tg.sh<br>start…<br>.&#x2F;tg.sh: line 4: abc: command not found<br>111<br>end…</p>
+<p>可以看到，即使使用 -e 选项执行脚本，发生错误的时候，还是会继续往下执行，直到结束</p>
+<p>我们使用 set -o pipefail来解决这种情况，只要管道命令中一个子命令发生了错误,整个管道命令就失败了，脚本就会终止执行</p>
+<p>修改下上述脚本，内容如下</p>
+<p>#!&#x2F;bin&#x2F;bash</p>
+<p>set -o pipefail<br>echo “start…”<br>abc  echo “111”<br>echo “end…”</p>
+<p>再次执行脚本，结果如下</p>
+<p>[root@VM-0-2-centos shell_debug]# bash -e tg.sh<br>start…<br>tg.sh: line 5: abc: command not found<br>111</p>
+<p>可以看到，在 tg.sh 脚本开头加上 set -o pipefail 语句之后，再次执行脚本， 管道命令 abc echo “111” 执行子命令 abc 时发生错误，后续的子命令不再执行了，整个管道命令失败了</p>
+<p>由于执行时加了 -e 选项，当管道命令执行失败了，脚本就会终止执行，所以 echo “end…” 没有执行</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/08/13/linux-shell%E8%84%9A%E6%9C%AC%E8%B0%83%E8%AF%95%E6%A8%A1%E5%BC%8F/">http://code404.icu/2021/08/13/linux-shell%E8%84%9A%E6%9C%AC%E8%B0%83%E8%AF%95%E6%A8%A1%E5%BC%8F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/linux/">linux</a><a class="post-meta__tags" href="/tags/Bash/">Bash</a><a class="post-meta__tags" href="/tags/Debug/">Debug</a><a class="post-meta__tags" href="/tags/shell/">shell</a><a class="post-meta__tags" href="/tags/shell%E8%84%9A%E6%9C%AC/">shell脚本</a><a class="post-meta__tags" href="/tags/%E8%B0%83%E8%AF%95%E6%A8%A1%E5%BC%8F/">调试模式</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/08/image-11.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/08/14/python-%E5%A6%82%E4%BD%95%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%BD%BF%E7%94%A8-%E5%8D%A0%E4%BD%8D%E7%AC%A6-%E8%AF%A6%E8%A7%A3%E7%A0%81404/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/08/image-12-1024x640.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Python 如何字符串格式化使用_占位符%_详解码404</div></div></a></div><div class="next-post pull-right"><a href="/2021/08/12/linux-%E6%88%96-windows-%E4%B8%8A%E5%AE%9E%E7%8E%B0%E7%AB%AF%E5%8F%A3%E6%98%A0%E5%B0%84/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/08/image-10.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Linux 或 Windows 上实现端口映射</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/09/16/linux%E8%BF%90%E7%AE%97%E7%AC%A6%E5%8F%8D%E5%BC%95%E5%8F%B7%E5%92%8C%E6%80%8E%E4%B9%88%E7%94%A8%EF%BC%9F/" title="linux运算符`反引号和$()怎么用？"><img class="cover" src="https://code404.icu/img/moveypu/2021/06/image-41.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-16</div><div class="title">linux运算符`反引号和$()怎么用？</div></div></a></div><div><a href="/2021/07/17/ssh%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8Cnohup%E5%91%BD%E4%BB%A4%E4%B8%8D%E9%80%80%E5%87%BA/" title="ssh远程执行nohup命令不退出"><img class="cover" src="https://code404.icu/img/moveypu/2021/07/image-44.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-07-17</div><div class="title">ssh远程执行nohup命令不退出</div></div></a></div><div><a href="/2021/10/17/vim-%E5%A4%A7%E7%A5%9E%E6%93%8D%E4%BD%9C%E6%89%8B%E5%86%8C-%E9%80%80%E5%87%BAvim-%E7%BC%96%E8%BE%91vim-%E6%9F%A5%E6%89%BEvim-vim%E6%9B%BF%E6%8D%A2%EF%BC%9F/" title="Vim 大神操作手册_退出vim_编辑vim_查找vim_vim替换？"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image-13.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-17</div><div class="title">Vim 大神操作手册_退出vim_编辑vim_查找vim_vim替换？</div></div></a></div><div><a href="/2021/09/18/%E5%9C%A8linux%E4%B8%AD%E6%89%A7%E8%A1%8C-sh%E8%84%9A%E6%9C%AC%EF%BC%8C%E5%BC%82%E5%B8%B8-bin-shm-bad-interpreter-no-such-file-or-directory-%E7%BC%96%E7%A0%81%E9%94%99%E8%AF%AF/" title="在Linux中执行.sh脚本，异常/bin/sh^M: bad interpreter: No such file or directory 编码错误"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-15.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-18</div><div class="title">在Linux中执行.sh脚本，异常/bin/sh^M: bad interpreter: No such file or directory 编码错误</div></div></a></div><div><a href="/2021/09/20/1212/" title="org.apache.tomcat.util.net.NioEndpoint$Acceptor.run Socket accept failed java.io.IOException: 打开的文件过多"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-16-1024x512.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-20</div><div class="title">org.apache.tomcat.util.net.NioEndpoint$Acceptor.run Socket accept failed java.io.IOException: 打开的文件过多</div></div></a></div><div><a href="/2021/08/11/awk-%E5%A6%82%E4%BD%95%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C-%E4%B8%8D%E6%8E%92%E5%BA%8F%E5%88%A0%E9%99%A4%E9%87%8D%E5%A4%8D%E8%A1%8C/" title="awk 如何删除重复行_不排序删除重复行"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-9.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-11</div><div class="title">awk 如何删除重复行_不排序删除重复行</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B0%83%E8%AF%95%E5%B8%B8%E7%94%A8%E9%80%89%E9%A1%B9"><span class="toc-number">2.</span> <span class="toc-text">调试常用选项</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%9F%E8%B8%AA%E8%84%9A%E6%9C%AC%E7%9A%84%E6%89%A7%E8%A1%8C"><span class="toc-number">3.</span> <span class="toc-text">跟踪脚本的执行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%A5%E5%BF%97%E6%89%93%E5%8D%B0"><span class="toc-number">4.</span> <span class="toc-text">日志打印</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86"><span class="toc-number">5.</span> <span class="toc-text">常见的错误处理</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

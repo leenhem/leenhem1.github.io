@@ -1,0 +1,273 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>top命令中_CPU 使用率_时钟中断_CPU 使用情况统计 | 码404</title><meta name="keywords" content="CPU,CPU 使用情况统计,TOP,时钟中断"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="简介 平常我们使用 top 命令来查看系统的性能情况，在 top 命令中可以看到很多不同类型的 CPU 使用率，如下图红框中标出部分下面，我们来介绍一下这些 CPU 使用率的意义  us：user time，表示 CPU 执行用户进程的时间，包括 nice 时间。通常都是希望用户空间CPU越高越好。 sy：system time，表示 CPU 在内核运行的时间，包括 IRQ 和 softirq。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="top命令中_CPU 使用率_时钟中断_CPU 使用情况统计">
+<meta property="og:url" content="http://code404.icu/2021/08/04/top%E5%91%BD%E4%BB%A4%E4%B8%AD-cpu-%E4%BD%BF%E7%94%A8%E7%8E%87-%E6%97%B6%E9%92%9F%E4%B8%AD%E6%96%AD-cpu-%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5%E7%BB%9F%E8%AE%A1/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="简介 平常我们使用 top 命令来查看系统的性能情况，在 top 命令中可以看到很多不同类型的 CPU 使用率，如下图红框中标出部分下面，我们来介绍一下这些 CPU 使用率的意义  us：user time，表示 CPU 执行用户进程的时间，包括 nice 时间。通常都是希望用户空间CPU越高越好。 sy：system time，表示 CPU 在内核运行的时间，包括 IRQ 和 softirq。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/08/image-3.png">
+<meta property="article:published_time" content="2021-08-04T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.892Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="CPU">
+<meta property="article:tag" content="CPU 使用情况统计">
+<meta property="article:tag" content="TOP">
+<meta property="article:tag" content="时钟中断">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/08/image-3.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/08/04/top%E5%91%BD%E4%BB%A4%E4%B8%AD-cpu-%E4%BD%BF%E7%94%A8%E7%8E%87-%E6%97%B6%E9%92%9F%E4%B8%AD%E6%96%AD-cpu-%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5%E7%BB%9F%E8%AE%A1/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'top命令中_CPU 使用率_时钟中断_CPU 使用情况统计',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/08/image-3.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">top命令中_CPU 使用率_时钟中断_CPU 使用情况统计</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-04T00:30:00.000Z" title="发表于 2021-08-04 08:30:00">2021-08-04</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.892Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="top命令中_CPU 使用率_时钟中断_CPU 使用情况统计"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/08/image-3.png"></p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><hr>
+<p>平常我们使用 top 命令来查看系统的性能情况，在 top 命令中可以看到很多不同类型的 CPU 使用率，如下图红框中标出部分<br><img src="https://img-blog.csdnimg.cn/4318714591fc462795b9e0bfebe88119.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>下面，我们来介绍一下这些 CPU 使用率的意义</p>
+<ul>
+<li>us：user time，表示 CPU 执行用户进程的时间，包括 nice 时间。通常都是希望用户空间CPU越高越好。</li>
+<li>sy：system time，表示 CPU 在内核运行的时间，包括 IRQ 和 softirq。系统 CPU 占用越高，表明系统某部分存在瓶颈。通常这个值越低越好。</li>
+<li>ni：nice time，具有优先级的用户进程执行时占用的 CPU 利用率百分比。</li>
+<li>id：idle time，表示系统处于空闲期，等待进程运行。</li>
+<li>wa：waiting time，表示 CPU 在等待 IO 操作完成所花费的时间。系统不应该花费大量的时间来等待 IO 操作，否则就说明 IO 存在瓶颈。</li>
+<li>hi：hard IRQ time，表示系统处理硬中断所花费的时间。</li>
+<li>si：soft IRQ time，表示系统处理软中断所花费的时间。</li>
+<li>st：steal time，被强制等待（involuntary wait）虚拟 CPU 的时间，此时 Hypervisor 在为另一个虚拟处理器服务。</li>
+</ul>
+<p>当然，单靠上面的解释来理解它们的意义还是比较困难的。所以，本文主要从源码的角度来分析它们到底代表什么。</p>
+<h3 id="时钟中断"><a href="#时钟中断" class="headerlink" title="时钟中断"></a>时钟中断</h3><hr>
+<p>首先，我们要知道统计 CPU 使用情况在什么地方执行的。在分析之前，我们先来了解下 时钟中断：</p>
+<p>时钟中断：是一种硬中断，由时间硬件（系统定时器，一种可编程硬件）产生。当 CPU 接收到时钟中断信号后，会在处理完当前指令后调用 时钟中断处理程序 来完成更新系统时间、执行周期性任务等。</p>
+<p>可以发现，统计 CPU 使用情况是在 时钟中断处理程序 中完成的。</p>
+<p>每个 CPU 的使用情况通过 cpu_usage_stat 结构来记录，我们来看看其定义：</p>
+<p>struct cpu_usage_stat {<br>    cputime64_t user;<br>    cputime64_t nice;<br>    cputime64_t system;<br>    cputime64_t softirq;<br>    cputime64_t irq;<br>    cputime64_t idle;<br>    cputime64_t iowait;<br>    cputime64_t steal;<br>    cputime64_t guest;<br>};</p>
+<p>从 cpu_usage_stat 结构的定义可以看出，其每个字段与 top 命令的 CPU 使用率类型一一对应。在内核初始化时，会为每个 CPU 创建一个 cpu_usage_stat 结构，用于统计 CPU 的使用情况。</p>
+<p>OK，现在我们来分析下内核是怎么统计 CPU 的使用情况的。</p>
+<p>每次执行 时钟中断处理程序 都会调用 account_process_tick 函数进行 CPU 使用情况统计，我们来分析一下 account_process_tick 函数的实现：</p>
+<p>void account_process_tick(struct task_struct *p, int user_tick)<br>{<br>    cputime_t one_jiffy_scaled &#x3D; cputime_to_scaled(cputime_one_jiffy);<br>    struct rq *rq &#x3D; this_rq();</p>
+<pre><code>// 说明：user\_tick 变量标识当前是否处于执行用户应用程序
+
+if (user\_tick) &#123;
+    // 1. 如果 CPU 在执行用户程序, 那么调用 account\_user\_time 进行统计
+    account\_user\_time(p, cputime\_one\_jiffy, one\_jiffy\_scaled);
+&#125; else if ((p != rq-&gt;idle)  (irq\_count() != HARDIRQ\_OFFSET)) &#123;
+    // 2. 如果 CPU 在执行内核代码, 那么调用 account\_system\_time 进行统计
+    account\_system\_time(p, HARDIRQ\_OFFSET, cputime\_one\_jiffy,
+                        one\_jiffy\_scaled);
+&#125; else &#123;
+    // 3. 否则说明 CPU 在执行 idle 进程(也就是处于空闲状态), 那么调用 account\_idle\_time 进行统计
+    account\_idle\_time(cputime\_one\_jiffy);
+&#125;
+</code></pre>
+<p>}</p>
+<p>account_process_tick 函数主要分 3 种情况进行统计，如下：</p>
+<ul>
+<li>如果 CPU 在执行用户程序，那么调用 account_user_time 进行统计。</li>
+<li>如果 CPU 在执行内核代码，那么调用 account_system_time 进行统计。</li>
+<li>否则说明 CPU 在执行 idle 进程(也就是处于空闲状态)，那么调用 account_idle_time 进行统计。</li>
+</ul>
+<h3 id="CPU-使用情况统计"><a href="#CPU-使用情况统计" class="headerlink" title="CPU 使用情况统计"></a>CPU 使用情况统计</h3><hr>
+<p>下面我们分别对这 3 种统计进行分析。</p>
+<ol>
+<li>统计用户程序执行时间<br>统计用户程序的执行时间是通过 account_user_time 函数来完成的，我们来看看其实现：</li>
+</ol>
+<p>void account_user_time(struct task_struct *p, cputime_t cputime,<br>                       cputime_t cputime_scaled)<br>{<br>    &#x2F;&#x2F; 获取 CPU 的统计结构（每个CPU一个 cpu_usage_stat 结构）<br>    struct cpu_usage_stat *cpustat &#x3D; &amp;kstat_this_cpu.cpustat;<br>    cputime64_t tmp;<br>    …</p>
+<pre><code>// 分 2 种情况统计 CPU 的使用情况
+// 1. 如果进程的 nice 值大于0, 那么将会统计到 nice 字段中
+// 2. 如果进程的 nice 值小于等于0, 那么将会统计到 user 字段中
+if (TASK\_NICE(p) &gt; 0)
+    cpustat-&gt;nice = cputime64\_add(cpustat-&gt;nice, tmp);
+else
+    cpustat-&gt;user = cputime64\_add(cpustat-&gt;user, tmp);
+...
+</code></pre>
+<p>}</p>
+<p>account_user_time 函数主要分两种情况统计：</p>
+<ul>
+<li>如果进程的 nice 值大于0，那么将会增加到 CPU 统计结构的 nice 字段中。</li>
+<li>如果进程的 nice 值小于等于0，那么增加到 CPU 统计结构的 user 字段中。</li>
+</ul>
+<p>这里说明一下进程 nice 值的作用，nice 值越大，说明进程的优先级越低。所以，nice 统计值主要用来统计低优先级进程的占使用 CPU 的情况。也说明了，user 和 nice 统计值都属于执行用户程序的 CPU 时间。</p>
+<ol start="2">
+<li>统计内核代码执行时间<br>如果在发生时钟中断前，CPU 处于内核态，也就是说在执行内核代码。那么将会调用 account_system_time 函数进行统计，account_system_time 函数实现如下：</li>
+</ol>
+<p>void account_system_time(struct task_struct *p, int hardirq_offset,<br>                         cputime_t cputime, cputime_t cputime_scaled)<br>{<br>    &#x2F;&#x2F; 获取 CPU 的统计结构（每个CPU一个 cpu_usage_stat 结构）<br>    struct cpu_usage_stat *cpustat &#x3D; &amp;kstat_this_cpu.cpustat;<br>    cputime64_t tmp;<br>    …</p>
+<pre><code>// 主要分 3 种情况进行统计
+// 1. 如果当前处于硬中断执行上下文, 那么统计到 irq 字段中
+// 2. 如果当前处于软中断执行上下文, 那么统计到 softirq 字段中
+// 3. 否则统计到 system 字段中
+if (hardirq\_count() - hardirq\_offset)
+    cpustat-&gt;irq = cputime64\_add(cpustat-&gt;irq, tmp);
+else if (softirq\_count())
+    cpustat-&gt;softirq = cputime64\_add(cpustat-&gt;softirq, tmp);
+else
+    cpustat-&gt;system = cputime64\_add(cpustat-&gt;system, tmp);
+...
+</code></pre>
+<p>}</p>
+<p>account_system_time 函数主要分 3 种情况进行统计：</p>
+<ul>
+<li>如果当前处于硬中断执行上下文，那么增加到 CPU 统计结构的 irq 字段中。</li>
+<li>如果当前处于软中断执行上下文，那么增加到 CPU 统计结构的 softirq 字段中。</li>
+<li>否则增加到 CPU 统计结构的 system 字段中。</li>
+</ul>
+<p>从上面代码可以看出，irq 和 softirq 统计值也算是内核代码执行时间。</p>
+<ol start="3">
+<li>idle 进程执行时间统计<br>当系统中没有可运行的进程时，将会执行 idle 进程。也就是说，当系统执行 idle 进程时，表示系统正处于空闲状态。</li>
+</ol>
+<p>idle 进程执行时间统计由 account_idle_time 函数完成，其实现如下：</p>
+<p>void account_idle_time(cputime_t cputime)<br>{<br>    struct cpu_usage_stat *cpustat &#x3D; &amp;kstat_this_cpu.cpustat;<br>    cputime64_t cputime64 &#x3D; cputime_to_cputime64(cputime);<br>    struct rq *rq &#x3D; this_rq();</p>
+<pre><code>// 分 2 种情况统计 CPU 的使用情况
+// 1. 如果系统有进程正在等待 I/O 操作完成, 那么将统计到 iowait 字段中
+// 2. 否则将统计到 idle 字段中
+if (atomic\_read(&amp;rq-&gt;nr\_iowait) &gt; 0)
+    cpustat-&gt;iowait = cputime64\_add(cpustat-&gt;iowait, cputime64);
+else
+    cpustat-&gt;idle = cputime64\_add(cpustat-&gt;idle, cputime64);
+</code></pre>
+<p>}</p>
+<p>account_idle_time 函数也分两种情况进行统计：</p>
+<ul>
+<li>如果系统中有正在等待 I&#x2F;O 操作完成的进程，那么增加到 CPU 统计结构的 iowait 字段中。</li>
+<li>否则增加到 CPU 统计结构的 idle 字段中。</li>
+</ul>
+<p>从上面的分析可以看出，iowait 统计值也属于空闲时间的一种。</p>
+<h3 id="top-命令的-CPU-使用率"><a href="#top-命令的-CPU-使用率" class="headerlink" title="top 命令的 CPU 使用率"></a>top 命令的 CPU 使用率</h3><hr>
+<p>通过源码分析，我们知道 top 命令中 CPU 使用率各种类型的意思，现在我们来介绍一下 top 命令是怎么计算各种类型的 CPU 使用率。</p>
+<p>要获取各个 CPU 的使用情况信息，可以通过读取 &#x2F;proc&#x2F;stat 文件获取，如下：</p>
+<p>[vagrant@localhost ~]$ cat &#x2F;proc&#x2F;stat<br>cpu  245 10 1142 1097923 95 0 28 0 0 0<br>cpu0 245 10 1142 1097923 95 0 28 0 0 0<br>…</p>
+<p>上面的结果显示了 CPU 的使用情况信息，第一行代表所有 CPU 的总和，而第二行开始表示每个 CPU 核心的使用情况信息。因为我的电脑只有一个核，所以只有一条数据。</p>
+<p>下面说说这些数据的意义，从第一个数值开始分别代表：user ，nice，system，idle，iowait， irq，softirq，steal。</p>
+<p>所以，top 命令的 CPU 使用率计算公式如下：</p>
+<p>CPU总时间 &#x3D; user + nice + system + idle + wait + irq + softirq + steal<br>%us &#x3D; user &#x2F; CPU总时间<br>%ni &#x3D; nice &#x2F; CPU总时间<br>%sy &#x3D; system &#x2F; CPU总时间<br>%id &#x3D; idel &#x2F; CPU总时间<br>%wa &#x3D; wait &#x2F; CPU总时间<br>%hi &#x3D; irq &#x2F; CPU总时间<br>%si &#x3D; softirq &#x2F; CPU总时间<br>%st &#x3D; steal &#x2F; CPU总时间</p>
+<p>嗯，看起来还是挺简单的。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><hr>
+<p>本文主要分析了 top 命令中的 CPU 使用率的意义和实现原理，希望通过本文，能够帮助大家对 top 命令有更深的认识。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/08/04/top%E5%91%BD%E4%BB%A4%E4%B8%AD-cpu-%E4%BD%BF%E7%94%A8%E7%8E%87-%E6%97%B6%E9%92%9F%E4%B8%AD%E6%96%AD-cpu-%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5%E7%BB%9F%E8%AE%A1/">http://code404.icu/2021/08/04/top%E5%91%BD%E4%BB%A4%E4%B8%AD-cpu-%E4%BD%BF%E7%94%A8%E7%8E%87-%E6%97%B6%E9%92%9F%E4%B8%AD%E6%96%AD-cpu-%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5%E7%BB%9F%E8%AE%A1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CPU/">CPU</a><a class="post-meta__tags" href="/tags/CPU-%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5%E7%BB%9F%E8%AE%A1/">CPU 使用情况统计</a><a class="post-meta__tags" href="/tags/TOP/">TOP</a><a class="post-meta__tags" href="/tags/%E6%97%B6%E9%92%9F%E4%B8%AD%E6%96%AD/">时钟中断</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/08/image-3.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/08/05/binlog%E8%A7%A3%E6%9E%90%E5%87%BA%E6%9D%A5%E7%9A%84%E6%97%A5%E5%BF%97%E4%B8%BA%E4%BD%95%E6%97%A0%E6%B3%95%E6%81%A2%E5%A4%8D/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/08/image-4.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">binlog解析出来的日志为何无法恢复</div></div></a></div><div class="next-post pull-right"><a href="/2021/08/03/%E7%99%BE%E5%BA%A6%E4%BA%91%E4%B8%8B%E8%BD%BD%E4%B8%8D%E9%99%90%E9%80%9F-%E8%8E%B7%E5%8F%96%E4%B8%8B%E8%BD%BD%E9%93%BE%E6%8E%A5-%E7%AA%81%E7%A0%B4%E4%BC%9A%E5%91%98%E9%99%90%E5%88%B6/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/08/image-2.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">百度云下载不限速_获取下载链接_突破会员限制</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%97%B6%E9%92%9F%E4%B8%AD%E6%96%AD"><span class="toc-number">2.</span> <span class="toc-text">时钟中断</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CPU-%E4%BD%BF%E7%94%A8%E6%83%85%E5%86%B5%E7%BB%9F%E8%AE%A1"><span class="toc-number">3.</span> <span class="toc-text">CPU 使用情况统计</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#top-%E5%91%BD%E4%BB%A4%E7%9A%84-CPU-%E4%BD%BF%E7%94%A8%E7%8E%87"><span class="toc-number">4.</span> <span class="toc-text">top 命令的 CPU 使用率</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

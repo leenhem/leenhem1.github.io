@@ -1,0 +1,211 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>在反向代理NGINX_HAProxy_IIS_Traefik后面运行Grafana | 码404</title><meta name="keywords" content="nginx,grafana,反向代理"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 在此教程中，您将配置 Grafana 以运行反向代理后面。 在代理后面运行 Grafana 时，您需要配置域名，以便让 Grafana 知道如何正确渲染链接和重定向。  在 Grafana 配置文件中，更改为将要使用的域名：server.domain  [server]domain &#x3D; example.com 重新启动Grafana，以便新更改生效。  您也可以在子路径后面为Gr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在反向代理NGINX_HAProxy_IIS_Traefik后面运行Grafana">
+<meta property="og:url" content="http://code404.icu/2021/07/15/%E5%9C%A8%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86nginx-haproxy-iis-traefik%E5%90%8E%E9%9D%A2%E8%BF%90%E8%A1%8Cgrafana/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 在此教程中，您将配置 Grafana 以运行反向代理后面。 在代理后面运行 Grafana 时，您需要配置域名，以便让 Grafana 知道如何正确渲染链接和重定向。  在 Grafana 配置文件中，更改为将要使用的域名：server.domain  [server]domain &#x3D; example.com 重新启动Grafana，以便新更改生效。  您也可以在子路径后面为Gr">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/07/image-42.png">
+<meta property="article:published_time" content="2021-07-15T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.902Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="nginx">
+<meta property="article:tag" content="grafana">
+<meta property="article:tag" content="反向代理">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/07/image-42.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/07/15/%E5%9C%A8%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86nginx-haproxy-iis-traefik%E5%90%8E%E9%9D%A2%E8%BF%90%E8%A1%8Cgrafana/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '在反向代理NGINX_HAProxy_IIS_Traefik后面运行Grafana',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/07/image-42.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">在反向代理NGINX_HAProxy_IIS_Traefik后面运行Grafana</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-07-15T00:30:00.000Z" title="发表于 2021-07-15 08:30:00">2021-07-15</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.902Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Grafana/">Grafana</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Nginx/">Nginx</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="在反向代理NGINX_HAProxy_IIS_Traefik后面运行Grafana"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/07/image-42.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>在此教程中，您将配置 Grafana 以运行反向代理后面。</p>
+<p>在代理后面运行 Grafana 时，您需要配置域名，以便让 Grafana 知道如何正确渲染链接和重定向。</p>
+<ul>
+<li>在 Grafana 配置文件中，更改为将要使用的域名：<code>server.domain</code></li>
+</ul>
+<p>[server]<br>domain &#x3D; example.com</p>
+<p>重新启动Grafana，以便新更改生效。</p>
+<hr>
+<p>您也可以在子路径后面为Grafana服务，例如:<code>http://example.com/grafana</code><br>在子路径后面为Grafana服务：</p>
+<ul>
+<li>包括在 末尾的子路径:<code>root_url</code></li>
+<li>设置为:<code>serve_from_sub_path = true</code></li>
+</ul>
+<p>[server]<br>domain &#x3D; example.com<br>root_url &#x3D; %(protocol)s:&#x2F;&#x2F;%(domain)s:%(http_port)s&#x2F;grafana&#x2F;<br>serve_from_sub_path &#x3D; true</p>
+<p>接下来，您需要配置反向代理。</p>
+<h3 id="配置-NGINX"><a href="#配置-NGINX" class="headerlink" title="配置 NGINX"></a>配置 NGINX</h3><hr>
+<p>NGINX是一种高性能负载均衡器、Web 服务器和反向代理。</p>
+<p>在您的 NGINX 配置文件中，添加一个新块：server</p>
+<p>server {<br>  listen 80;<br>  root &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;html;<br>  index index.html index.htm;</p>
+<p>  location &#x2F; {<br>   proxy_pass <a target="_blank" rel="noopener" href="http://localhost:3000/">http://localhost:3000/</a>;<br>  }<br>}</p>
+<p>重新加载 NGINX 配置。</p>
+<p>导航到机器上的端口 80 NGINX 正在运行。您受到Grafana登录页面的欢迎。<br>要配置 NGINX 在子路径下为Grafana服务，请更新块，确保此块是第一个块：location location</p>
+<p>server {<br>  listen 80;<br>  root &#x2F;usr&#x2F;share&#x2F;nginx&#x2F;www;<br>  index index.html index.htm;</p>
+<p>  location ~&#x2F;grafana&#x2F; {<br>   proxy_pass <a target="_blank" rel="noopener" href="http://localhost:3000/">http://localhost:3000/</a>;<br>  }<br>}</p>
+<h3 id="配置HAProxy"><a href="#配置HAProxy" class="headerlink" title="配置HAProxy"></a>配置HAProxy</h3><hr>
+<p>配置HAProxy在子路径下为Grafana服务：</p>
+<p>frontend http-in<br>  bind *:80<br>  use_backend grafana_backend if { path &#x2F;grafana } or { path_beg &#x2F;grafana&#x2F; }</p>
+<p>backend grafana_backend</p>
+<h1 id="Requires-haproxy-gt-x3D-1-6"><a href="#Requires-haproxy-gt-x3D-1-6" class="headerlink" title="Requires haproxy &gt;&#x3D; 1.6"></a>Requires haproxy &gt;&#x3D; 1.6</h1><p>  http-request set-path %[path,regsub(^&#x2F;grafana&#x2F;?,&#x2F;)]</p>
+<h1 id="Works-for-haproxy-lt-1-6"><a href="#Works-for-haproxy-lt-1-6" class="headerlink" title="Works for haproxy &lt; 1.6"></a>Works for haproxy &lt; 1.6</h1><h1 id="reqrep-x2F-grafana-x2F-1-2"><a href="#reqrep-x2F-grafana-x2F-1-2" class="headerlink" title="reqrep ^([^\ ]*\ &#x2F;)grafana[&#x2F;]?(.*) \1\2"></a>reqrep ^([^\ ]*\ &#x2F;)grafana[&#x2F;]?(.*) \1\2</h1><p>  server grafana localhost:3000</p>
+<h3 id="配置-IIS"><a href="#配置-IIS" class="headerlink" title="配置 IIS"></a>配置 IIS</h3><hr>
+<p>IIS 要求安装 URL 重写模块。</p>
+<p>要配置 IIS 在子路径下为 Grafana 服务，在 IIS 管理器中为父网站创建一个入站规则，其设置如下：</p>
+<ul>
+<li>模式：grafana(&#x2F;)?(.*)</li>
+<li>检查复选框 Ignore case</li>
+<li>重写网址设置为 <a target="_blank" rel="noopener" href="http://localhost:3000/%7BR:2%7D">http://localhost:3000/{R:2}</a></li>
+<li>检查复选框 Append query string</li>
+<li>检查复选框 Stop processing of subsequent rules</li>
+</ul>
+<p>这是在中<code>web.config</code>生成的重写规则</p>
+  <rewrite>
+      <rules>
+          <rule name="Grafana" enabled="true" stopProcessing="true">
+              <match url="grafana(/)?(.\*)" />
+              <action type="Rewrite" url="http://localhost:3000/{R:2}" logRewrittenUrl="false" />
+          </rule>
+      </rules>
+  </rewrite>
+
+<p>有关更深入的说明，请<a target="_blank" rel="noopener" href="https://grafana.com/tutorials/iis/">参阅IIS URL 重写教程</a>。</p>
+<h3 id="配置Traefik"><a href="#配置Traefik" class="headerlink" title="配置Traefik"></a>配置Traefik</h3><hr>
+<p>Traefik云原生反向代理 &#x2F; 负载平衡器 &#x2F; 边缘路由器</p>
+<p>使用码头供应商，以下标签将配置路由器和服务的域或子域路由。</p>
+<p>  labels:<br>      traefik.http.routers.grafana.rule: Host(`grafana.example.com`)<br>      traefik.http.services.grafana.loadbalancer.server.port: 3000</p>
+<p>部署在子路径上</p>
+<p>  labels:<br>      traefik.http.routers.grafana.rule: Host(`example.com`) &amp;&amp; PathPrefix(`&#x2F;grafana`)<br>      traefik.http.services.grafana.loadbalancer.server.port: 3000</p>
+<p>使用文件提供商的示例。</p>
+<p>http:<br>  routers:<br>    grafana:<br>      rule: Host(`grafana.example.com`)<br>      service: grafana<br>  services:<br>    grafana:<br>      loadBalancer:<br>        servers:<br>          - url: <a target="_blank" rel="noopener" href="http://192.168.30.10:3000/">http://192.168.30.10:3000</a><br>http:<br>  routers:</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/07/15/%E5%9C%A8%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86nginx-haproxy-iis-traefik%E5%90%8E%E9%9D%A2%E8%BF%90%E8%A1%8Cgrafana/">http://code404.icu/2021/07/15/%E5%9C%A8%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86nginx-haproxy-iis-traefik%E5%90%8E%E9%9D%A2%E8%BF%90%E8%A1%8Cgrafana/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/nginx/">nginx</a><a class="post-meta__tags" href="/tags/grafana/">grafana</a><a class="post-meta__tags" href="/tags/%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86/">反向代理</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/07/image-42.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/07/16/%E6%80%8E%E4%B9%88%E6%A0%B7-%E5%9C%A8-linux-%E5%91%BD%E4%BB%A4%E8%A1%8C%E4%B8%AD%E7%94%9F%E6%88%90%E5%AF%86%E7%A0%81/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/07/image-43-1024x573.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">怎么样 在 Linux 命令行中生成密码</div></div></a></div><div class="next-post pull-right"><a href="/2021/07/14/%E5%A6%82%E4%BD%95%E5%9C%A8-linux-%E4%B8%AD%E4%BD%BF%E7%94%A8-grep-%E5%91%BD%E4%BB%A4%E7%9A%84%E6%8E%92%E9%99%A4%E5%8A%9F%E8%83%BD-%E6%8E%92%E9%99%A4%E5%A4%9A%E4%B8%AA%E5%85%B3%E9%94%AE%E5%AD%97/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/07/image-41.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">如何在 Linux 中使用 grep 命令的排除功能_排除多个关键字</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/09/11/nginx%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86upstream%E5%90%8D%E5%AD%97%E8%BF%94%E5%9B%9E%E5%88%B0swagger%E7%9A%84base-url%E4%B8%AD%E4%BA%86/" title="nginx反向代理Upstream名字返回到Swagger的base url中了"><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image-9.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-11</div><div class="title">nginx反向代理Upstream名字返回到Swagger的base url中了</div></div></a></div><div><a href="/2021/04/18/nginx%E4%BB%A3%E7%90%86websocket%E9%85%8D%E7%BD%AE/" title="Nginx代理WebSocket配置"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/image.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-18</div><div class="title">Nginx代理WebSocket配置</div></div></a></div><div><a href="/2021/12/04/fastdfs-nginx-module-file-ini-file-reader-c-line-1036-include-file-http-conf-not-exists-line-include-http-conf/" title="fastdfs-nginx-module file: ini_file_reader.c, line: 1036, include file "http.conf" not exists, line: "#include http.conf""><img class="cover" src="https://code404.icu/img/moveypu/2021/12/image-2.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-04</div><div class="title">fastdfs-nginx-module file: ini_file_reader.c, line: 1036, include file "http.conf" not exists, line: "#include http.conf"</div></div></a></div><div><a href="/2021/04/30/linux%E4%B8%8Btomcat%E5%92%8Cnginx%E6%97%A5%E5%BF%97%E5%88%87%E5%89%B2%E8%BD%AE%E8%BD%AC/" title="Linux下Tomcat和nginx日志切割轮转"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/image-42-1024x549.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-30</div><div class="title">Linux下Tomcat和nginx日志切割轮转</div></div></a></div><div><a href="/2021/12/13/nginx-%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E4%BD%BF%E7%94%A880%E7%AB%AF%E5%8F%A3%E5%90%AF%E5%8A%A8nginx-nginx-emerg-bind-to-0-0-0-080-failed-13-permission-denied/" title="nginx 普通用户使用80端口启动nginx nginx: [emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)"><img class="cover" src="https://code404.icu/img/moveypu/2021/12/image-7.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-13</div><div class="title">nginx 普通用户使用80端口启动nginx nginx: [emerg] bind() to 0.0.0.0:80 failed (13: Permission denied)</div></div></a></div><div><a href="/2021/05/06/nginx-%E4%B9%8B-location-%E5%8C%B9%E9%85%8D%E8%A7%84%E5%88%99-%E5%8F%B2%E4%B8%8A%E6%9C%80%E5%BC%BA%E8%AE%B2%E8%A7%A3code404/" title="nginx 之 location 匹配规则-史上最强讲解code404"><img class="cover" src="https://code404.icu/img/moveypu/2021/05/image-1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-06</div><div class="title">nginx 之 location 匹配规则-史上最强讲解code404</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-NGINX"><span class="toc-number">2.</span> <span class="toc-text">配置 NGINX</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AEHAProxy"><span class="toc-number">3.</span> <span class="toc-text">配置HAProxy</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Requires-haproxy-gt-x3D-1-6"><span class="toc-number"></span> <span class="toc-text">Requires haproxy &gt;&#x3D; 1.6</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Works-for-haproxy-lt-1-6"><span class="toc-number"></span> <span class="toc-text">Works for haproxy &lt; 1.6</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#reqrep-x2F-grafana-x2F-1-2"><span class="toc-number"></span> <span class="toc-text">reqrep ^([^\ ]*\ &#x2F;)grafana[&#x2F;]?(.*) \1\2</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE-IIS"><span class="toc-number">1.</span> <span class="toc-text">配置 IIS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AETraefik"><span class="toc-number">2.</span> <span class="toc-text">配置Traefik</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

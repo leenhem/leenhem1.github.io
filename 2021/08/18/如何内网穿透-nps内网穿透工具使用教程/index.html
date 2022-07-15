@@ -1,0 +1,214 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>如何内网穿透_NPS内网穿透工具使用教程 | 码404</title><meta name="keywords" content="内网穿透,NPS,NPS内网穿透"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="NPS工具介绍 NPS工具是一款使用go语言编写的轻量级、功能强大的内网穿透工具。支持TCP、UDP流量转发，支持内网HTTP、SOCKS5代理，同时支持snappy压缩(节省带宽和流量)、站点保护、加密传输、多路复用、header修改等。同时还支持web图形化管理。该工具使用简单，相比于FRP，NPS是图形化界面，因此配置更加简单。 NPS工具原理 注意:NPS工具的工作原理和FRP工具的工作">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何内网穿透_NPS内网穿透工具使用教程">
+<meta property="og:url" content="http://code404.icu/2021/08/18/%E5%A6%82%E4%BD%95%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F-nps%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="NPS工具介绍 NPS工具是一款使用go语言编写的轻量级、功能强大的内网穿透工具。支持TCP、UDP流量转发，支持内网HTTP、SOCKS5代理，同时支持snappy压缩(节省带宽和流量)、站点保护、加密传输、多路复用、header修改等。同时还支持web图形化管理。该工具使用简单，相比于FRP，NPS是图形化界面，因此配置更加简单。 NPS工具原理 注意:NPS工具的工作原理和FRP工具的工作">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/08/image-15.png">
+<meta property="article:published_time" content="2021-08-18T00:33:35.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.906Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="内网穿透">
+<meta property="article:tag" content="NPS">
+<meta property="article:tag" content="NPS内网穿透">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/08/image-15.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/08/18/%E5%A6%82%E4%BD%95%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F-nps%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '如何内网穿透_NPS内网穿透工具使用教程',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/08/image-15.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">如何内网穿透_NPS内网穿透工具使用教程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-08-18T00:33:35.000Z" title="发表于 2021-08-18 08:33:35">2021-08-18</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.906Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Linux/">Linux</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/">内网穿透</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="如何内网穿透_NPS内网穿透工具使用教程"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/08/image-15.png"></p>
+<h3 id="NPS工具介绍"><a href="#NPS工具介绍" class="headerlink" title="NPS工具介绍"></a>NPS工具介绍</h3><hr>
+<p>NPS工具是一款使用go语言编写的轻量级、功能强大的内网穿透工具。支持TCP、UDP流量转发，支持内网HTTP、SOCKS5代理，同时支持snappy压缩(节省带宽和流量)、站点保护、加密传输、多路复用、header修改等。同时还支持web图形化管理。该工具使用简单，相比于FRP，NPS是图形化界面，因此配置更加简单。</p>
+<h3 id="NPS工具原理"><a href="#NPS工具原理" class="headerlink" title="NPS工具原理"></a>NPS工具原理</h3><hr>
+<p>注意:NPS工具的工作原理和FRP工具的工作原理相似，因此我们只需要对其中某一款工具的原理十分熟悉即可，由于之前写过一篇十分详细的FRP的工作原理和使用方法，大家可以去看<a target="_blank" rel="noopener" href="https://www.code404.icu/1094.html">内网穿透_FRP代理工具内网渗透教程</a><br>下面提供NPS的使用文档和下载地址：</p>
+<p>NPS官方使用文档：<a target="_blank" rel="noopener" href="https://ehang-io.github.io/nps/#/api">https://ehang-io.github.io/nps/#/api</a><br>NPS下载地址：<a target="_blank" rel="noopener" href="https://github.com/ehang-io/nps/releases/tag/v0.26.9">https://github.com/ehang-io/nps/releases/tag/v0.26.9</a></p>
+<h3 id="NPS服务器端（Linux-amp-Windows）："><a href="#NPS服务器端（Linux-amp-Windows）：" class="headerlink" title="NPS服务器端（Linux&amp;Windows）："></a>NPS服务器端（Linux&amp;Windows）：</h3><hr>
+<p><img src="https://img-blog.csdnimg.cn/5d6b54e5d8904d2fb85c67f93957b3e9.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/c83036a92a854bd9bce3077c6d2ff0c2.png" alt="在这里插入图片描述"></p>
+<h3 id="安装NPS服务器端"><a href="#安装NPS服务器端" class="headerlink" title="安装NPS服务器端"></a>安装NPS服务器端</h3><hr>
+<p>.&#x2F;nps install   #linux<br>nps.exe install #windows</p>
+<p><img src="https://img-blog.csdnimg.cn/f9a1bd94a4374d54a60e370ac95256b4.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/1d166bed7ef64e0381ecf9d9fb1aa0fe.png" alt="在这里插入图片描述"><br>进入到conf文件夹中查看nps.conf</p>
+<p>appname &#x3D; nps<br>#Boot mode(devpro)<br>runmode &#x3D; dev</p>
+<p>#HTTP(S) proxy port, no startup if empty<br>http_proxy_ip&#x3D;0.0.0.0<br>http_proxy_port&#x3D;80     #域名代理http代理监听端口<br>https_proxy_port&#x3D;443   #域名代理https代理监听端口(一般会修改这两个端口，避免端口冲突)<br>https_just_proxy&#x3D;true<br>#default https certificate setting<br>https_default_cert_file&#x3D;conf&#x2F;server.pem<br>https_default_key_file&#x3D;conf&#x2F;server.key</p>
+<p>##bridge<br>bridge_type&#x3D;tcp      #客户端与服务端连接方式kcp或tcp<br>bridge_port&#x3D;8024     #服务端客户端通信端口，也就是说客户端通过访问服务端的这个端口可以进行连接<br>bridge_ip&#x3D;0.0.0.0</p>
+<h1 id="Public-password-which-clients-can-use-to-connect-to-the-server"><a href="#Public-password-which-clients-can-use-to-connect-to-the-server" class="headerlink" title="Public password, which clients can use to connect to the server"></a>Public password, which clients can use to connect to the server</h1><h1 id="After-the-connection-the-server-will-be-able-to-open-relevant-ports-and-parse-related-domain-names-according-to-its-own-configuration-file"><a href="#After-the-connection-the-server-will-be-able-to-open-relevant-ports-and-parse-related-domain-names-according-to-its-own-configuration-file" class="headerlink" title="After the connection, the server will be able to open relevant ports and parse related domain names according to its own configuration file."></a>After the connection, the server will be able to open relevant ports and parse related domain names according to its own configuration file.</h1><p>public_vkey&#x3D;123      #客户端以配置文件模式启动时的密钥，设置为空表示关闭客户端配置文件连接模式</p>
+<p>#Traffic data persistence interval(minute)<br>#Ignorance means no persistence<br>#flow_store_interval&#x3D;1   #服务端流量数据持久化间隔，单位分钟，忽略表示不持久化</p>
+<h1 id="log-level-LevelEmergency-gt-0-LevelAlert-gt-1-LevelCritical-gt-2-LevelError-gt-3-LevelWarning-gt-4-LevelNotice-gt-5-LevelInformational-gt-6-LevelDebug-gt-7"><a href="#log-level-LevelEmergency-gt-0-LevelAlert-gt-1-LevelCritical-gt-2-LevelError-gt-3-LevelWarning-gt-4-LevelNotice-gt-5-LevelInformational-gt-6-LevelDebug-gt-7" class="headerlink" title="log level LevelEmergency-&gt;0  LevelAlert-&gt;1 LevelCritical-&gt;2 LevelError-&gt;3 LevelWarning-&gt;4 LevelNotice-&gt;5 LevelInformational-&gt;6 LevelDebug-&gt;7"></a>log level LevelEmergency-&gt;0  LevelAlert-&gt;1 LevelCritical-&gt;2 LevelError-&gt;3 LevelWarning-&gt;4 LevelNotice-&gt;5 LevelInformational-&gt;6 LevelDebug-&gt;7</h1><p>log_level&#x3D;7         #日志输出级别<br>#log_path&#x3D;nps.log</p>
+<p>#Whether to restrict IP access, true or false or ignore<br>#ip_limit&#x3D;true      #是否限制ip访问，true或false或忽略</p>
+<p>#p2p<br>#p2p_ip&#x3D;127.0.0.1    #服务端IP，使用p2p模式必填<br>#p2p_port&#x3D;6000       #p2p模式开启的udp端口</p>
+<p>#web<br>web_host&#x3D;a.o.com<br>web_username&#x3D;admin   #web界面管理账号<br>web_password&#x3D;123     #web界面管理密码<br>web_port &#x3D; 8080      #web管理端口，通过访问该端口可以访问NPS后台<br>web_ip&#x3D;0.0.0.0<br>web_base_url&#x3D;        #web管理主路径,用于将web管理置于代理子路径后面<br>web_open_ssl&#x3D;false<br>web_cert_file&#x3D;conf&#x2F;server.pem<br>web_key_file&#x3D;conf&#x2F;server.key</p>
+<h1 id="if-web-under-proxy-use-sub-path-like-http-host-nps-need-this"><a href="#if-web-under-proxy-use-sub-path-like-http-host-nps-need-this" class="headerlink" title="if web under proxy use sub path. like http://host/nps need this."></a>if web under proxy use sub path. like <a target="_blank" rel="noopener" href="http://host/nps">http://host/nps</a> need this.</h1><p>#web_base_url&#x3D;&#x2F;nps</p>
+<p>#Web API unauthenticated IP address(the len of auth_crypt_key must be 16)<br>#Remove comments if needed<br>#auth_key&#x3D;test       #web api密钥<br>auth_crypt_key &#x3D;1234567812345678    #获取服务端authKey时的aes加密密钥，16位</p>
+<p>#allow_ports&#x3D;9001-9009,10001,11000-12000</p>
+<p>#Web management multi-user login<br>allow_user_login&#x3D;false<br>allow_user_register&#x3D;false<br>allow_user_change_username&#x3D;false</p>
+<p>#extension<br>allow_flow_limit&#x3D;false<br>allow_rate_limit&#x3D;false<br>allow_tunnel_num_limit&#x3D;false<br>allow_local_proxy&#x3D;false<br>allow_connection_num_limit&#x3D;false<br>allow_multi_ip&#x3D;false<br>system_info_display&#x3D;false</p>
+<p>#cache<br>http_cache&#x3D;false<br>http_cache_length&#x3D;100</p>
+<p>#get origin ip<br>http_add_origin_header&#x3D;false</p>
+<p>#pprof debug options<br>#pprof_ip&#x3D;0.0.0.0       #debug pprof 服务端IP<br>#pprof_port&#x3D;9999        #debug pprof 端口</p>
+<p>#client disconnect timeout<br>disconnect_timeout&#x3D;60   #客户端连接超时，单位 5s，默认值 60，即 300s &#x3D; 5mins</p>
+<p>注意:在上面的配置文件中，我们主要是要注意以下方面:<br>①:一般会修改域名代理的端口，避免端口冲突<br>②:NPS的web页面默认端口是8080，默认用户名密码是admin&#x2F;123<br>③:NPS的服务端和客户端进行连接的默认端口是8024，这个端口可以进行修改，修改之后，在连接时注意使用修改后的端口<br>④:NPS服务端开启的端口(也就是我们需要访问的VPS的端口)不在配置文件中，需要我们web界面中进行配置</p>
+<h3 id="NPS客户端（Linux-amp-Windows）："><a href="#NPS客户端（Linux-amp-Windows）：" class="headerlink" title="NPS客户端（Linux&amp;Windows）："></a>NPS客户端（Linux&amp;Windows）：</h3><hr>
+<p><img src="https://img-blog.csdnimg.cn/670852181d0f4216beb7dcf7e4a2aaf0.png" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/f56168abc8ee486491d2e50a4a88ad38.png" alt="在这里插入图片描述"><br>客户端共有两种连接方式，我们都会逐一讲述<br>①:使用vkey进行连接</p>
+<p>Windows：npc.exe -server&#x3D;ip:port -vkey&#x3D;服务端生成的key<br>Linux：.&#x2F;npc -server&#x3D;ip:port -vkey&#x3D;服务端生成的key</p>
+<p>②使用配置文件进行连接</p>
+<p>windows:   npc.exe -config&#x3D;npc配置文件路径<br>linux:     .&#x2F;npc -config&#x3D;npc配置文件路径</p>
+<p>在客户端配置文件中，我们主要是修改以下三个参数</p>
+<p>server_addr&#x3D;127.0.0.1:8024   #服务端ip&#x2F;域名:port<br>conn_type&#x3D;tcp       #与服务端通信模式(tcp或kcp)<br>vkey&#x3D;123           #服务端配置文件中的密钥</p>
+<p>首先server_addr是需要填写NPS服务端的IP和端口，conn_type选择合适的类型(一般选择TCP)，vkey的值设置为服务端配置文件的密钥。这样服务端和客户端就可以进行连接了。</p>
+<h3 id="实战环境"><a href="#实战环境" class="headerlink" title="实战环境"></a>实战环境</h3><hr>
+<p><img src="https://img-blog.csdnimg.cn/d44b6560c8514950b81e140c23951cb8.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<pre><code>攻击机：Windows10
+ IP地址：192.168.92.11
+ NPS服务器端：Linux Ubuntu
+ 公网IP：42.1X2.204.XX
+ 靶机内网存在多个服务器网段：
+    10.130.1.0/16
+    10.131.10.0/16
+    10.133.3.0/24
+    10.128.1.0/24 
+</code></pre>
+<p>修改服务器端配置文件中以下两行，以防端口冲突</p>
+<p>http_proxy_port&#x3D;8081<br>https_proxy_port&#x3D;8443</p>
+<p><img src="https://img-blog.csdnimg.cn/475b5c8b25c0429c8ed35eced3606313.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h3 id="修改完配置文件后，启动nps服务"><a href="#修改完配置文件后，启动nps服务" class="headerlink" title="修改完配置文件后，启动nps服务"></a>修改完配置文件后，启动nps服务</h3><hr>
+<p>.&#x2F;nps start    #启动nps服务<br>.&#x2F;nps stop     #停止nps服务<br>.&#x2F;nps restart  #重启nps服务</p>
+<p><img src="https://img-blog.csdnimg.cn/4d82a006023347cba16980d9e5cb84d4.png" alt="在这里插入图片描述"></p>
+<h3 id="浏览器输入42-1X2-204-XX-8080访问NPS-web管理端"><a href="#浏览器输入42-1X2-204-XX-8080访问NPS-web管理端" class="headerlink" title="浏览器输入42.1X2.204.XX:8080访问NPS web管理端"></a>浏览器输入42.1X2.204.XX:8080访问NPS web管理端</h3><hr>
+<p><img src="https://img-blog.csdnimg.cn/06fe14230df04d05ad7d87dc5a0942b4.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>输入admin&#x2F;123登陆NPS管理界面<br><img src="https://img-blog.csdnimg.cn/e76204b3a4ae45f7ab313eb5792d8fe8.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>新增一个客户端，这块新建的客户端主要是要使用生成的唯一验证密钥，通过这个唯一验证密钥才能将NPS的服务端和客户端连接起来，因此至少需要添加一个客户端。<br><img src="https://img-blog.csdnimg.cn/3c7dcba8aa5e465d886f1f997b67c1ff.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/e3ced52ec33447a18e2aadc294b85434.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>记住上面的ID为2，点击左侧SOCKS代理，再点击新增，客户端ID填上图中的ID<br><img src="https://img-blog.csdnimg.cn/abe763270faf49acbf53a8575fd7d8ff.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/7e3ef3fdb8164e1aa25bf408e3111393.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>以上服务器端就配置好了！</p>
+<h3 id="实战渗透"><a href="#实战渗透" class="headerlink" title="实战渗透"></a>实战渗透</h3><p>我们上面介绍客户端共有两种连接方式<br>①:使用vkey进行连接，我们只需要执行以下命令</p>
+<p>Windows：npc.exe -server&#x3D;ip:port -vkey&#x3D;服务端生成的key<br>Linux：.&#x2F;npc -server&#x3D;ip:port -vkey&#x3D;服务端生成的key</p>
+<p><img src="https://img-blog.csdnimg.cn/e58a88bb989c48d8a721d0e69cd7b770.png" alt="在这里插入图片描述"><br>②使用配置文件进行连接<br>修改配置文件<br><img src="https://img-blog.csdnimg.cn/88d277b866784244ac4276470645edb2.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>执行如下命令</p>
+<p>windows:   npc.exe -config&#x3D;npc配置文件路径<br>linux:     .&#x2F;npc -config&#x3D;npc配置文件路径</p>
+<p><img src="https://img-blog.csdnimg.cn/3aacef64ab0f427798d2a59e2d6336fb.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>使用以上任意一种方式即可，推荐使用第一张方便快捷。<br>接下来我们配置一下Proxifier，如果不知道Proxifier的话可以看一下这篇文章<a target="_blank" rel="noopener" href="https://www.code404.icu/1099.html">使用reGeorg+Proxifier进行内网穿透_内网渗透教程透</a><br><img src="https://img-blog.csdnimg.cn/f8ae2b7579c54a8c9b07a4b67b8bb8f2.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>配置完成好我们就可以进行远程连接啦<br><img src="https://img-blog.csdnimg.cn/a9782ec0f7004b7d99b06bd4edff560f.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/f3078d1d7e374720989df5cd46bee652.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>接下来我们就可以进行内网渗透啦，扩大自己的资产，请开始你的表演吧！</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/08/18/%E5%A6%82%E4%BD%95%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F-nps%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/">http://code404.icu/2021/08/18/%E5%A6%82%E4%BD%95%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F-nps%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/">内网穿透</a><a class="post-meta__tags" href="/tags/NPS/">NPS</a><a class="post-meta__tags" href="/tags/NPS%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F/">NPS内网穿透</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/08/image-15.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/08/19/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F-frp%E4%BB%A3%E7%90%86%E5%B7%A5%E5%85%B7%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E6%95%99%E7%A8%8B/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/08/image-16.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">内网穿透_FRP代理工具内网渗透教程</div></div></a></div><div class="next-post pull-right"><a href="/2021/08/17/k8s-kubernetes-%E5%87%BA%E7%8E%B0-the-connection-to-the-server-localhost8080-was-refused-%E7%9A%84%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/08/image-14-1024x405.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">K8S_Kubernetes 出现 The connection to the server localhost:8080 was refused 的解决方法</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/08/20/%E4%BD%BF%E7%94%A8regeorgproxifier%E8%BF%9B%E8%A1%8C%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F-%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E6%95%99%E7%A8%8B/" title="使用reGeorg+Proxifier进行内网穿透_内网渗透教程"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-17.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-20</div><div class="title">使用reGeorg+Proxifier进行内网穿透_内网渗透教程</div></div></a></div><div><a href="/2021/08/19/%E5%86%85%E7%BD%91%E7%A9%BF%E9%80%8F-frp%E4%BB%A3%E7%90%86%E5%B7%A5%E5%85%B7%E5%86%85%E7%BD%91%E6%B8%97%E9%80%8F%E6%95%99%E7%A8%8B/" title="内网穿透_FRP代理工具内网渗透教程"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-16.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-19</div><div class="title">内网穿透_FRP代理工具内网渗透教程</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#NPS%E5%B7%A5%E5%85%B7%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">NPS工具介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NPS%E5%B7%A5%E5%85%B7%E5%8E%9F%E7%90%86"><span class="toc-number">2.</span> <span class="toc-text">NPS工具原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#NPS%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%EF%BC%88Linux-amp-Windows%EF%BC%89%EF%BC%9A"><span class="toc-number">3.</span> <span class="toc-text">NPS服务器端（Linux&amp;Windows）：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85NPS%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF"><span class="toc-number">4.</span> <span class="toc-text">安装NPS服务器端</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Public-password-which-clients-can-use-to-connect-to-the-server"><span class="toc-number"></span> <span class="toc-text">Public password, which clients can use to connect to the server</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#After-the-connection-the-server-will-be-able-to-open-relevant-ports-and-parse-related-domain-names-according-to-its-own-configuration-file"><span class="toc-number"></span> <span class="toc-text">After the connection, the server will be able to open relevant ports and parse related domain names according to its own configuration file.</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#log-level-LevelEmergency-gt-0-LevelAlert-gt-1-LevelCritical-gt-2-LevelError-gt-3-LevelWarning-gt-4-LevelNotice-gt-5-LevelInformational-gt-6-LevelDebug-gt-7"><span class="toc-number"></span> <span class="toc-text">log level LevelEmergency-&gt;0  LevelAlert-&gt;1 LevelCritical-&gt;2 LevelError-&gt;3 LevelWarning-&gt;4 LevelNotice-&gt;5 LevelInformational-&gt;6 LevelDebug-&gt;7</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#if-web-under-proxy-use-sub-path-like-http-host-nps-need-this"><span class="toc-number"></span> <span class="toc-text">if web under proxy use sub path. like http:&#x2F;&#x2F;host&#x2F;nps need this.</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#NPS%E5%AE%A2%E6%88%B7%E7%AB%AF%EF%BC%88Linux-amp-Windows%EF%BC%89%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">NPS客户端（Linux&amp;Windows）：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E6%88%98%E7%8E%AF%E5%A2%83"><span class="toc-number">2.</span> <span class="toc-text">实战环境</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BF%AE%E6%94%B9%E5%AE%8C%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E5%90%8E%EF%BC%8C%E5%90%AF%E5%8A%A8nps%E6%9C%8D%E5%8A%A1"><span class="toc-number">3.</span> <span class="toc-text">修改完配置文件后，启动nps服务</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A542-1X2-204-XX-8080%E8%AE%BF%E9%97%AENPS-web%E7%AE%A1%E7%90%86%E7%AB%AF"><span class="toc-number">4.</span> <span class="toc-text">浏览器输入42.1X2.204.XX:8080访问NPS web管理端</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%9E%E6%88%98%E6%B8%97%E9%80%8F"><span class="toc-number">5.</span> <span class="toc-text">实战渗透</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>如何使用 Jenkins 发布 Android 项目？ | 码404</title><meta name="keywords" content="Jenkins,打包,编译,Android,Android SDK,Gradle,JDK"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="介绍 本文的主要目的就是实现使用 Jenkins 发布 Android 项目，整体流程比较简单，就是打包 Android 项目的 Docker 安装完 sdk 这些镜像就变的非常大，差不多达到了 1G，这就是到目前位置制作的最大的镜像了。 随着自动化越来越普及，越来越多的公司都会将应用发版自动化，前端、后端项目相对较多一点，我们公司就是这样，移动端目前还没有一个是通过自动化打包，现在团队为了提升">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何使用 Jenkins 发布 Android 项目？">
+<meta property="og:url" content="http://code404.icu/2021/10/12/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-jenkins-%E5%8F%91%E5%B8%83-android-%E9%A1%B9%E7%9B%AE%EF%BC%9F/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="介绍 本文的主要目的就是实现使用 Jenkins 发布 Android 项目，整体流程比较简单，就是打包 Android 项目的 Docker 安装完 sdk 这些镜像就变的非常大，差不多达到了 1G，这就是到目前位置制作的最大的镜像了。 随着自动化越来越普及，越来越多的公司都会将应用发版自动化，前端、后端项目相对较多一点，我们公司就是这样，移动端目前还没有一个是通过自动化打包，现在团队为了提升">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/10/image-8.png">
+<meta property="article:published_time" content="2021-10-12T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.903Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="Jenkins">
+<meta property="article:tag" content="打包">
+<meta property="article:tag" content="编译">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="Android SDK">
+<meta property="article:tag" content="Gradle">
+<meta property="article:tag" content="JDK">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/10/image-8.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/10/12/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-jenkins-%E5%8F%91%E5%B8%83-android-%E9%A1%B9%E7%9B%AE%EF%BC%9F/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '如何使用 Jenkins 发布 Android 项目？',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/10/image-8.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">如何使用 Jenkins 发布 Android 项目？</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-10-12T00:30:00.000Z" title="发表于 2021-10-12 08:30:00">2021-10-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.903Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/Jenkins/">Jenkins</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E8%BF%90%E7%BB%B4/">运维</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="如何使用 Jenkins 发布 Android 项目？"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p><img src="https://code404.icu/img/moveypu/2021/10/image-8.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>本文的主要目的就是实现使用 Jenkins 发布 Android 项目，整体流程比较简单，就是打包 Android 项目的 Docker 安装完 sdk 这些镜像就变的非常大，差不多达到了 1G，这就是到目前位置制作的最大的镜像了。</p>
+<p>随着自动化越来越普及，越来越多的公司都会将应用发版自动化，前端、后端项目相对较多一点，我们公司就是这样，移动端目前还没有一个是通过自动化打包，现在团队为了提升效率，需要将移动端也进行自动化，下面就是在整个过程中的操作步骤，具体思路是先手动测试，再想办法在此基础上实现自动，流程比较简单，实现的功能也比较少，在这里做一个总结整理，也方便有需要的人。</p>
+<h3 id="安装环境"><a href="#安装环境" class="headerlink" title="安装环境"></a>安装环境</h3><hr>
+<h4 id="安装-JDK"><a href="#安装-JDK" class="headerlink" title="安装 JDK"></a>安装 JDK</h4><hr>
+<p>下载地址：<a target="_blank" rel="noopener" href="https://www.oracle.com/cn/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/cn/java/technologies/javase/javase-jdk8-downloads.html</a></p>
+<p>安装：</p>
+<p># tar xf jdk-8u291-linux-x64.tar.gz -C &#x2F;usr&#x2F;local&#x2F;</p>
+<h1 id="vim-x2F-etc-x2F-profile"><a href="#vim-x2F-etc-x2F-profile" class="headerlink" title="vim &#x2F;etc&#x2F;profile"></a>vim &#x2F;etc&#x2F;profile</h1><p>export JAVA_HOME&#x3D;&#x2F;usr&#x2F;local&#x2F;jdk1.8.0_291<br>export PATH&#x3D;$PATH:$JAVA_HOME&#x2F;bin</p>
+<h1 id="source-x2F-etc-x2F-profile"><a href="#source-x2F-etc-x2F-profile" class="headerlink" title="source &#x2F;etc&#x2F;profile"></a>source &#x2F;etc&#x2F;profile</h1><h1 id="java-version"><a href="#java-version" class="headerlink" title="java -version"></a>java -version</h1><p>java version “1.8.0_291”<br>Java(TM) SE Runtime Environment (build 1.8.0_291-b10)<br>Java HotSpot(TM) 64-Bit Server VM (build 25.291-b10, mixed mode)</p>
+<h4 id="安装-Android-SDK"><a href="#安装-Android-SDK" class="headerlink" title="安装 Android SDK"></a>安装 Android SDK</h4><hr>
+<p>下载地址：<a target="_blank" rel="noopener" href="https://developer.android.google.cn/studio?hl=zh-cn#downloads">https://developer.android.google.cn/studio?hl=zh-cn#downloads</a></p>
+<p>安装：</p>
+<p># unzip commandlinetools-linux-7302050_latest.zip -d &#x2F;usr&#x2F;local&#x2F;</p>
+<h1 id="vim-x2F-etc-x2F-profile-1"><a href="#vim-x2F-etc-x2F-profile-1" class="headerlink" title="vim &#x2F;etc&#x2F;profile"></a>vim &#x2F;etc&#x2F;profile</h1><p>export ANDROID_HOME&#x3D;&#x2F;usr&#x2F;local<br>export PATH&#x3D;$PATH:$JAVA_HOME&#x2F;bin:$ANDROID_HOME&#x2F;cmdline-tools&#x2F;bin</p>
+<h1 id="source-x2F-etc-x2F-profile-1"><a href="#source-x2F-etc-x2F-profile-1" class="headerlink" title="source &#x2F;etc&#x2F;profile"></a>source &#x2F;etc&#x2F;profile</h1><h1 id="sdkmanager-–list"><a href="#sdkmanager-–list" class="headerlink" title="sdkmanager –list"></a>sdkmanager –list</h1><h1 id="安装对应版本的-SDK"><a href="#安装对应版本的-SDK" class="headerlink" title="安装对应版本的 SDK"></a>安装对应版本的 SDK</h1><h1 id="sdkmanager-“platforms-android-29”"><a href="#sdkmanager-“platforms-android-29”" class="headerlink" title="sdkmanager  “platforms;android-29”"></a>sdkmanager  “platforms;android-29”</h1><p>如果报一下错误：</p>
+<p>Error: Could not determine SDK root.<br>Error: Either specify it explicitly with –sdk_root&#x3D; or move this package into its expected location: <sdk>&#x2F;cmdline-tools&#x2F;latest&#x2F;</p>
+<p>则直接在 cmdline-tools 目录下创建 latest 目录，然后将 bin、lib、source.properties 文件和目录移动到 latest 目录下。</p>
+<p>latest&#x2F;<br>├── bin<br>├── lib<br>├── NOTICE.txt<br>└── source.properties</p>
+<p>然后重新配置环境变量，如下：</p>
+<p># vim &#x2F;etc&#x2F;profile<br>export ANDROID_HOME&#x3D;&#x2F;usr&#x2F;local<br>export PATH&#x3D;$PATH:$JAVA_HOME&#x2F;bin:$ANDROID_HOME&#x2F;cmdline-tools&#x2F;latest&#x2F;bin</p>
+<h4 id="安装-Gradle"><a href="#安装-Gradle" class="headerlink" title="安装 Gradle"></a>安装 Gradle</h4><hr>
+<p>下载地址：<a target="_blank" rel="noopener" href="https://gradle.org/releases/">https://gradle.org/releases/</a></p>
+<p>安装：</p>
+<p># unzip gradle-7.1.1-bin.zip -d &#x2F;usr&#x2F;local&#x2F;</p>
+<h1 id="vim-x2F-etc-x2F-profile-2"><a href="#vim-x2F-etc-x2F-profile-2" class="headerlink" title="vim &#x2F;etc&#x2F;profile"></a>vim &#x2F;etc&#x2F;profile</h1><p>export GRADLE_HOME&#x3D;&#x2F;usr&#x2F;local&#x2F;gradle-7.1.1<br>export PATH&#x3D;$PATH:$JAVA_HOME&#x2F;bin:$ANDROID_HOME&#x2F;cmdline-tools&#x2F;latest&#x2F;bin:$GRADLE_HOME&#x2F;bin</p>
+<h1 id="source-x2F-etc-x2F-profile-2"><a href="#source-x2F-etc-x2F-profile-2" class="headerlink" title="source &#x2F;etc&#x2F;profile"></a>source &#x2F;etc&#x2F;profile</h1><h1 id="gradle-v"><a href="#gradle-v" class="headerlink" title="gradle -v"></a>gradle -v</h1><p>Welcome to Gradle 7.1.1!</p>
+<p>Here are the highlights of this release:</p>
+<ul>
+<li>Faster incremental Java compilation</li>
+<li>Easier source set configuration in the Kotlin DSL</li>
+</ul>
+<h3 id="手动打包测试"><a href="#手动打包测试" class="headerlink" title="手动打包测试"></a>手动打包测试</h3><hr>
+<h4 id="下载代码"><a href="#下载代码" class="headerlink" title="下载代码"></a>下载代码</h4><hr>
+<p># git clone <a target="_blank" rel="noopener" href="http://192.168.100.180/app/android/newcrm1.0.git">http://192.168.100.180/app/android/newcrm1.0.git</a></p>
+<h4 id="构建打包"><a href="#构建打包" class="headerlink" title="构建打包"></a>构建打包</h4><hr>
+<p># gradle build &amp; gradle assemble</p>
+<h1 id="curl-F-“file-x3D-x2F-tmp-x2F-example-ipa”-F-“uKey-x3D-aa18132c4d9afedfa9cd2c054213c867”-F-“-api-key-x3D-bb66fdd1c5a4c247b016e0ab88a54fdd”-https-upload-pgyer-com-apiv1-app-upload"><a href="#curl-F-“file-x3D-x2F-tmp-x2F-example-ipa”-F-“uKey-x3D-aa18132c4d9afedfa9cd2c054213c867”-F-“-api-key-x3D-bb66fdd1c5a4c247b016e0ab88a54fdd”-https-upload-pgyer-com-apiv1-app-upload" class="headerlink" title="curl -F “file&#x3D;@&#x2F;tmp&#x2F;example.ipa” -F “uKey&#x3D;aa18132c4d9afedfa9cd2c054213c867” -F “_api_key&#x3D;bb66fdd1c5a4c247b016e0ab88a54fdd” https://upload.pgyer.com/apiv1/app/upload"></a>curl -F “file&#x3D;@&#x2F;tmp&#x2F;example.ipa” -F “uKey&#x3D;aa18132c4d9afedfa9cd2c054213c867” -F “_api_key&#x3D;bb66fdd1c5a4c247b016e0ab88a54fdd” <a target="_blank" rel="noopener" href="https://upload.pgyer.com/apiv1/app/upload">https://upload.pgyer.com/apiv1/app/upload</a></h1><h3 id="使用-Jenkins-打包"><a href="#使用-Jenkins-打包" class="headerlink" title="使用 Jenkins 打包"></a>使用 Jenkins 打包</h3><hr>
+<p>Jenkins 部署在 Kubernetes 中，打包安卓包可以直接使用 jenkins-slave 方式进行。</p>
+<p>整理流程如下：<br><img src="https://img-blog.csdnimg.cn/3d49f59bf0e9421fb3b9acbda1f757ab.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>整个流程非常简单，基本上只要打包成功，都不会有啥问题。</p>
+<h4 id="制作打包的-Docker-镜像"><a href="#制作打包的-Docker-镜像" class="headerlink" title="制作打包的 Docker 镜像"></a>制作打包的 Docker 镜像</h4><hr>
+<p>这一步主要是制作打包 Android 项目的 Docker，由于网络原因，Android 工具是手动下载再添加到 Docker 中。</p>
+<p>Dockerfile 如下（sdk 版本需要根据公司情况进行更改）：</p>
+<p>FROM gradle:5.6.4-jdk8<br>ADD cmdline-tools.tar.gz &#x2F;usr&#x2F;local<br>ENV ANDROID_HOME &#x2F;usr&#x2F;local<br>ENV PATH ${ANDROID_HOME}&#x2F;cmdline-tools&#x2F;latest&#x2F;bin:${PATH}</p>
+<h4 id="制作镜像"><a href="#制作镜像" class="headerlink" title="制作镜像"></a>制作镜像</h4><hr>
+<p>docker build -t registry.cn-hangzhou.aliyuncs.com&#x2F;rookieops&#x2F;android-sdk:v1 .</p>
+<p>进入容器安装 Android SDK，主要是安装 SDK 需要交互式操作，在 Dockerfile 中不好弄，就手动去安装了。</p>
+<p>docker exec -it –rm registry.cn-hangzhou.aliyuncs.com&#x2F;rookieops&#x2F;android-sdk:v1 bash</p>
+<h1 id="sdkmanager-“platforms-android-29”-“platform-tools”-“build-tools-29-0-2”"><a href="#sdkmanager-“platforms-android-29”-“platform-tools”-“build-tools-29-0-2”" class="headerlink" title="sdkmanager  “platforms;android-29” “platform-tools” “build-tools;29.0.2”"></a>sdkmanager  “platforms;android-29” “platform-tools” “build-tools;29.0.2”</h1><p>安装完成后，另起一个终端，将上面的容器重新 commit 成一个新的镜像，如下：</p>
+<p># 获取容器的 ID<br>docker ps  grep android</p>
+<h1 id="生成新的镜像"><a href="#生成新的镜像" class="headerlink" title="生成新的镜像"></a>生成新的镜像</h1><p>docker commit e0e0a7387c35 registry.cn-hangzhou.aliyuncs.com&#x2F;rookieops&#x2F;android-sdk:v2</p>
+<h1 id="推送镜像"><a href="#推送镜像" class="headerlink" title="推送镜像"></a>推送镜像</h1><p>docker push registry.cn-hangzhou.aliyuncs.com&#x2F;rookieops&#x2F;android-sdk:v2</p>
+<h4 id="制作-Jenkinsfile"><a href="#制作-Jenkinsfile" class="headerlink" title="制作 Jenkinsfile"></a>制作 Jenkinsfile</h4><hr>
+<p>知道流程了，Jenkinsfile 只需要按流程办事即可，如下：</p>
+<p>#!groovy</p>
+<p>@Library(‘lotbrick’) _ </p>
+<p>&#x2F;&#x2F; 引入方法<br>def dingmes &#x3D; new org.devops.sendDingTalk()</p>
+<p>pipeline {<br>    agent {<br>        kubernetes {<br>            label “jenkins-slave-${UUID.randomUUID().toString()}”<br>            yaml “””<br>apiVersion: v1<br>kind: Pod<br>spec:<br>  containers:</p>
+<ul>
+<li><p>name: gradle<br>image: registry.cn-hangzhou.aliyuncs.com&#x2F;rookieops&#x2F;android-sdk:v2<br>command: [‘cat’]<br>tty: true<br>volumeMounts:</p>
+<ul>
+<li>name: caches<br>mountPath: &#x2F;home&#x2F;gradle&#x2F;.gradle&#x2F;caches&#x2F;<br>  volumes:</li>
+<li>name: caches<br>hostPath:<br>  path: “&#x2F;data&#x2F;jenkins-job&#x2F;${JOB_NAME}&#x2F;gradle&#x2F;“<br>“””<br>  }<br>}</li>
+</ul>
+<p>environment {<br>    GIT_CREDENTIAL_ID &#x3D; ‘git-token’<br>    UKEY &#x3D; “xxxx”<br>    API_KEY &#x3D; “xxx”<br>    UPLOAD_URL &#x3D; “<a target="_blank" rel="noopener" href="https://upload.pgyer.com/apiv1/app/upload&quot;">https://upload.pgyer.com/apiv1/app/upload&quot;</a><br>    DINGTALKHOOK &#x3D; “<a target="_blank" rel="noopener" href="https://oapi.dingtalk.com/robot/send?access%5C_token=xxx&quot;">https://oapi.dingtalk.com/robot/send?access\_token=xxx&quot;</a><br>}</p>
+<p>&#x2F;&#x2F; 配置触发器<br>triggers {<br>    GenericTrigger(<br>        genericVariables: [<br>            [key: ‘ref’, value: ‘$.ref’],<br>            [key: ‘before’, value: ‘$.before’],<br>            [key: ‘after’, value: ‘$.after’],<br>            [key: ‘hook_name’, value: ‘$.hook_name’]<br>        ],<br>        causeString: ‘Triggered on $ref’,<br>        token: env.JOB_NAME,<br>        printContributedVariables: true,<br>        printPostContent: true,<br>        regexpFilterText: ‘$ref’,<br>        regexpFilterExpression: ‘refs&#x2F;heads&#x2F;(premaster)’,<br>    )</p>
+</li>
+</ul>
+<p>   }<br>    options {<br>        timeout(time: 25, unit: ‘MINUTES’)<br>    }<br>    stages {<br>        stage(‘Checkout SCM’) {<br>            steps {<br>                checkout(scm)<br>            }<br>        }</p>
+<pre><code>    // 编译
+    stage(&#39;Build &amp; Push&#39;) &#123;
+        steps &#123;
+            container(&#39;gradle&#39;) &#123;
+                script &#123;
+                    sh &quot;&quot;&quot;
+                     gradle build &amp; gradle assemble
+                     ls app/build/outputs/apk/release/\*.apk
+                    &quot;&quot;&quot;
+                    PACKAGE\_DIR=sh(script: &quot;ls app/build/outputs/apk/release/\*.apk&quot;, returnStdout: true).trim()
+                    FULL\_DIR=&quot;$&#123;WORKSPACE&#125;/$&#123;PACKAGE\_DIR&#125;&quot;
+                    sh &quot;&quot;&quot;
+                    curl -F &quot;file=@$&#123;FULL\_DIR&#125;&quot; -F &quot;uKey=$&#123;UKEY&#125;&quot; -F &quot;\_api\_key=$&#123;API\_KEY&#125;&quot; $&#123;UPLOAD\_URL&#125;
+                    &quot;&quot;&quot;
+                &#125;
+            &#125;
+        &#125;
+    &#125;
+&#125;
+// 构建后的操作
+</code></pre>
+<p> post {<br>  success {<br>   script{<br>    println(“success:只有构建成功才会执行”)<br>    dingmes.SendDingTalk(“构建成功 ✅”)<br>   }<br>  }<br>  failure {<br>   script{<br>    println(“failure:只有构建失败才会执行”)<br>    dingmes.SendDingTalk(“构建失败 ❌”)<br>   }<br>  }<br> }<br>}</p>
+<h3 id="配置流水线"><a href="#配置流水线" class="headerlink" title="配置流水线"></a>配置流水线</h3><hr>
+<p>由于我这里使用的是 Kubesphere 管理 DevOps 工程，所以就直接在 Kubesphere 中进行配置，如果是直接使用的 Jenkins，配置即可，都很简单。</p>
+<p>（1）添加项目<br><img src="https://img-blog.csdnimg.cn/c6641f31a8e545f1b2d4eb91cfa87370.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>（2）配置分支以及路径<br><img src="https://img-blog.csdnimg.cn/b03dc407115a44be8b09c5d2ef4a661b.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>到这里配置就完成了，下面就是打包测试。项目打包完成，钉钉会收到如下信息：<br><img src="https://img-blog.csdnimg.cn/22fa5d1905cf4f53b521fa5d34611d77.png" alt="在这里插入图片描述"></p>
+<p>也可以在 DevOps 工程中查看具体的信息，如下：<br><img src="https://img-blog.csdnimg.cn/19ee0d106103437bbbc2e4d2d3bad64b.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
+<p>总结<br>本文的主要目的就是实现使用 Jenkins 发布 Android 项目，整体流程比较简单，就是打包 Android 项目的 Docker 安装完 sdk 这些镜像就变的非常大，差不多达到了 1G，这就是到目前位置制作的最大的镜像了。</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/10/12/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-jenkins-%E5%8F%91%E5%B8%83-android-%E9%A1%B9%E7%9B%AE%EF%BC%9F/">http://code404.icu/2021/10/12/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-jenkins-%E5%8F%91%E5%B8%83-android-%E9%A1%B9%E7%9B%AE%EF%BC%9F/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Jenkins/">Jenkins</a><a class="post-meta__tags" href="/tags/%E6%89%93%E5%8C%85/">打包</a><a class="post-meta__tags" href="/tags/%E7%BC%96%E8%AF%91/">编译</a><a class="post-meta__tags" href="/tags/Android/">Android</a><a class="post-meta__tags" href="/tags/Android-SDK/">Android SDK</a><a class="post-meta__tags" href="/tags/Gradle/">Gradle</a><a class="post-meta__tags" href="/tags/JDK/">JDK</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/10/image-8.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/10/13/jenkins%E6%B7%BB%E5%8A%A0node%E8%8A%82%E7%82%B9jenkins-agent-jar-jenkins%E4%BB%8E%E8%8A%82%E7%82%B9%EF%BC%9F/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/10/image-9.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">Jenkins添加node节点jenkins-agent.jar_jenkins从节点？</div></div></a></div><div class="next-post pull-right"><a href="/2021/10/11/%E5%A6%82%E4%BD%95%E5%88%A9%E7%94%A8-nginx-%E5%AE%9E%E7%8E%B0%E7%94%9F%E4%BA%A7%E5%92%8C%E7%81%B0%E5%BA%A6%E7%8E%AF%E5%A2%83%E6%B5%81%E9%87%8F%E5%88%87%E6%8D%A2%EF%BC%9F/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/10/image-7.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">如何利用 nginx 实现生产和灰度环境流量切换？</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-04-08</div><div class="title">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</div></div></a></div><div><a href="/2021/04/26/docker-%E6%90%AD%E5%BB%BA-jenkins-%E5%AE%9E%E7%8E%B0%E8%87%AA%E5%8A%A8%E9%83%A8%E7%BD%B2/" title="Docker 搭建 Jenkins 实现自动部署"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/image-28.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-26</div><div class="title">Docker 搭建 Jenkins 实现自动部署</div></div></a></div><div><a href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img class="cover" src="https://code404.icu/img/moveypu/2022/01/image-1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2022-01-01</div><div class="title">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</div></div></a></div><div><a href="/2021/04/28/jenkins-%E7%94%A8%E6%88%B7%E3%80%81%E8%A7%92%E8%89%B2%E5%8F%8A%E6%9D%83%E9%99%90%E7%AE%A1%E7%90%86%E5%9C%A8%E6%96%B0%E5%AE%89%E8%A3%85%E5%A5%BD%E7%9A%84jenkins%E4%B8%AD%EF%BC%8C%E9%BB%98%E8%AE%A4/" title="Jenkins 用户、角色及权限管理"><img class="cover" src="https://code404.icu/img/moveypu/2021/04/image-32.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-04-28</div><div class="title">Jenkins 用户、角色及权限管理</div></div></a></div><div><a href="/2021/11/26/jenkins-%E5%A6%82%E4%BD%95%E6%8E%A7%E5%88%B6%E7%94%A8%E6%88%B7%E9%A1%B9%E7%9B%AE%E6%9D%83%E9%99%90%EF%BC%9F/" title="Jenkins 如何控制用户项目权限？"><img class="cover" src="https://code404.icu/img/moveypu/2021/11/image-13-1024x528.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-26</div><div class="title">Jenkins 如何控制用户项目权限？</div></div></a></div><div><a href="/2021/10/04/jenkins%E5%A6%82%E4%BD%95%E9%85%8D%E7%BD%AE%E6%89%A9%E5%B1%95%E5%85%B1%E4%BA%AB%E5%BA%93/" title="Jenkins如何配置扩展共享库?"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-04</div><div class="title">Jenkins如何配置扩展共享库?</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%8B%E7%BB%8D"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E7%8E%AF%E5%A2%83"><span class="toc-number">2.</span> <span class="toc-text">安装环境</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85-JDK"><span class="toc-number">2.1.</span> <span class="toc-text">安装 JDK</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#vim-x2F-etc-x2F-profile"><span class="toc-number"></span> <span class="toc-text">vim &#x2F;etc&#x2F;profile</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#source-x2F-etc-x2F-profile"><span class="toc-number"></span> <span class="toc-text">source &#x2F;etc&#x2F;profile</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#java-version"><span class="toc-number"></span> <span class="toc-text">java -version</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85-Android-SDK"><span class="toc-number">0.1.</span> <span class="toc-text">安装 Android SDK</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#vim-x2F-etc-x2F-profile-1"><span class="toc-number"></span> <span class="toc-text">vim &#x2F;etc&#x2F;profile</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#source-x2F-etc-x2F-profile-1"><span class="toc-number"></span> <span class="toc-text">source &#x2F;etc&#x2F;profile</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#sdkmanager-%E2%80%93list"><span class="toc-number"></span> <span class="toc-text">sdkmanager –list</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E5%AF%B9%E5%BA%94%E7%89%88%E6%9C%AC%E7%9A%84-SDK"><span class="toc-number"></span> <span class="toc-text">安装对应版本的 SDK</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#sdkmanager-%E2%80%9Cplatforms-android-29%E2%80%9D"><span class="toc-number"></span> <span class="toc-text">sdkmanager  “platforms;android-29”</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%89%E8%A3%85-Gradle"><span class="toc-number">0.1.</span> <span class="toc-text">安装 Gradle</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#vim-x2F-etc-x2F-profile-2"><span class="toc-number"></span> <span class="toc-text">vim &#x2F;etc&#x2F;profile</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#source-x2F-etc-x2F-profile-2"><span class="toc-number"></span> <span class="toc-text">source &#x2F;etc&#x2F;profile</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#gradle-v"><span class="toc-number"></span> <span class="toc-text">gradle -v</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%8B%E5%8A%A8%E6%89%93%E5%8C%85%E6%B5%8B%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">手动打包测试</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8B%E8%BD%BD%E4%BB%A3%E7%A0%81"><span class="toc-number">1.1.</span> <span class="toc-text">下载代码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9E%84%E5%BB%BA%E6%89%93%E5%8C%85"><span class="toc-number">1.2.</span> <span class="toc-text">构建打包</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#curl-F-%E2%80%9Cfile-x3D-x2F-tmp-x2F-example-ipa%E2%80%9D-F-%E2%80%9CuKey-x3D-aa18132c4d9afedfa9cd2c054213c867%E2%80%9D-F-%E2%80%9C-api-key-x3D-bb66fdd1c5a4c247b016e0ab88a54fdd%E2%80%9D-https-upload-pgyer-com-apiv1-app-upload"><span class="toc-number"></span> <span class="toc-text">curl -F “file&#x3D;@&#x2F;tmp&#x2F;example.ipa” -F “uKey&#x3D;aa18132c4d9afedfa9cd2c054213c867” -F “_api_key&#x3D;bb66fdd1c5a4c247b016e0ab88a54fdd” https:&#x2F;&#x2F;upload.pgyer.com&#x2F;apiv1&#x2F;app&#x2F;upload</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8-Jenkins-%E6%89%93%E5%8C%85"><span class="toc-number">1.</span> <span class="toc-text">使用 Jenkins 打包</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%B6%E4%BD%9C%E6%89%93%E5%8C%85%E7%9A%84-Docker-%E9%95%9C%E5%83%8F"><span class="toc-number">1.1.</span> <span class="toc-text">制作打包的 Docker 镜像</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%B6%E4%BD%9C%E9%95%9C%E5%83%8F"><span class="toc-number">1.2.</span> <span class="toc-text">制作镜像</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#sdkmanager-%E2%80%9Cplatforms-android-29%E2%80%9D-%E2%80%9Cplatform-tools%E2%80%9D-%E2%80%9Cbuild-tools-29-0-2%E2%80%9D"><span class="toc-number"></span> <span class="toc-text">sdkmanager  “platforms;android-29” “platform-tools” “build-tools;29.0.2”</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E6%96%B0%E7%9A%84%E9%95%9C%E5%83%8F"><span class="toc-number"></span> <span class="toc-text">生成新的镜像</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%8E%A8%E9%80%81%E9%95%9C%E5%83%8F"><span class="toc-number"></span> <span class="toc-text">推送镜像</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%88%B6%E4%BD%9C-Jenkinsfile"><span class="toc-number">0.1.</span> <span class="toc-text">制作 Jenkinsfile</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="toc-number">1.</span> <span class="toc-text">配置流水线</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>

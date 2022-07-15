@@ -1,0 +1,246 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>RabbitMQ消息队列服务高可用搭建手册 | 码404</title><meta name="keywords" content="RabbitMQ,haproxy,keepalived"><meta name="author" content="LeenHem"><meta name="copyright" content="LeenHem"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="注：本文搭建rabbitmq+haproxy+keepalived高可用集群，采用本地下载安装包的形式。 1. 帮助1.1 安装包下载1.2 集群运行前提1) 集群所有节点必须运行相同的erlang及Rabbitmq版本。 2) Hostname解析，节点之间通过域名互相访问，本文为3个节点，使用配置hosts方式。 1.3 端口及协议1) Rabbitmq 4369(tcp)：erlang进程e">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RabbitMQ消息队列服务高可用搭建手册">
+<meta property="og:url" content="http://code404.icu/2021/06/05/rabbitmq%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E6%9C%8D%E5%8A%A1%E9%AB%98%E5%8F%AF%E7%94%A8%E6%90%AD%E5%BB%BA%E6%89%8B%E5%86%8C/index.html">
+<meta property="og:site_name" content="码404">
+<meta property="og:description" content="注：本文搭建rabbitmq+haproxy+keepalived高可用集群，采用本地下载安装包的形式。 1. 帮助1.1 安装包下载1.2 集群运行前提1) 集群所有节点必须运行相同的erlang及Rabbitmq版本。 2) Hostname解析，节点之间通过域名互相访问，本文为3个节点，使用配置hosts方式。 1.3 端口及协议1) Rabbitmq 4369(tcp)：erlang进程e">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://code404.icu/img/moveypu/2021/06/image-21.png">
+<meta property="article:published_time" content="2021-06-05T00:30:00.000Z">
+<meta property="article:modified_time" content="2022-06-24T09:06:26.886Z">
+<meta property="article:author" content="LeenHem">
+<meta property="article:tag" content="RabbitMQ">
+<meta property="article:tag" content="haproxy">
+<meta property="article:tag" content="keepalived">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://code404.icu/img/moveypu/2021/06/image-21.png"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://code404.icu/2021/06/05/rabbitmq%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E6%9C%8D%E5%8A%A1%E9%AB%98%E5%8F%AF%E7%94%A8%E6%90%AD%E5%BB%BA%E6%89%8B%E5%86%8C/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script async="async" src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-7778208848617253',
+  enable_page_level_ads: 'true'
+});</script><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'RabbitMQ消息队列服务高可用搭建手册',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-24 17:06:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.1.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/tx.png" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://code404.icu/img/moveypu/2021/06/image-21.png')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">码404</a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 目录</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">RabbitMQ消息队列服务高可用搭建手册</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2021-06-05T00:30:00.000Z" title="发表于 2021-06-05 08:30:00">2021-06-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-24T09:06:26.886Z" title="更新于 2022-06-24 17:06:26">2022-06-24</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/keepalived/">keepalived</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/haproxy/">haproxy</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/">消息队列</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="RabbitMQ消息队列服务高可用搭建手册"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>注：本文搭建rabbitmq+haproxy+keepalived高可用集群，采用本地下载安装包的形式。</p>
+<h2 id="1-帮助"><a href="#1-帮助" class="headerlink" title="1. 帮助"></a>1. 帮助</h2><h3 id="1-1-安装包下载"><a href="#1-1-安装包下载" class="headerlink" title="1.1 安装包下载"></a>1.1 安装包下载</h3><h3 id="1-2-集群运行前提"><a href="#1-2-集群运行前提" class="headerlink" title="1.2 集群运行前提"></a>1.2 集群运行前提</h3><p><strong>1)</strong> 集群所有节点必须运行相同的erlang及Rabbitmq版本。</p>
+<p><strong>2)</strong> Hostname解析，节点之间通过域名互相访问，本文为3个节点，使用配置hosts方式。</p>
+<h3 id="1-3-端口及协议"><a href="#1-3-端口及协议" class="headerlink" title="1.3 端口及协议"></a>1.3 端口及协议</h3><p><strong>1)</strong> Rabbitmq</p>
+<p><strong>4369</strong>(tcp)：erlang进程epmd用来做node连接的</p>
+<p><strong>5672</strong>(tcp)：与mq服务通信使用</p>
+<p><strong>15672</strong>(tcp)：rabbitmq服务后台管理页面访问端（<a href="http://ip:15672）">http://ip:15672）</a></p>
+<p><strong>25672</strong>(tcp)：集群之间访问使用</p>
+<p><strong>2)</strong> haproxy</p>
+<p><strong>8100</strong>：haproxy控制台访问端口，默认为8100</p>
+<p><strong>3)</strong> keepalived</p>
+<p>防火墙开启vrrp 协议</p>
+<h2 id="2-集群搭建"><a href="#2-集群搭建" class="headerlink" title="2. 集群搭建"></a>2. 集群搭建</h2><p>本文按照下图方案部署：</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-21.png"></p>
+<h3 id="2-1-Erlang安装"><a href="#2-1-Erlang安装" class="headerlink" title="2.1 Erlang安装"></a>2.1 Erlang安装</h3><p><strong>1)</strong> 安装包 <code>erlang-21.2.5-1.el7.centos.x86_64.rpm</code></p>
+<p><strong>2)</strong> 上传到指定目录，运行命令安装（本文安装路径为：&#x2F;usr&#x2F;local）</p>
+<p>rpm -ivh erlang-21.2.5-1.el7.centos.x86_64.rpm</p>
+<p><strong>3)</strong> 暂时不支持制定路径安装，如果想换路径，用which erl 查看erlang安装地址，erlang被安装到了<code>/usr/lib64/erlang</code> 此目录，此时便可将此目录转移到你想放置的目录。</p>
+<p>mv &#x2F;usr&#x2F;lib64&#x2F;erlang&#x2F; &#x2F;usr&#x2F;local&#x2F;</p>
+<p><strong>4)</strong> 此时运行命令报错</p>
+<p>&#x2F;usr&#x2F;local&#x2F;erlang&#x2F;bin&#x2F;erl:行29: &#x2F;usr&#x2F;lib64&#x2F;erlang&#x2F;erts-8.0.3&#x2F;bin&#x2F;erlexe: 没有那个文件或目录</p>
+<p>原因在于erl文件中配置了ROOTDIR，使用命令打开erl文件。</p>
+<p>vim &#x2F;usr&#x2F;local&#x2F;erlang&#x2F;bin&#x2F;erl</p>
+<p>#ROOTDIR改为如下，保存。</p>
+<p>ROOTDIR&#x3D;”&#x2F;usr&#x2F;local&#x2F;erlang”</p>
+<p><strong>5)</strong> 添加环境变量</p>
+<p> export ERL_HOME&#x3D;&#x2F;usr&#x2F;local&#x2F;erlang<br> export PATH&#x3D;$ERL_HOME&#x2F;bin:$PATH<br> #&#x2F;etc&#x2F;profile更新生效命令<br> source &#x2F;etc&#x2F;profile</p>
+<p><strong>6)</strong> 运行erl成功</p>
+<p>[root@mq1 ~]# erl<br>Erlang&#x2F;OTP 21 [erts-10.2.3] [source] [64-bit] [smp:4:4] [ds:4:4:10] [async-threads:1] [hipe]</p>
+<p>Eshell V10.2.3  (abort with ^G)</p>
+<h3 id="2-2-Rabbitmq单机安装"><a href="#2-2-Rabbitmq单机安装" class="headerlink" title="2.2 Rabbitmq单机安装"></a>2.2 Rabbitmq单机安装</h3><p><strong>1)</strong> rabbitmq-server-3.7.11-1.el7.noarch.rpm安装包。</p>
+<p>rpm -ivh rabbitmq-server-3.7.11-1.el7.noarch.rpm</p>
+<p><strong>2)</strong> 直接安装rabbitmq可能会报错找不到socat，下载socat-1.7.2.4-1.el7.rf.x86_64.rpm，安装成功后，继续安装rabbitmq便可成功。</p>
+<p>rpm -ivh socat-1.7.2.4-1.el7.rf.x86_64.rpm</p>
+<p><strong>3)</strong> 修改配置登录用户名，默认guest：guest不让登录了</p>
+<p>我们创建管理员用户</p>
+<p>rabbitmq设置用户名和密码<br>&#x2F;usr&#x2F;local&#x2F;rabbitmq_server-3.7.0&#x2F;sbin目录下输入</p>
+<p>#新增用户<br>.&#x2F;rabbitmqctl add_user zhangsan admin123<br>#设置用户级别<br>#用户级别：<br>#1、administrator 可以登录控制台、查看所有信息、可以对rabbitmq进行管理<br>#2、monitoring  监控者 登录控制台，查看所有信息<br>#3、policymaker  策略制定者  登录控制台,指定策略<br>#4、managment 普通管理员 登录控制台<br>.&#x2F;rabbitmqctl set_user_tags zhangsan administrator</p>
+<p><strong>4)</strong> 启动rabbitmq<br>执行命令：</p>
+<p>#启动rabbitmq<br>systemctl start rabbitmq-server.service<br>#加入开机自启<br>systemctl enable rabbitmq-server.service</p>
+<p><strong>5)</strong> 启用后台管理页面</p>
+<p>[root@mq1 ~]# rabbitmq-plugins enable rabbitmq_management<br>Enabling plugins on node rabbit@mq1:<br>rabbitmq_management<br>The following plugins have been configured:<br>  rabbitmq_management<br>  rabbitmq_management_agent<br>  rabbitmq_tracing<br>  rabbitmq_web_dispatch<br>Applying plugin configuration to rabbit@mq1…<br>Plugin configuration unchanged.</p>
+<p><strong>6)</strong> rabbitmq单机搭建完成</p>
+<p>访问：<a target="_blank" rel="noopener" href="http://ip:15672/">http://ip:15672</a></p>
+<p><strong>7)</strong> 重复上面上步骤安装三台服务器</p>
+<h3 id="2-3-集群搭建"><a href="#2-3-集群搭建" class="headerlink" title="2.3 集群搭建"></a>2.3 集群搭建</h3><p>本文搭建使用三台linux机器（假设：ip1,ip2,ip3）</p>
+<h4 id="2-3-1-环境准备"><a href="#2-3-1-环境准备" class="headerlink" title="2.3.1 环境准备"></a>2.3.1 环境准备</h4><p><strong>1)</strong> erlang进程需要host来进行连接，所以它会检查你的hosts配置，而rabbitmq集群之间是通过erlang进程epmd用来做node连接的。三台服务需要修改其对应的hostname为mq1、mq2、mq3，并且每台机器hosts文件需要配置下面3行:</p>
+<p>Ip1 mq1<br>Ip2 mq2<br>Ip3 mq3</p>
+<p><strong>2)</strong> 寻找rabbitmq安装路径，修改.erlang.cookie 文件中的字符串，让每台服务器保持一致<br>尽量使用scp命令复制：</p>
+<p>scp -r &#x2F;var&#x2F;lib&#x2F;rabbitmq&#x2F;.erlang.cookie root@ip2:&#x2F;var&#x2F;lib&#x2F;rabbitmq&#x2F;</p>
+<p>复制前修改文件权限，复制完要恢复文件权限（修改权限命令：<code>chmod 400 .erlang.cookie</code>）</p>
+<p><strong>3)</strong> 三台mq服务启动成功后，停止三台mq的服务</p>
+<p>rabbitmqctl stop_app</p>
+<p><strong>4)</strong> 加入集群命令（在其他两个几点mq2、ma3上运行）</p>
+<p>rabbitmqctl stop_app（因为之前停止了，所以可能会报错，不用管。）</p>
+<p>rabbitmqctl join_cluster rabbit@mq1 (这里的mq1，主节点的主机名)</p>
+<p>rabbitmqctl start_app</p>
+<p><strong>5)</strong> 访问控制台，搭建成功</p>
+<p><img src="https://code404.icu/img/moveypu/2021/06/image-20-1024x475.png"></p>
+<h2 id="2-配置haproxy"><a href="#2-配置haproxy" class="headerlink" title="2. 配置haproxy"></a>2. 配置haproxy</h2><p>Haproxy是一款提供高可用性、负载均衡以及基于tcp和http应用的代理软件。</p>
+<p>使用rpm安装包：haproxy-1.5.18-8.el7.x86_64.rpm</p>
+<p><strong>1)</strong> 安装haproxy</p>
+<p>rpm -ivh haproxy-1.5.18-8.el7.x86_64.rpm</p>
+<p><strong>2)</strong> 配置文件放到&#x2F;etc&#x2F;haproxy&#x2F;haproxy.cfg</p>
+<p>cat &#x2F;etc&#x2F;haproxy&#x2F;haproxy.cfg<br>#logging options<br>global<br>log 127.0.0.1 local0 info<br>maxconn 5120<br>chroot &#x2F;usr&#x2F;local&#x2F;haproxy<br>uid 99<br>gid 99<br>daemon<br>quiet<br>nbproc 20<br>pidfile &#x2F;var&#x2F;run&#x2F;haproxy.pid</p>
+<p>defaults<br>log global<br>#使用4层代理模式，”mode http”为7层代理模式<br>mode tcp<br>#if you set mode to tcp,then you nust change tcplog into httplog<br>option tcplog<br>option dontlognull<br>retries 3<br>option redispatch<br>maxconn 2000<br>contimeout 5s<br>     ##客户端空闲超时时间为 60秒 则HA 发起重连机制<br>     clitimeout 60s<br>     ##服务器端链接超时时间为 15秒 则HA 发起重连机制<br>     srvtimeout 15s<br>#front-end IP for consumers and producters</p>
+<p>listen rabbitmq_cluster<br>bind 0.0.0.0:5672<br>#配置TCP模式<br>mode tcp<br>#balance url_param userid<br>#balance url_param session_id check_post 64<br>#balance hdr(User-Agent)<br>#balance hdr(host)<br>#balance hdr(Host) use_domain_only<br>#balance rdp-cookie<br>#balance leastconn<br>#balance source &#x2F;&#x2F;ip<br>#简单的轮询<br>balance roundrobin<br>        timeout client  3h<br>        timeout server  3h<br>#rabbitmq集群节点配置 #inter 每隔五秒对mq集群做健康检查， 2次正确证明服务器可用，2次失败证明服务器不可用，并且配置主备机制<br>        server mq1 ip1:5672 check inter 5000 rise 2 fall 2<br>        server mq2 ip2:5672 check inter 5000 rise 2 fall 2<br>        server mq3 ip3:5672 check inter 5000 rise 2 fall 2<br>#配置haproxy web监控，查看统计信息<br>listen stats<br>bind 0.0.0.0:8100<br>mode http<br>option httplog<br>stats enable<br>#设置haproxy监控地址为<a target="_blank" rel="noopener" href="http://localhost:8100/rabbitmq-stats">http://localhost:8100/rabbitmq-stats</a><br>stats uri &#x2F;rabbitmq-stats<br>stats refresh 5s</p>
+<p>haproxy.cfg需要注意haproxy安装目录，rpm安装位置为usr&#x2F;lib&#x2F;haproxy</p>
+<p><strong>3)</strong> 启动服务</p>
+<p>[root@haproxy2 ~]# systemctl start haproxy.service</p>
+<p><strong>4)</strong> 搭建成功，访问以下地址可以对mq节点进行监控<br><a target="_blank" rel="noopener" href="http://192.168.65.115:8100/rabbitmq-stats">http://192.168.65.115:8100/rabbitmq-stats</a></p>
+<p><strong>5)</strong> 关闭haproxy</p>
+<p>[root@haproxy2 ~]# systemctl stop haproxy.service</p>
+<p><strong>6)</strong> 需要几台haproxy就安装几台，重复上面步骤就可以</p>
+<h2 id="3-Keepalived安装"><a href="#3-Keepalived安装" class="headerlink" title="3. Keepalived安装"></a>3. Keepalived安装</h2><p>简介，它是一个高性能的服务器高可用或热备解决方案，主要作用是为了防止服务单点故障问题，可以通过和nginx、haproxy等反向代理的负载均衡来实现与web服务端的高可用。Keepalived以vrrp协议为主，vrrp协议将两台或多台路由设备虚拟为一个设备，对外提供虚拟路由ip。</p>
+<p>使用安装包：keepalived-1.2.18.tar.gz</p>
+<p><strong>1)</strong> yum安装环境依赖</p>
+<p>yum install gcc -y<br>yum install -y openssl openssl-devel<br>yum install -y libnfnetlink-devel<br>yum -y install libnl libnl-devel</p>
+<p><strong>2)</strong> 安装keepalived</p>
+<p>tar -zxvf keepalived-1.2.18.tar.gz<br>cd keepalived-2.0.10&#x2F;<br>.&#x2F;configure –prefix&#x3D;&#x2F;usr&#x2F;local&#x2F;keepalived<br> make<br> make install<br> cp &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf &#x2F;etc&#x2F;keepalived&#x2F;<br> cp &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;etc&#x2F;rc.d&#x2F;init.d&#x2F;keepalived &#x2F;etc&#x2F;init.d&#x2F;<br> cp &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;etc&#x2F;sysconfig&#x2F;keepalived &#x2F;etc&#x2F;sysconfig&#x2F;<br> ln -s &#x2F;usr&#x2F;local&#x2F;sbin&#x2F;kee &#x2F;usr&#x2F;sbin&#x2F;<br> ln -s &#x2F;usr&#x2F;local&#x2F;keepalived&#x2F;sbin&#x2F;keepalived &#x2F;sbin&#x2F;</p>
+<p><strong>3)</strong> 设置开机自启动</p>
+<p>systemctl enable keepalived</p>
+<p>**4) ** 添加keepalived_check.sh脚本文件至&#x2F;etc&#x2F;keepalived</p>
+<p>vim &#x2F;etc&#x2F;keepalived&#x2F;keepalived_check.sh</p>
+<p>#!&#x2F;bin&#x2F;bash<br>COUNT&#x3D;`ps -C haproxy –no-header wc -l`<br>if [ $COUNT -eq 0 ];then<br>   systemctl stop keepalived<br>fi</p>
+<p>chmod +x &#x2F;etc&#x2F;keepalived&#x2F;haproxy_check.sh</p>
+<p><strong>5)</strong> 配置keepalived.conf文件，可根据注释修改配置</p>
+<p>vim &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf<br>! Configuration File for keepalived</p>
+<p>global_defs {<br>   router_id KEEPMQ<br>}</p>
+<p>vrrp_script chk_http_port {<br>    script “&#x2F;etc&#x2F;keepalived&#x2F;keepalived_check.sh”<br>    interval 1<br>    weight -2<br>}</p>
+<p>vrrp_instance VI_1 {<br>    state MASTER<br>    interface eth0<br>    virtual_router_id 136<br>    priority 100<br>    advert_int 1<br>    authentication {<br>        auth_type PASS<br>        auth_pass 1111<br>    }<br>    unicast_src_ip 10.64.35.136 #本地IP地址<br>    unicast_peer {<br>    10.64.35.137 #对端IP地址,此地址一定不能忘记<br>    }<br>    virtual_ipaddress {<br>        10.64.35.156 #虚拟ip<br>    }<br>    track_script {<br>    chk_http_port<br>    }</p>
+<p>}</p>
+<p><strong>6)</strong> 可能遇见主备双机同时拥有vip的问题<br>第一种办法设置混杂模式</p>
+<p>ifconfig eth0 promisc#设置混杂模式<br>ifconfig eth0 promisc #取消混杂模式</p>
+<p>第二种：centos7 默认防火墙firewall<br>开启vrrp 协议，主备都运行下面的命令</p>
+<p>firewall-cmd –direct –permanent –add-rule ipv4 filter INPUT 0 –protocol vrrp -j ACCEPT &amp;&amp; firewall-cmd –reload</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">LeenHem</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://code404.icu/2021/06/05/rabbitmq%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E6%9C%8D%E5%8A%A1%E9%AB%98%E5%8F%AF%E7%94%A8%E6%90%AD%E5%BB%BA%E6%89%8B%E5%86%8C/">http://code404.icu/2021/06/05/rabbitmq%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E6%9C%8D%E5%8A%A1%E9%AB%98%E5%8F%AF%E7%94%A8%E6%90%AD%E5%BB%BA%E6%89%8B%E5%86%8C/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://code404.icu" target="_blank">码404</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/RabbitMQ/">RabbitMQ</a><a class="post-meta__tags" href="/tags/haproxy/">haproxy</a><a class="post-meta__tags" href="/tags/keepalived/">keepalived</a></div><div class="post_share"><div class="social-share" data-image="https://code404.icu/img/moveypu/2021/06/image-21.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2021/06/06/%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%A6%82%E4%BD%95%E8%BF%90%E8%A1%8C-vscode%E5%BC%80%E5%8F%91%E5%B7%A5%E5%85%B7/"><img class="prev-cover" src="https://code404.icu/img/moveypu/2021/06/image-24.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">服务器如何运行 VSCode开发工具</div></div></a></div><div class="next-post pull-right"><a href="/2021/06/04/postman%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B1-%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8/"><img class="next-cover" src="https://code404.icu/img/moveypu/2021/06/image-19.png" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">postman使用教程1-安装与使用</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2021/08/29/rabbitmq%E5%90%AF%E5%8A%A8%E5%90%8E%E6%B2%A1%E6%9C%89%E7%BB%91%E5%AE%9Aip-%E6%8A%A5%E9%94%99security-violation-scripts-are-being-executed-but-script-security-not-enabled/" title="RabbitMQ启动后没有绑定IP_报错SECURITY VIOLATION - scripts are being executed but script_security not enabled"><img class="cover" src="https://code404.icu/img/moveypu/2021/08/image-26.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-08-29</div><div class="title">RabbitMQ启动后没有绑定IP_报错SECURITY VIOLATION - scripts are being executed but script_security not enabled</div></div></a></div><div><a href="/2021/11/01/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-keepalivedhaproxy-%E5%AE%9E%E7%8E%B0%E9%AB%98%E5%8F%AF%E7%94%A8%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%EF%BC%9F/" title="如何使用 Keepalived+HAProxy 实现高可用负载均衡？"><img class="cover" src="https://code404.icu/img/moveypu/2021/11/image-1.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-11-01</div><div class="title">如何使用 Keepalived+HAProxy 实现高可用负载均衡？</div></div></a></div><div><a href="/2021/12/08/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85%E7%AE%A1%E7%90%86keepalived/" title="普通用户安装管理Keepalived"><img class="cover" src="https://code404.icu/img/moveypu/2021/12/image-4.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-12-08</div><div class="title">普通用户安装管理Keepalived</div></div></a></div><div><a href="/2021/09/02/rabbitmq%E8%84%91%E8%A3%82%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88mnesia-reports-that-this-rabbitmq-cluster-has-experienced-a-network-partition/" title="RabbitMQ脑裂解决方案Mnesia reports that this RabbitMQ cluster has experienced a network partition."><img class="cover" src="https://code404.icu/img/moveypu/2021/09/image.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-09-02</div><div class="title">RabbitMQ脑裂解决方案Mnesia reports that this RabbitMQ cluster has experienced a network partition.</div></div></a></div><div><a href="/2021/10/10/%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8python%E7%A8%8B%E5%BA%8F%E5%81%9A-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E9%A1%B9%E7%9B%AE-%E5%BE%AE%E6%9C%8D%E5%8A%A1%E6%9E%B6%E6%9E%84%EF%BC%9F/" title="如何使用Python程序做 微服务项目_微服务架构？"><img class="cover" src="https://code404.icu/img/moveypu/2021/10/image-6.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-10-10</div><div class="title">如何使用Python程序做 微服务项目_微服务架构？</div></div></a></div><div><a href="/2021/05/17/%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97%E4%BA%A7%E7%94%9F%E4%B8%A5%E9%87%8D%E6%B6%88%E6%81%AF%E5%A0%86%E7%A7%AF%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9F/" title="消息队列产生严重消息堆积怎么处理？"><img class="cover" src="https://code404.icu/img/moveypu/2021/05/image-38.png" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-05-17</div><div class="title">消息队列产生严重消息堆积怎么处理？</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/tx.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">LeenHem</div><div class="author-info__description"></div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">283</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">789</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">77</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%B8%AE%E5%8A%A9"><span class="toc-number">1.</span> <span class="toc-text">1. 帮助</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E5%AE%89%E8%A3%85%E5%8C%85%E4%B8%8B%E8%BD%BD"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 安装包下载</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E9%9B%86%E7%BE%A4%E8%BF%90%E8%A1%8C%E5%89%8D%E6%8F%90"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 集群运行前提</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E7%AB%AF%E5%8F%A3%E5%8F%8A%E5%8D%8F%E8%AE%AE"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 端口及协议</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="toc-number">2.</span> <span class="toc-text">2. 集群搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Erlang%E5%AE%89%E8%A3%85"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 Erlang安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Rabbitmq%E5%8D%95%E6%9C%BA%E5%AE%89%E8%A3%85"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 Rabbitmq单机安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E9%9B%86%E7%BE%A4%E6%90%AD%E5%BB%BA"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 集群搭建</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#2-3-1-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="toc-number">2.3.1.</span> <span class="toc-text">2.3.1 环境准备</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AEhaproxy"><span class="toc-number">3.</span> <span class="toc-text">2. 配置haproxy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Keepalived%E5%AE%89%E8%A3%85"><span class="toc-number">4.</span> <span class="toc-text">3. Keepalived安装</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？"><img src="https://img-blog.csdnimg.cn/9f813eea5e754f2993e2423cf8a189b3.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ES ElasticSearch 7.5 集群模式 安装手册？"/></a><div class="content"><a class="title" href="/2022/05/06/ES%E9%9B%86%E7%BE%A4%E5%AE%89%E8%A3%85%E6%89%8B%E5%86%8C7.5/" title="ES ElasticSearch 7.5 集群模式 安装手册？">ES ElasticSearch 7.5 集群模式 安装手册？</a><time datetime="2022-05-06T00:30:00.000Z" title="发表于 2022-05-06 08:30:00">2022-05-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"><img src="https://code404.icu/img/moveypu/2021/04/image-49-1024x462.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置"/></a><div class="content"><a class="title" href="/2022/04/08/485/" title="第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置">第一篇 jenkins怎么样部署k8s项目之Jenkins插件配置</a><time datetime="2022-04-08T00:30:00.000Z" title="发表于 2022-04-08 08:30:00">2022-04-08</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"><img src="https://img-blog.csdnimg.cn/ae22870536364cb4a8ba5a1c2df10f5a.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid"/></a><div class="content"><a class="title" href="/2022/04/07/k8s-%E8%AF%81%E4%B9%A6%E8%BF%87%E6%9C%9F%E9%97%AE%E9%A2%98%E6%80%8E%E4%B9%88%E5%A4%84%E7%90%86%EF%BC%9Fcertificate-has-expired-or-is-not-yet-valid/" title="k8s 证书过期问题怎么处理？certificate has expired or is not yet valid">k8s 证书过期问题怎么处理？certificate has expired or is not yet valid</a><time datetime="2022-04-07T00:30:00.000Z" title="发表于 2022-04-07 08:30:00">2022-04-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"><img src="https://code404.icu/img/moveypu/2022/01/image-2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec"/></a><div class="content"><a class="title" href="/2022/01/02/error-1290-hy000-the-mysql-server-is-running-with-the-secure-file-priv-option-so-it-cannot-exec/" title="ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec">ERROR 1290 (HY000): The MySQL server is running with the --secure-file-priv option so it cannot exec</a><time datetime="2022-01-02T00:30:00.000Z" title="发表于 2022-01-02 08:30:00">2022-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"><img src="https://code404.icu/img/moveypu/2022/01/image-1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)"/></a><div class="content"><a class="title" href="/2022/01/01/jenkins-failed-to-connect-to-http-xxx8080-tcpslaveagentlistener-connection-refused-connection-refused/" title="Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)">Jenkins Failed to connect to http://xxx:8080/tcpSlaveAgentListener/: Connection refused (Connection refused)</a><time datetime="2022-01-01T00:30:00.000Z" title="发表于 2022-01-01 08:30:00">2022-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy; 2020 - 2022 By 码404 • LeenHem</div><a target="_blank" rel="noopener" href="http://icp.chinaz.com/home/info?host=code404.icu">冀ICP备 2021005589号</a><div class="framework-info"><span>友链 • </span><a target="_blank" rel="noopener" href="https://www.lunyi8.cn">爬楼轮椅 </a><a target="_blank" rel="noopener" href="http://www.sywyzl.com">关键词查询工具 </a><a target="_blank" rel="noopener" href="http://www.cz-zhide.com">二极管 </a><a target="_blank" rel="noopener" href="http://www.wkzf88.com">无卡支付 </a><a target="_blank" rel="noopener" href="https://www.fengking.com">蜂王下载 </a><a target="_blank" rel="noopener" href="http://blog.x64.ink">云计算技术 </a><a target="_blank" rel="noopener" href="http://www.paijiduan.com">抖音文案 </a><a target="_blank" rel="noopener" href="https://www.shanzhaimi8.com/xinwen/">精仿iPhone </a><a target="_blank" rel="noopener" href="http://www.mymos.cn/crm/">CRM是做什么的 </a><a target="_blank" rel="noopener" href="http://www.zhejiangshimao-jlf.com">浙江世茂 </a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">本地搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="is-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据库加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div><hr/><div id="local-search-results"></div></div></div><div id="search-mask"></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script src="/js/search/local-search.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
