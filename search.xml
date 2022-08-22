@@ -244,7 +244,7 @@
 <li>broker参数表示用来连接broker的URL，rabbitmq采用的是一种称为’amqp’的协议，如果rabbitmq运行在默认设置下，celery不需要其他信息，只要amqp:&#x2F;&#x2F;即可。</li>
 <li>backend参数是可选的，如果想要查询任务状态或者任务执行结果时必填, Celery中的后端用于存储任务结果。<br>rpc意味着将结果作为AMQP消息发送回去。</li>
 </ul>
-<p>#   RabbitMQ配置BROKER_URL 和backend<br>BROKER_URL &#x3D; ‘amqp:&#x2F;&#x2F;admin:<a href="mailto:&#49;&#x32;&#x33;&#x34;&#53;&#x36;&#64;&#x31;&#57;&#50;&#46;&#49;&#54;&#56;&#x2e;&#x31;&#x2e;&#49;&#49;">&#49;&#x32;&#x33;&#x34;&#53;&#x36;&#64;&#x31;&#57;&#50;&#46;&#49;&#54;&#56;&#x2e;&#x31;&#x2e;&#49;&#49;</a>:5672&#x2F;&#x2F;‘<br>CELERY_RESULT_BACKEND &#x3D; ‘rpc:&#x2F;&#x2F;‘</p>
+<p>#   RabbitMQ配置BROKER_URL 和backend<br>BROKER_URL &#x3D; ‘amqp:&#x2F;&#x2F;admin:<a href="mailto:&#49;&#x32;&#x33;&#x34;&#53;&#x36;&#64;&#49;&#57;&#x32;&#46;&#x31;&#x36;&#x38;&#46;&#x31;&#46;&#49;&#x31;">&#49;&#x32;&#x33;&#x34;&#53;&#x36;&#64;&#49;&#57;&#x32;&#46;&#x31;&#x36;&#x38;&#46;&#x31;&#46;&#49;&#x31;</a>:5672&#x2F;&#x2F;‘<br>CELERY_RESULT_BACKEND &#x3D; ‘rpc:&#x2F;&#x2F;‘</p>
 <p>CELERY_TASK_SERIALIZER &#x3D; ‘json’<br>CELERY_RESULT_SERIALIZER &#x3D; ‘json’<br>CELERY_ACCEPT_CONTENT&#x3D;[‘json’]<br>CELERY_TIMEZONE &#x3D; ‘Asia&#x2F;Shanghai’<br>CELERY_ENABLE_UTC &#x3D; True</p>
 <h3 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h3><hr>
 <p>views.py创建视图</p>
@@ -1631,6 +1631,39 @@
       </tags>
   </entry>
   <entry>
+    <title>elasticsearch启动后调用接口报master_not_discovered_exception</title>
+    <url>/2021/12/16/elasticsearch%E5%90%AF%E5%8A%A8%E5%90%8E%E8%B0%83%E7%94%A8%E6%8E%A5%E5%8F%A3%E6%8A%A5master-not-discovered-exception/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-8.png"></p>
+<p>master_not_discovered_exception</p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>elasticsearch 7 启动正常<br>配置</p>
+<p>cluster.name: skywallking-es<br>path.data: &#x2F;pan_nfs&#x2F;moniter2&#x2F;data<br>network.host: 0.0.0.0<br>discovery.seed_hosts: [“10.64.35.14”]</p>
+<h3 id="调用接口"><a href="#调用接口" class="headerlink" title="调用接口"></a>调用接口</h3><hr>
+<p>使用curl调用接口报错master_not_discovered_exception</p>
+<p>curl -X GET <a href="http://10.64.35.14:9200//_cat/nodes?pretty">http://10.64.35.14:9200/\_cat/nodes?pretty</a><br>{<br>    “error”: {<br>        “root_cause”: [<br>            {<br>                “type”: “master_not_discovered_exception”,<br>                “reason”: null<br>            }<br>        ],<br>        “type”: “master_not_discovered_exception”,<br>        “reason”: null<br>    },<br>    “status”: 503<br>}</p>
+<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><hr>
+<p>在elasticsearch每个配置文件指定初始节点<br>单实例的也要加上这个配置，否则就会报错</p>
+<p>cluster.initial_master_nodes: node-1</p>
+<h3 id="调整配置elasticsearch-yml"><a href="#调整配置elasticsearch-yml" class="headerlink" title="调整配置elasticsearch.yml"></a>调整配置elasticsearch.yml</h3><hr>
+<p>vim config&#x2F;elasticsearch.yml</p>
+<p>cluster.name: skywallking-es<br>network.host: 10.64.35.14<br>http.port: 9200<br>discovery.seed_hosts: [“10.64.35.14:9200”]<br>cluster.initial_master_nodes: [“10.64.35.14”]</p>
+<h3 id="重启elasticsearch"><a href="#重启elasticsearch" class="headerlink" title="重启elasticsearch"></a>重启elasticsearch</h3><hr>
+<p>#查看elasticsearch进程<br>ps -ef  grep elastic<br>#杀死进程<br>kill -9 PID<br>#启动elasticsearch<br>bin&#x2F;elasticsearch -d</p>
+<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><hr>
+<p>curl -X GET <a href="http://10.64.35.14:9200//_cat/nodes?pretty">http://10.64.35.14:9200/\_cat/nodes?pretty</a></p>
+<p>10.64.35.14 12 23 0 0.07 0.08 0.08 dilmrt * code404.icu</p>
+]]></content>
+      <categories>
+        <category>数据库</category>
+        <category>ElasticSearch</category>
+      </categories>
+      <tags>
+        <tag>ES</tag>
+        <tag>ElasticSearch</tag>
+        <tag>master_not_discovered_exception</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>ElasticSearch 海量数据查询性能优化</title>
     <url>/2021/05/29/elasticsearch-%E6%B5%B7%E9%87%8F%E6%95%B0%E6%8D%AE%E6%9F%A5%E8%AF%A2%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96/</url>
     <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/05/image-50.png"></p>
@@ -1696,39 +1729,6 @@
         <tag>ElasticSearch</tag>
         <tag>elsticsearch</tag>
         <tag>性能优化</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>elasticsearch启动后调用接口报master_not_discovered_exception</title>
-    <url>/2021/12/16/elasticsearch%E5%90%AF%E5%8A%A8%E5%90%8E%E8%B0%83%E7%94%A8%E6%8E%A5%E5%8F%A3%E6%8A%A5master-not-discovered-exception/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-8.png"></p>
-<p>master_not_discovered_exception</p>
-<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
-<p>elasticsearch 7 启动正常<br>配置</p>
-<p>cluster.name: skywallking-es<br>path.data: &#x2F;pan_nfs&#x2F;moniter2&#x2F;data<br>network.host: 0.0.0.0<br>discovery.seed_hosts: [“10.64.35.14”]</p>
-<h3 id="调用接口"><a href="#调用接口" class="headerlink" title="调用接口"></a>调用接口</h3><hr>
-<p>使用curl调用接口报错master_not_discovered_exception</p>
-<p>curl -X GET <a href="http://10.64.35.14:9200//_cat/nodes?pretty">http://10.64.35.14:9200/\_cat/nodes?pretty</a><br>{<br>    “error”: {<br>        “root_cause”: [<br>            {<br>                “type”: “master_not_discovered_exception”,<br>                “reason”: null<br>            }<br>        ],<br>        “type”: “master_not_discovered_exception”,<br>        “reason”: null<br>    },<br>    “status”: 503<br>}</p>
-<h3 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h3><hr>
-<p>在elasticsearch每个配置文件指定初始节点<br>单实例的也要加上这个配置，否则就会报错</p>
-<p>cluster.initial_master_nodes: node-1</p>
-<h3 id="调整配置elasticsearch-yml"><a href="#调整配置elasticsearch-yml" class="headerlink" title="调整配置elasticsearch.yml"></a>调整配置elasticsearch.yml</h3><hr>
-<p>vim config&#x2F;elasticsearch.yml</p>
-<p>cluster.name: skywallking-es<br>network.host: 10.64.35.14<br>http.port: 9200<br>discovery.seed_hosts: [“10.64.35.14:9200”]<br>cluster.initial_master_nodes: [“10.64.35.14”]</p>
-<h3 id="重启elasticsearch"><a href="#重启elasticsearch" class="headerlink" title="重启elasticsearch"></a>重启elasticsearch</h3><hr>
-<p>#查看elasticsearch进程<br>ps -ef  grep elastic<br>#杀死进程<br>kill -9 PID<br>#启动elasticsearch<br>bin&#x2F;elasticsearch -d</p>
-<h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><hr>
-<p>curl -X GET <a href="http://10.64.35.14:9200//_cat/nodes?pretty">http://10.64.35.14:9200/\_cat/nodes?pretty</a></p>
-<p>10.64.35.14 12 23 0 0.07 0.08 0.08 dilmrt * code404.icu</p>
-]]></content>
-      <categories>
-        <category>数据库</category>
-        <category>ElasticSearch</category>
-      </categories>
-      <tags>
-        <tag>ES</tag>
-        <tag>ElasticSearch</tag>
-        <tag>master_not_discovered_exception</tag>
       </tags>
   </entry>
   <entry>
@@ -1824,34 +1824,6 @@
       </tags>
   </entry>
   <entry>
-    <title>fastdfs-nginx-module file: ini_file_reader.c, line: 1036, include file &quot;http.conf&quot; not exists, line: &quot;#include http.conf&quot;</title>
-    <url>/2021/12/04/fastdfs-nginx-module-file-ini-file-reader-c-line-1036-include-file-http-conf-not-exists-line-include-http-conf/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-2.png"></p>
-<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
-<p>fastdfs-nginx-module，nginx启动后，文件无法访问报错 include file “http.conf” not exists,</p>
-<p>[2021-12-02 16:56:30] ERROR - file: ini_file_reader.c, line: 1036, include file “http.conf” not exists, line: “#include http.conf”<br>[2021-12-02 16:56:30] ERROR - file: &#x2F;data&#x2F;soft&#x2F;fastdfs-nginx-module&#x2F;src&#x2F;common.c, line: 155, load conf file “&#x2F;data&#x2F;fdfs&#x2F;etc&#x2F;fdfs&#x2F;mod_fastdfs.conf” fail, ret code: 2<br>[2021-12-02 16:56:30] INFO - file: ini_file_reader.c, line: 1349, func: checkInitDynamicContentArray, init_pthread_lock<br>[2021-12-02 16:56:30] INFO - file: ini_file_reader.c, line: 1384, func: checkAllocDynamicContentArray, alloc count: 8<br>ngx_http_fastdfs_process_init pid&#x3D;69485</p>
-<h3 id="fastdfs-nginx-module报错原因"><a href="#fastdfs-nginx-module报错原因" class="headerlink" title="fastdfs-nginx-module报错原因"></a>fastdfs-nginx-module报错原因</h3><hr>
-<p>原因是 etc&#x2F;fdfs&#x2F; 下面没有 http.conf的配置</p>
-<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><hr>
-<p>把&#x2F;FastDFS&#x2F;conf&#x2F;http.conf 复制到 etc&#x2F;fdfs&#x2F;下面就可以了</p>
-<p>cp &#x2F;data&#x2F;soft&#x2F;FastDFS&#x2F;conf&#x2F;http.conf &#x2F;data&#x2F;fdfs&#x2F;etc&#x2F;fdfs&#x2F;<br>cp &#x2F;data&#x2F;soft&#x2F;FastDFS&#x2F;conf&#x2F;mime.types &#x2F;data&#x2F;fdfs&#x2F;etc&#x2F;fdfs&#x2F;</p>
-<h3 id="重启nginx"><a href="#重启nginx" class="headerlink" title="重启nginx"></a>重启nginx</h3><hr>
-<p>nginx&#x2F;sbin&#x2F;nginx -c nginx&#x2F;conf&#x2F;nginx.conf -s reload</p>
-]]></content>
-      <categories>
-        <category>运维</category>
-        <category>Fastdfs</category>
-        <category>Nginx</category>
-      </categories>
-      <tags>
-        <tag>FastDFS</tag>
-        <tag>fastdfs-nginx-module</tag>
-        <tag>http.conf</tag>
-        <tag>module</tag>
-        <tag>nginx</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>fastdfs-nginx-module-master/src/common.c, line: 163, load conf file &quot;/etc/fdfs/mod_fastdfs.conf&quot;</title>
     <url>/2021/12/03/fastdfs-nginx-module-master-src-common-c-line-163-load-conf-file-etc-fdfs-mod-fastdfs-conf/</url>
     <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-1-1024x448.png"></p>
@@ -1878,9 +1850,37 @@
         <category>Nginx</category>
       </categories>
       <tags>
-        <tag>fastdfs-nginx-module</tag>
         <tag>fastcommon</tag>
+        <tag>fastdfs-nginx-module</tag>
         <tag>mod_fastdfs</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>fastdfs-nginx-module file: ini_file_reader.c, line: 1036, include file &quot;http.conf&quot; not exists, line: &quot;#include http.conf&quot;</title>
+    <url>/2021/12/04/fastdfs-nginx-module-file-ini-file-reader-c-line-1036-include-file-http-conf-not-exists-line-include-http-conf/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-2.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>fastdfs-nginx-module，nginx启动后，文件无法访问报错 include file “http.conf” not exists,</p>
+<p>[2021-12-02 16:56:30] ERROR - file: ini_file_reader.c, line: 1036, include file “http.conf” not exists, line: “#include http.conf”<br>[2021-12-02 16:56:30] ERROR - file: &#x2F;data&#x2F;soft&#x2F;fastdfs-nginx-module&#x2F;src&#x2F;common.c, line: 155, load conf file “&#x2F;data&#x2F;fdfs&#x2F;etc&#x2F;fdfs&#x2F;mod_fastdfs.conf” fail, ret code: 2<br>[2021-12-02 16:56:30] INFO - file: ini_file_reader.c, line: 1349, func: checkInitDynamicContentArray, init_pthread_lock<br>[2021-12-02 16:56:30] INFO - file: ini_file_reader.c, line: 1384, func: checkAllocDynamicContentArray, alloc count: 8<br>ngx_http_fastdfs_process_init pid&#x3D;69485</p>
+<h3 id="fastdfs-nginx-module报错原因"><a href="#fastdfs-nginx-module报错原因" class="headerlink" title="fastdfs-nginx-module报错原因"></a>fastdfs-nginx-module报错原因</h3><hr>
+<p>原因是 etc&#x2F;fdfs&#x2F; 下面没有 http.conf的配置</p>
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><hr>
+<p>把&#x2F;FastDFS&#x2F;conf&#x2F;http.conf 复制到 etc&#x2F;fdfs&#x2F;下面就可以了</p>
+<p>cp &#x2F;data&#x2F;soft&#x2F;FastDFS&#x2F;conf&#x2F;http.conf &#x2F;data&#x2F;fdfs&#x2F;etc&#x2F;fdfs&#x2F;<br>cp &#x2F;data&#x2F;soft&#x2F;FastDFS&#x2F;conf&#x2F;mime.types &#x2F;data&#x2F;fdfs&#x2F;etc&#x2F;fdfs&#x2F;</p>
+<h3 id="重启nginx"><a href="#重启nginx" class="headerlink" title="重启nginx"></a>重启nginx</h3><hr>
+<p>nginx&#x2F;sbin&#x2F;nginx -c nginx&#x2F;conf&#x2F;nginx.conf -s reload</p>
+]]></content>
+      <categories>
+        <category>运维</category>
+        <category>Fastdfs</category>
+        <category>Nginx</category>
+      </categories>
+      <tags>
+        <tag>fastdfs-nginx-module</tag>
+        <tag>FastDFS</tag>
+        <tag>http.conf</tag>
+        <tag>module</tag>
+        <tag>nginx</tag>
       </tags>
   </entry>
   <entry>
@@ -1934,8 +1934,8 @@
         <category>Fastdfs</category>
       </categories>
       <tags>
-        <tag>FastDFS</tag>
         <tag>fastdfs-nginx-module</tag>
+        <tag>FastDFS</tag>
         <tag>fdfs_global</tag>
         <tag>the format of filename</tag>
       </tags>
@@ -1969,36 +1969,10 @@
         <category>Fastdfs</category>
       </categories>
       <tags>
-        <tag>FastDFS</tag>
         <tag>fastdfs-nginx-module</tag>
+        <tag>FastDFS</tag>
         <tag>fdfs_define</tag>
         <tag>No such file or directory</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>fastdfs报错 ERROR - file: /data/soft/fastdfs-nginx-module/src/common.c, line: 874, file: /home/yuqing/fastdfs/data/00/00/CgOYSGGoR5qASNqzAANi9H7oGe4006.jpg not exist</title>
-    <url>/2021/12/07/fastdfs%E6%8A%A5%E9%94%99-error-file-data-soft-fastdfs-nginx-module-src-common-c-line-874-file-home-yuqing-fastdfs-data-00-00-cgoysggor5qasnqzaani9h7oge4006-jpg-not-exist/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-3.png" alt="fastdfs"></p>
-<p>fastdfs</p>
-<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
-<p>fastdfs上传文件后，下载报错<br>ERROR - file: &#x2F;data&#x2F;soft&#x2F;fastdfs-nginx-module&#x2F;src&#x2F;common.c, line: 874, file: &#x2F;home&#x2F;yuqing&#x2F;fastdfs&#x2F;data&#x2F;00&#x2F;00&#x2F;CgOYSGGoR5qASNqzAANi9H7oGe4006.jpg not exist</p>
-<h3 id="报错原因"><a href="#报错原因" class="headerlink" title="报错原因"></a>报错原因</h3><hr>
-<p>nginx 找不到上传的文件</p>
-<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><hr>
-<p>mod_fastdfs.conf 配置里面的 下载路径，要和 storage.conf 的配置里面一样</p>
-<p>修改 mod_fastdfs.conf 配置</p>
-<p>store_path0&#x3D;&#x2F;data&#x2F;fdfs&#x2F; #文件存储目录</p>
-<p>然后重启fastdfs服务和nginx服务即可</p>
-]]></content>
-      <categories>
-        <category>运维</category>
-        <category>Fastdfs</category>
-      </categories>
-      <tags>
-        <tag>FastDFS</tag>
-        <tag>fastdfs-nginx-module</tag>
-        <tag>store_path0</tag>
-        <tag>下载</tag>
       </tags>
   </entry>
   <entry>
@@ -2101,6 +2075,32 @@
         <tag>分布式</tag>
         <tag>文件系统</tag>
         <tag>高性能</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>fastdfs报错 ERROR - file: /data/soft/fastdfs-nginx-module/src/common.c, line: 874, file: /home/yuqing/fastdfs/data/00/00/CgOYSGGoR5qASNqzAANi9H7oGe4006.jpg not exist</title>
+    <url>/2021/12/07/fastdfs%E6%8A%A5%E9%94%99-error-file-data-soft-fastdfs-nginx-module-src-common-c-line-874-file-home-yuqing-fastdfs-data-00-00-cgoysggor5qasnqzaani9h7oge4006-jpg-not-exist/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-3.png" alt="fastdfs"></p>
+<p>fastdfs</p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>fastdfs上传文件后，下载报错<br>ERROR - file: &#x2F;data&#x2F;soft&#x2F;fastdfs-nginx-module&#x2F;src&#x2F;common.c, line: 874, file: &#x2F;home&#x2F;yuqing&#x2F;fastdfs&#x2F;data&#x2F;00&#x2F;00&#x2F;CgOYSGGoR5qASNqzAANi9H7oGe4006.jpg not exist</p>
+<h3 id="报错原因"><a href="#报错原因" class="headerlink" title="报错原因"></a>报错原因</h3><hr>
+<p>nginx 找不到上传的文件</p>
+<h3 id="解决方法"><a href="#解决方法" class="headerlink" title="解决方法"></a>解决方法</h3><hr>
+<p>mod_fastdfs.conf 配置里面的 下载路径，要和 storage.conf 的配置里面一样</p>
+<p>修改 mod_fastdfs.conf 配置</p>
+<p>store_path0&#x3D;&#x2F;data&#x2F;fdfs&#x2F; #文件存储目录</p>
+<p>然后重启fastdfs服务和nginx服务即可</p>
+]]></content>
+      <categories>
+        <category>运维</category>
+        <category>Fastdfs</category>
+      </categories>
+      <tags>
+        <tag>fastdfs-nginx-module</tag>
+        <tag>FastDFS</tag>
+        <tag>store_path0</tag>
+        <tag>下载</tag>
       </tags>
   </entry>
   <entry>
@@ -3480,7 +3480,7 @@ query.Scan()
 <p>一个JWT实际上就是一个字符串，它由三部分组成，头部、载荷与签名。</p>
 <h3 id="载荷（Payload）"><a href="#载荷（Payload）" class="headerlink" title="载荷（Payload）"></a>载荷（Payload）</h3><hr>
 <p>我们先将上面的添加好友的操作描述成一个JSON对象。其中添加了一些其他的信息，帮助今后收到这个JWT的服务器理解这个JWT。</p>
-<p>{<br>    “iss”: “John Wu JWT”,<br>    “iat”: 1441593502,<br>    “exp”: 1441594722,<br>    “aud”: “<a href="http://www.example.com&quot;/">www.example.com&quot;</a>,<br>    “sub”: “<a href="mailto:&#x6a;&#114;&#111;&#99;&#x6b;&#x65;&#116;&#64;&#101;&#x78;&#97;&#109;&#112;&#108;&#x65;&#46;&#99;&#111;&#109;">&#x6a;&#114;&#111;&#99;&#x6b;&#x65;&#116;&#64;&#101;&#x78;&#97;&#109;&#112;&#108;&#x65;&#46;&#99;&#111;&#109;</a>“,<br>    “from_user”: “B”,<br>    “target_user”: “A”<br>}</p>
+<p>{<br>    “iss”: “John Wu JWT”,<br>    “iat”: 1441593502,<br>    “exp”: 1441594722,<br>    “aud”: “<a href="http://www.example.com&quot;/">www.example.com&quot;</a>,<br>    “sub”: “<a href="mailto:&#106;&#114;&#x6f;&#x63;&#107;&#101;&#x74;&#x40;&#101;&#x78;&#x61;&#x6d;&#112;&#108;&#x65;&#x2e;&#x63;&#x6f;&#x6d;">&#106;&#114;&#x6f;&#x63;&#107;&#101;&#x74;&#x40;&#101;&#x78;&#x61;&#x6d;&#112;&#108;&#x65;&#x2e;&#x63;&#x6f;&#x6d;</a>“,<br>    “from_user”: “B”,<br>    “target_user”: “A”<br>}</p>
 <p>这里面的前五个字段都是由JWT的标准所定义的。</p>
 <ul>
 <li>iss: 该JWT的签发者</li>
@@ -3855,18 +3855,18 @@ query.Scan()
 <p>可以看到，集群当前有3台Node节点，且最大可运行Pod数量均为默认值：110。</p>
 <p>接下来，我们来修改该参数值。</p>
 <h3 id="修改Pod启动数量"><a href="#修改Pod启动数量" class="headerlink" title="修改Pod启动数量"></a>修改Pod启动数量</h3><h4 id="1、登录-Node-节点，查看kubelet启动文件路径"><a href="#1、登录-Node-节点，查看kubelet启动文件路径" class="headerlink" title="1、登录 Node 节点，查看kubelet启动文件路径"></a>1、登录 Node 节点，查看kubelet启动文件路径</h4><hr>
-<p>[<a href="mailto:&#114;&#x6f;&#111;&#x74;&#x40;&#x63;&#x6f;&#100;&#101;&#x34;&#48;&#52;&#x2e;&#x69;&#x63;&#117;">&#114;&#x6f;&#111;&#x74;&#x40;&#x63;&#x6f;&#100;&#101;&#x34;&#48;&#52;&#x2e;&#x69;&#x63;&#117;</a> ~]# systemctl status kubelet</p>
+<p>[<a href="mailto:&#x72;&#x6f;&#x6f;&#x74;&#64;&#x63;&#111;&#100;&#x65;&#x34;&#x30;&#x34;&#46;&#105;&#99;&#x75;">&#x72;&#x6f;&#x6f;&#x74;&#64;&#x63;&#111;&#100;&#x65;&#x34;&#x30;&#x34;&#46;&#105;&#99;&#x75;</a> ~]# systemctl status kubelet</p>
 <p><img src="https://img-blog.csdnimg.cn/c31823ca18144f75a23281188038945e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>从上图可以看到，kubelet 的启动文件为&#x2F;usr&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;kubelet.service</p>
 <h4 id="2、查看-systemd-启动文件"><a href="#2、查看-systemd-启动文件" class="headerlink" title="2、查看 systemd 启动文件"></a>2、查看 systemd 启动文件</h4><hr>
 <p><img src="https://img-blog.csdnimg.cn/d571978b1c324959aef650578df5eb34.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>可以看到，Environment文件是引用&#x2F;etc&#x2F;kubernetes&#x2F;kubelet，至此，我们只需要在&#x2F;etc&#x2F;kubernetes&#x2F;kubelet中增加max-pods的变量，然后在&#x2F;usr&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;kubelet.service中，将变量添加到启动参数后即可。</p>
 <h4 id="3、修改-x2F-etc-x2F-kubernetes-x2F-kubelet"><a href="#3、修改-x2F-etc-x2F-kubernetes-x2F-kubelet" class="headerlink" title="3、修改&#x2F;etc&#x2F;kubernetes&#x2F;kubelet"></a>3、修改&#x2F;etc&#x2F;kubernetes&#x2F;kubelet</h4><hr>
 <p>强烈建议，在修改Pod数量的时候，如果是缩减（当前运行70个Pod，所见到20个），强烈建议先把Node上的Pod驱散，等驱散完了在重启，最后在激活Node。</p>
-<p>[<a href="mailto:&#x72;&#111;&#x6f;&#x74;&#x40;&#99;&#x6f;&#x64;&#101;&#52;&#x30;&#x34;&#46;&#x69;&#x63;&#x75;">&#x72;&#111;&#x6f;&#x74;&#x40;&#99;&#x6f;&#x64;&#101;&#52;&#x30;&#x34;&#46;&#x69;&#x63;&#x75;</a> ~]# vim &#x2F;etc&#x2F;kubernetes&#x2F;kubelet</p>
+<p>[<a href="mailto:&#x72;&#x6f;&#111;&#116;&#x40;&#99;&#111;&#x64;&#x65;&#52;&#48;&#x34;&#46;&#105;&#x63;&#117;">&#x72;&#x6f;&#111;&#116;&#x40;&#99;&#111;&#x64;&#x65;&#52;&#48;&#x34;&#46;&#105;&#x63;&#117;</a> ~]# vim &#x2F;etc&#x2F;kubernetes&#x2F;kubelet</p>
 <h1 id="增加"><a href="#增加" class="headerlink" title="增加"></a>增加</h1><p>MAX_PODS&#x3D;”–max-pods&#x3D;61”</p>
 <h4 id="4、修改-x2F-usr-x2F-lib-x2F-systemd-x2F-system-x2F-kubelet-service"><a href="#4、修改-x2F-usr-x2F-lib-x2F-systemd-x2F-system-x2F-kubelet-service" class="headerlink" title="4、修改&#x2F;usr&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;kubelet.service"></a>4、修改&#x2F;usr&#x2F;lib&#x2F;systemd&#x2F;system&#x2F;kubelet.service</h4><hr>
 <p>注意：必须在启动命令后加入该变量，才可以使刚才定义的–max-pods&#x3D;61生效。<br><img src="https://img-blog.csdnimg.cn/b3dbde414db747d79c0f2f89bbd21069.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
 <h4 id="5、重启kubelet"><a href="#5、重启kubelet" class="headerlink" title="5、重启kubelet"></a>5、重启kubelet</h4><hr>
-<p>[<a href="mailto:&#x72;&#x6f;&#111;&#116;&#x40;&#x63;&#x6f;&#100;&#101;&#52;&#x30;&#52;&#46;&#x69;&#x63;&#117;">&#x72;&#x6f;&#111;&#116;&#x40;&#x63;&#x6f;&#100;&#101;&#52;&#x30;&#52;&#46;&#x69;&#x63;&#117;</a> ~]# systemctl  daemon-reload<br>[<a href="mailto:&#114;&#x6f;&#111;&#116;&#x40;&#x63;&#x6f;&#100;&#101;&#x34;&#48;&#x34;&#46;&#x69;&#99;&#x75;">&#114;&#x6f;&#111;&#116;&#x40;&#x63;&#x6f;&#100;&#101;&#x34;&#48;&#x34;&#46;&#x69;&#99;&#x75;</a> ~]# systemctl restart kubelet</p>
+<p>[<a href="mailto:&#114;&#x6f;&#111;&#116;&#x40;&#99;&#x6f;&#100;&#101;&#52;&#x30;&#x34;&#x2e;&#105;&#x63;&#117;">&#114;&#x6f;&#111;&#116;&#x40;&#99;&#x6f;&#100;&#101;&#52;&#x30;&#x34;&#x2e;&#105;&#x63;&#117;</a> ~]# systemctl  daemon-reload<br>[<a href="mailto:&#114;&#111;&#x6f;&#116;&#x40;&#99;&#x6f;&#100;&#x65;&#52;&#x30;&#52;&#46;&#105;&#x63;&#117;">&#114;&#111;&#x6f;&#116;&#x40;&#99;&#x6f;&#100;&#x65;&#52;&#x30;&#52;&#46;&#105;&#x63;&#117;</a> ~]# systemctl restart kubelet</p>
 <p>查看修改结果<br><img src="https://img-blog.csdnimg.cn/d53fc24d39bf4869bfb211ac80d2bf70.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"><br>可以看到，已经完成修改的节点的最大可调度Pod数量已经调整为61。配置生效。</p>
 ]]></content>
       <categories>
@@ -3879,31 +3879,6 @@ query.Scan()
         <tag>kubelet</tag>
         <tag>kubernets</tag>
         <tag>pod</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>k8s集群添加node节点遇到的问题</title>
-    <url>/2021/06/01/k8s%E9%9B%86%E7%BE%A4%E6%B7%BB%E5%8A%A0node%E8%8A%82%E7%82%B9%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/</url>
-    <content><![CDATA[<h2 id="加入集群卡住不动"><a href="#加入集群卡住不动" class="headerlink" title="加入集群卡住不动"></a>加入集群卡住不动</h2><p>kubeadm join 172.25.42.235:6443 –token abcdef.0123456789abcdef –discovery-token-ca-cert-hash sha256:98de276382a20d872f579a74ee924b38d3705ebfcf268b1658a0b6ddb3dccaaa</p>
-<h3 id="开debug模式"><a href="#开debug模式" class="headerlink" title="开debug模式"></a>开debug模式</h3><p>kubeadm join 172.25.42.235:6443 –token abcdef.0123456789abcdef –discovery-token-ca-cert-hash sha256:98de276382a20d872f579a74ee924b38d3705ebfcf268b1658a0b6ddb3dccaaa  -v&#x3D;10</p>
-<h3 id="报错"><a href="#报错" class="headerlink" title="报错"></a>报错</h3><p>I0531 05:04:20.734795    8706 round_trippers.go:435] curl -k -v -XGET  -H “Accept: application&#x2F;json, *&#x2F;*“ -H “User-Agent: kubeadm&#x2F;v1.21.1 (linux&#x2F;amd64) kubernetes&#x2F;5e58841” ‘<a href="https://172.25.42.235:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s&#39;">https://172.25.42.235:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s&#39;</a><br>I0531 05:04:20.736850    8706 round_trippers.go:454] GET <a href="https://172.25.42.235:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s">https://172.25.42.235:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s</a> 200 OK in 2 milliseconds<br>I0531 05:04:20.736865    8706 round_trippers.go:460] Response Headers:<br>I0531 05:04:20.736870    8706 round_trippers.go:463]     Cache-Control: no-cache, private<br>I0531 05:04:20.736873    8706 round_trippers.go:463]     Content-Type: application&#x2F;json<br>I0531 05:04:20.736876    8706 round_trippers.go:463]     X-Kubernetes-Pf-Flowschema-Uid: aabbe46b-393b-42d9-886b-aaf4b2fc7ce2<br>I0531 05:04:20.736879    8706 round_trippers.go:463]     X-Kubernetes-Pf-Prioritylevel-Uid: 3120be8e-1c11-4b11-ad37-0de38bb70030<br>I0531 05:04:20.736882    8706 round_trippers.go:463]     Content-Length: 2353<br>I0531 05:04:20.736915    8706 round_trippers.go:463]     Date: Mon, 31 May 2021 09:04:20 GMT<br>I0531 05:04:20.737280    8706 request.go:1123] Response Body: {“kind”:”ConfigMap”,”apiVersion”:”v1”,”metadata”:{“name”:”cluster-info”,”namespace”:”kube-public”,”uid”:”4e7f9c17-5dc6-41ce-a18d-1076606b97d1”,”resourceVersion”:”5183381”,”creationTimestamp”:”2021-04-14T07:01:55Z”,”managedFields”:[{“manager”:”kubeadm”,”operation”:”Update”,”apiVersion”:”v1”,”time”:”2021-04-14T07:01:55Z”,”fieldsType”:”FieldsV1”,”fieldsV1”:{“f:data”:{“.”:{},”f:kubeconfig”:{}}}},{“manager”:”kube-controller-manager”,”operation”:”Update”,”apiVersion”:”v1”,”time”:”2021-05-31T09:03:26Z”,”fieldsType”:”FieldsV1”,”fieldsV1”:{“f:data”:{“f:jws-kubeconfig-oumnnc”:{}}}}]},”data”:{“jws-kubeconfig-oumnnc”:”eyJhbGciOiJIUzI1NiIsImtpZCI6Im91bW5uYyJ9..2Omg4lzZWg82FA-nUq1UxpnLL2qUR7-cgls62ciTvOE”,”kubeconfig”:”apiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeE1EUXhOREEzTURBME5sb1hEVE14TURReE1qQTNNREEwTmxvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBSy9uCk9wZEMyNlpBNnRHODA5NkxlcDVXY0w3eTdwRmNmcmVYVWVjNDlxNFlQekI4cW1NK2I0Vy9lTE45dnBRa3l1WHcKbWZCbVJsOVp0aDlXWGVDVjgxVzN5OXEyQUgrWTgwSmJiOGZEYkxsREwrWTZQa25DOW45bEFDVXRmMTlHNHlCbwprdTFtYlVMM215c2pKYWY3RC81RFhsaEZpaGFQVkRaT1M3RVZJNlRqRU4xWlV2VDQraEMxRkgrcUhVS0hIUGNYCnhtUXQzMUtxR1gyOW5sNkd3TzlQajRGbnVTV3JxQnpCM01YRHpESGlnSXBhMm9mVjY3OU9nZ1B3c0duVkRFbzUKU1k0dmFTK0djR29ZVFhoWGMyYm5kbFVuSDBIc0l3UmpPeWFldWpwREdYclhvMzh0Mk1hR0F2L3g1Z2NvTVM3KwplWVdYclFtKzJXRURDNlpDUkpjQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZLcTBobnNTMHNDUDcyQmFTaGR6cHRjc3lKRHhNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFBVkgvNDVRUzVUb2VJMk4xaHVOQUZqMDJtb0RCQzQ3VXZIbmpva3NieVA2K2dYSE9wNQpCL1lKS0Njd2hwUTlWODAwUFRtc2FHK0kwZFliMjFEQW1SVnJTYVFsR1RtSnFmc1dpeFJQUERsRmRSOXg3dGNsCm85THV4ZDRzZnJmNG1GZHJuU1QzSndJWElzZXA2ZVRYWm1WK1NMREplR0ZmejVYSDlFUkRVRkJiTWxQSE1SbHUKNHp1anVIeENEa0JxSHhCMnpRZTA5YlN5TE1jNndtejJnL1dSM0xWakxpVkpRTWVaU0YySzduMmkzN29KY05EcgpEb29QSE40NWhESHNiRnFMU3FNRUU4eGUreFV5Y3JrVFdiWTRWQUpnUUFHMGpGV1prUmc4Ymg4RC9seXArNC81Cit3RHBUVW5lQU12L2VBdjBDQ01KWGIwdGZNbEhYYnBhSTVBNAotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg&#x3D;&#x3D;\n    server: <a href="https://172.25.42.235:6443//n">https://172.25.42.235:6443\\n</a>  name: \“\“\ncontexts: null\ncurrent-context: \“\“\nkind: Config\npreferences: {}\nusers: null\n”}}<br>I0531 05:04:20.737406    8706 token.go:221] [discovery] The cluster-info ConfigMap does not yet contain a JWS signature for token ID “abcdef”, will try again</p>
-<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><p>官方说是为了安全，初始化token后会在24小时候会被master删除,</p>
-<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><h4 id="在master节点重新生成一个"><a href="#在master节点重新生成一个" class="headerlink" title="在master节点重新生成一个"></a>在master节点重新生成一个</h4><p>[root@k8s-master01 data]# kubeadm token create<br>oumnnc.aqlxuvdbntlvzoiv</p>
-<h4 id="在master查看Token"><a href="#在master查看Token" class="headerlink" title="在master查看Token"></a>在master查看Token</h4><p>[root@k8s-master01 data]# kubeadm token list<br>TOKEN                     TTL         EXPIRES                     USAGES                   DESCRIPTION                                                EXTRA GROUPS<br>oumnnc.aqlxuvdbntlvzoiv   23h         2021-06-01T17:03:25+08:00   authentication,signing   <none>                                                     system:bootstrappers:kubeadm:default-node-token</p>
-<h2 id="重新加入，又报错"><a href="#重新加入，又报错" class="headerlink" title="重新加入，又报错"></a>重新加入，又报错</h2><p>[root@k8s-node240 docker]# kubeadm join 172.25.42.235:6443 –token oumnnc.aqlxuvdbntlvzoiv –discovery-token-ca-cert-hash sha256:98de276382a20d872f579a74ee924b38d3705ebfcf268b1658a0b6ddb3dccaaa<br>[preflight] Running pre-flight checks<br>error execution phase preflight: couldn’t validate the identity of the API Server: cluster CA found in cluster-info ConfigMap is invalid: none of the public keys “sha256:46a4b70fca4adb7ec0315e25e0712ff1a4eaebf002e4ded963a981de071431fe” are pinned<br>To see the stack trace of this error execute with –v&#x3D;5 or higher</p>
-<h4 id="原因："><a href="#原因：" class="headerlink" title="原因："></a>原因：</h4><p>如果找不到hash可以在master节点执行</p>
-<p>[root@k8s-master01 data]# openssl x509 -pubkey -in &#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;ca.crt  openssl rsa -pubin -outform der 2&gt;&#x2F;dev&#x2F;null  openssl dgst -sha256 -hex  sed ‘s&#x2F;^.* &#x2F;&#x2F;‘<br>46a4b70fca4adb7ec0315e25e0712ff1a4eaebf002e4ded963a981de071431fe</p>
-<h4 id="重新加入，成功"><a href="#重新加入，成功" class="headerlink" title="重新加入，成功"></a>重新加入，成功</h4><p>[root@k8s-node240 docker]# kubeadm join 172.25.42.235:6443 –token oumnnc.aqlxuvdbntlvzoiv –discovery-token-ca-cert-hash sha256:46a4b70fca4adb7ec0315e25e0712ff1a4eaebf002e4ded963a981de071431fe<br>[preflight] Running pre-flight checks<br>[preflight] Reading configuration from the cluster…<br>[preflight] FYI: You can look at this config file with ‘kubectl -n kube-system get cm kubeadm-config -o yaml’<br>[kubelet-start] Writing kubelet configuration to file “&#x2F;var&#x2F;lib&#x2F;kubelet&#x2F;config.yaml”<br>[kubelet-start] Writing kubelet environment file with flags to file “&#x2F;var&#x2F;lib&#x2F;kubelet&#x2F;kubeadm-flags.env”<br>[kubelet-start] Starting the kubelet<br>[kubelet-start] Waiting for the kubelet to perform the TLS Bootstrap…</p>
-<p>This node has joined the cluster:<br>* Certificate signing request was sent to apiserver and a response was received.<br>* The Kubelet was informed of the new secure connection details.</p>
-<p>Run ‘kubectl get nodes’ on the control-plane to see this node join the cluster.</p>
-<p>成功加入集群</p>
-]]></content>
-      <categories>
-        <category>k8s</category>
-      </categories>
-      <tags>
-        <tag>k8s</tag>
-        <tag>kubeadm</tag>
       </tags>
   </entry>
   <entry>
@@ -3988,6 +3963,31 @@ query.Scan()
         <tag>kubectl get nodes</tag>
         <tag>执行速度慢</tag>
         <tag>缓慢</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>k8s集群添加node节点遇到的问题</title>
+    <url>/2021/06/01/k8s%E9%9B%86%E7%BE%A4%E6%B7%BB%E5%8A%A0node%E8%8A%82%E7%82%B9%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98/</url>
+    <content><![CDATA[<h2 id="加入集群卡住不动"><a href="#加入集群卡住不动" class="headerlink" title="加入集群卡住不动"></a>加入集群卡住不动</h2><p>kubeadm join 172.25.42.235:6443 –token abcdef.0123456789abcdef –discovery-token-ca-cert-hash sha256:98de276382a20d872f579a74ee924b38d3705ebfcf268b1658a0b6ddb3dccaaa</p>
+<h3 id="开debug模式"><a href="#开debug模式" class="headerlink" title="开debug模式"></a>开debug模式</h3><p>kubeadm join 172.25.42.235:6443 –token abcdef.0123456789abcdef –discovery-token-ca-cert-hash sha256:98de276382a20d872f579a74ee924b38d3705ebfcf268b1658a0b6ddb3dccaaa  -v&#x3D;10</p>
+<h3 id="报错"><a href="#报错" class="headerlink" title="报错"></a>报错</h3><p>I0531 05:04:20.734795    8706 round_trippers.go:435] curl -k -v -XGET  -H “Accept: application&#x2F;json, *&#x2F;*“ -H “User-Agent: kubeadm&#x2F;v1.21.1 (linux&#x2F;amd64) kubernetes&#x2F;5e58841” ‘<a href="https://172.25.42.235:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s&#39;">https://172.25.42.235:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s&#39;</a><br>I0531 05:04:20.736850    8706 round_trippers.go:454] GET <a href="https://172.25.42.235:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s">https://172.25.42.235:6443/api/v1/namespaces/kube-public/configmaps/cluster-info?timeout=10s</a> 200 OK in 2 milliseconds<br>I0531 05:04:20.736865    8706 round_trippers.go:460] Response Headers:<br>I0531 05:04:20.736870    8706 round_trippers.go:463]     Cache-Control: no-cache, private<br>I0531 05:04:20.736873    8706 round_trippers.go:463]     Content-Type: application&#x2F;json<br>I0531 05:04:20.736876    8706 round_trippers.go:463]     X-Kubernetes-Pf-Flowschema-Uid: aabbe46b-393b-42d9-886b-aaf4b2fc7ce2<br>I0531 05:04:20.736879    8706 round_trippers.go:463]     X-Kubernetes-Pf-Prioritylevel-Uid: 3120be8e-1c11-4b11-ad37-0de38bb70030<br>I0531 05:04:20.736882    8706 round_trippers.go:463]     Content-Length: 2353<br>I0531 05:04:20.736915    8706 round_trippers.go:463]     Date: Mon, 31 May 2021 09:04:20 GMT<br>I0531 05:04:20.737280    8706 request.go:1123] Response Body: {“kind”:”ConfigMap”,”apiVersion”:”v1”,”metadata”:{“name”:”cluster-info”,”namespace”:”kube-public”,”uid”:”4e7f9c17-5dc6-41ce-a18d-1076606b97d1”,”resourceVersion”:”5183381”,”creationTimestamp”:”2021-04-14T07:01:55Z”,”managedFields”:[{“manager”:”kubeadm”,”operation”:”Update”,”apiVersion”:”v1”,”time”:”2021-04-14T07:01:55Z”,”fieldsType”:”FieldsV1”,”fieldsV1”:{“f:data”:{“.”:{},”f:kubeconfig”:{}}}},{“manager”:”kube-controller-manager”,”operation”:”Update”,”apiVersion”:”v1”,”time”:”2021-05-31T09:03:26Z”,”fieldsType”:”FieldsV1”,”fieldsV1”:{“f:data”:{“f:jws-kubeconfig-oumnnc”:{}}}}]},”data”:{“jws-kubeconfig-oumnnc”:”eyJhbGciOiJIUzI1NiIsImtpZCI6Im91bW5uYyJ9..2Omg4lzZWg82FA-nUq1UxpnLL2qUR7-cgls62ciTvOE”,”kubeconfig”:”apiVersion: v1\nclusters:\n- cluster:\n    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeE1EUXhOREEzTURBME5sb1hEVE14TURReE1qQTNNREEwTmxvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBSy9uCk9wZEMyNlpBNnRHODA5NkxlcDVXY0w3eTdwRmNmcmVYVWVjNDlxNFlQekI4cW1NK2I0Vy9lTE45dnBRa3l1WHcKbWZCbVJsOVp0aDlXWGVDVjgxVzN5OXEyQUgrWTgwSmJiOGZEYkxsREwrWTZQa25DOW45bEFDVXRmMTlHNHlCbwprdTFtYlVMM215c2pKYWY3RC81RFhsaEZpaGFQVkRaT1M3RVZJNlRqRU4xWlV2VDQraEMxRkgrcUhVS0hIUGNYCnhtUXQzMUtxR1gyOW5sNkd3TzlQajRGbnVTV3JxQnpCM01YRHpESGlnSXBhMm9mVjY3OU9nZ1B3c0duVkRFbzUKU1k0dmFTK0djR29ZVFhoWGMyYm5kbFVuSDBIc0l3UmpPeWFldWpwREdYclhvMzh0Mk1hR0F2L3g1Z2NvTVM3KwplWVdYclFtKzJXRURDNlpDUkpjQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZLcTBobnNTMHNDUDcyQmFTaGR6cHRjc3lKRHhNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFBVkgvNDVRUzVUb2VJMk4xaHVOQUZqMDJtb0RCQzQ3VXZIbmpva3NieVA2K2dYSE9wNQpCL1lKS0Njd2hwUTlWODAwUFRtc2FHK0kwZFliMjFEQW1SVnJTYVFsR1RtSnFmc1dpeFJQUERsRmRSOXg3dGNsCm85THV4ZDRzZnJmNG1GZHJuU1QzSndJWElzZXA2ZVRYWm1WK1NMREplR0ZmejVYSDlFUkRVRkJiTWxQSE1SbHUKNHp1anVIeENEa0JxSHhCMnpRZTA5YlN5TE1jNndtejJnL1dSM0xWakxpVkpRTWVaU0YySzduMmkzN29KY05EcgpEb29QSE40NWhESHNiRnFMU3FNRUU4eGUreFV5Y3JrVFdiWTRWQUpnUUFHMGpGV1prUmc4Ymg4RC9seXArNC81Cit3RHBUVW5lQU12L2VBdjBDQ01KWGIwdGZNbEhYYnBhSTVBNAotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg&#x3D;&#x3D;\n    server: <a href="https://172.25.42.235:6443//n">https://172.25.42.235:6443\\n</a>  name: \“\“\ncontexts: null\ncurrent-context: \“\“\nkind: Config\npreferences: {}\nusers: null\n”}}<br>I0531 05:04:20.737406    8706 token.go:221] [discovery] The cluster-info ConfigMap does not yet contain a JWS signature for token ID “abcdef”, will try again</p>
+<h3 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h3><p>官方说是为了安全，初始化token后会在24小时候会被master删除,</p>
+<h3 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h3><h4 id="在master节点重新生成一个"><a href="#在master节点重新生成一个" class="headerlink" title="在master节点重新生成一个"></a>在master节点重新生成一个</h4><p>[root@k8s-master01 data]# kubeadm token create<br>oumnnc.aqlxuvdbntlvzoiv</p>
+<h4 id="在master查看Token"><a href="#在master查看Token" class="headerlink" title="在master查看Token"></a>在master查看Token</h4><p>[root@k8s-master01 data]# kubeadm token list<br>TOKEN                     TTL         EXPIRES                     USAGES                   DESCRIPTION                                                EXTRA GROUPS<br>oumnnc.aqlxuvdbntlvzoiv   23h         2021-06-01T17:03:25+08:00   authentication,signing   <none>                                                     system:bootstrappers:kubeadm:default-node-token</p>
+<h2 id="重新加入，又报错"><a href="#重新加入，又报错" class="headerlink" title="重新加入，又报错"></a>重新加入，又报错</h2><p>[root@k8s-node240 docker]# kubeadm join 172.25.42.235:6443 –token oumnnc.aqlxuvdbntlvzoiv –discovery-token-ca-cert-hash sha256:98de276382a20d872f579a74ee924b38d3705ebfcf268b1658a0b6ddb3dccaaa<br>[preflight] Running pre-flight checks<br>error execution phase preflight: couldn’t validate the identity of the API Server: cluster CA found in cluster-info ConfigMap is invalid: none of the public keys “sha256:46a4b70fca4adb7ec0315e25e0712ff1a4eaebf002e4ded963a981de071431fe” are pinned<br>To see the stack trace of this error execute with –v&#x3D;5 or higher</p>
+<h4 id="原因："><a href="#原因：" class="headerlink" title="原因："></a>原因：</h4><p>如果找不到hash可以在master节点执行</p>
+<p>[root@k8s-master01 data]# openssl x509 -pubkey -in &#x2F;etc&#x2F;kubernetes&#x2F;pki&#x2F;ca.crt  openssl rsa -pubin -outform der 2&gt;&#x2F;dev&#x2F;null  openssl dgst -sha256 -hex  sed ‘s&#x2F;^.* &#x2F;&#x2F;‘<br>46a4b70fca4adb7ec0315e25e0712ff1a4eaebf002e4ded963a981de071431fe</p>
+<h4 id="重新加入，成功"><a href="#重新加入，成功" class="headerlink" title="重新加入，成功"></a>重新加入，成功</h4><p>[root@k8s-node240 docker]# kubeadm join 172.25.42.235:6443 –token oumnnc.aqlxuvdbntlvzoiv –discovery-token-ca-cert-hash sha256:46a4b70fca4adb7ec0315e25e0712ff1a4eaebf002e4ded963a981de071431fe<br>[preflight] Running pre-flight checks<br>[preflight] Reading configuration from the cluster…<br>[preflight] FYI: You can look at this config file with ‘kubectl -n kube-system get cm kubeadm-config -o yaml’<br>[kubelet-start] Writing kubelet configuration to file “&#x2F;var&#x2F;lib&#x2F;kubelet&#x2F;config.yaml”<br>[kubelet-start] Writing kubelet environment file with flags to file “&#x2F;var&#x2F;lib&#x2F;kubelet&#x2F;kubeadm-flags.env”<br>[kubelet-start] Starting the kubelet<br>[kubelet-start] Waiting for the kubelet to perform the TLS Bootstrap…</p>
+<p>This node has joined the cluster:<br>* Certificate signing request was sent to apiserver and a response was received.<br>* The Kubelet was informed of the new secure connection details.</p>
+<p>Run ‘kubectl get nodes’ on the control-plane to see this node join the cluster.</p>
+<p>成功加入集群</p>
+]]></content>
+      <categories>
+        <category>k8s</category>
+      </categories>
+      <tags>
+        <tag>k8s</tag>
+        <tag>kubeadm</tag>
       </tags>
   </entry>
   <entry>
@@ -5140,22 +5140,22 @@ query.Scan()
 <p>默认情况下，创建用户时，将按照&#x2F;etc&#x2F;default&#x2F;useradd文件中定义的为用户分配shell。<br>Linux中附带了一个&#x2F;sbin&#x2F;nologinshell，当用户尝试连接时，它会显示一条消息“This account is current not available”。这是禁止用户登录shell的一种方法。下面是使用方式：</p>
 <p>useradd -s &#x2F;sbin&#x2F;nologin {username}</p>
 <p>下面实例，创建一个用户，shell设置为&#x2F;sbin&#x2F;nologin：</p>
-<p>[<a href="mailto:&#114;&#111;&#x6f;&#116;&#x40;&#x63;&#x6f;&#x64;&#101;&#x34;&#x30;&#x34;&#x2e;&#105;&#x63;&#x75;">&#114;&#111;&#x6f;&#116;&#x40;&#x63;&#x6f;&#x64;&#101;&#x34;&#x30;&#x34;&#x2e;&#105;&#x63;&#x75;</a> ~]# useradd  -s &#x2F;sbin&#x2F;nologin test01<br>[<a href="mailto:&#x72;&#x6f;&#x6f;&#x74;&#64;&#99;&#111;&#x64;&#x65;&#52;&#x30;&#x34;&#46;&#x69;&#x63;&#117;">&#x72;&#x6f;&#x6f;&#x74;&#64;&#99;&#111;&#x64;&#x65;&#52;&#x30;&#x34;&#46;&#x69;&#x63;&#117;</a> ~]# tail -1 &#x2F;etc&#x2F;passwd<br>test01:x:1001:1001::&#x2F;home&#x2F;test01:&#x2F;sbin&#x2F;nologin</p>
+<p>[<a href="mailto:&#x72;&#x6f;&#111;&#116;&#x40;&#x63;&#111;&#100;&#x65;&#52;&#x30;&#x34;&#x2e;&#105;&#99;&#117;">&#x72;&#x6f;&#111;&#116;&#x40;&#x63;&#111;&#100;&#x65;&#52;&#x30;&#x34;&#x2e;&#105;&#99;&#117;</a> ~]# useradd  -s &#x2F;sbin&#x2F;nologin test01<br>[<a href="mailto:&#x72;&#x6f;&#x6f;&#116;&#x40;&#99;&#111;&#x64;&#101;&#52;&#x30;&#52;&#x2e;&#105;&#99;&#x75;">&#x72;&#x6f;&#x6f;&#116;&#x40;&#99;&#111;&#x64;&#101;&#52;&#x30;&#52;&#x2e;&#105;&#99;&#x75;</a> ~]# tail -1 &#x2F;etc&#x2F;passwd<br>test01:x:1001:1001::&#x2F;home&#x2F;test01:&#x2F;sbin&#x2F;nologin</p>
 <p>查看 <strong>&#x2F;etc&#x2F;passwd</strong>可以看到<strong>test01</strong>的<strong>shell</strong>为 <strong>&#x2F;sbin&#x2F;nologin</strong><br><img src="https://img-blog.csdnimg.cn/0bd6e8c8ecfe4e62b64976d41886c817.png" alt="在这里插入图片描述"></p>
 <p>给<strong>test01</strong>用户设置密码，然后<strong>ssh</strong>登录测试一下：</p>
-<p>[<a href="mailto:&#x72;&#x6f;&#111;&#116;&#64;&#99;&#111;&#x64;&#101;&#52;&#48;&#x34;&#46;&#105;&#x63;&#x75;">&#x72;&#x6f;&#111;&#116;&#64;&#99;&#111;&#x64;&#101;&#52;&#48;&#x34;&#46;&#105;&#x63;&#x75;</a> ~]# echo ‘123’ passwd –stdin test01<br>Changing password for user test01.<br>passwd: all authentication tokens updated successfully.<br>[<a href="mailto:&#114;&#111;&#111;&#116;&#64;&#99;&#111;&#x64;&#x65;&#52;&#x30;&#x34;&#x2e;&#x69;&#x63;&#x75;">&#114;&#111;&#111;&#116;&#64;&#99;&#111;&#x64;&#x65;&#52;&#x30;&#x34;&#x2e;&#x69;&#x63;&#x75;</a> ~]# ssh test01@localhost<br>The authenticity of host ‘localhost (::1)’ can’t be established.<br>ED25519 key fingerprint is SHA256:m5Jq5lPu+cyabudG7fzf5E9A4QjKojGm9j3bAacIlTw.<br>This key is not known by any other names<br>Are you sure you want to continue connecting (yes&#x2F;no&#x2F;[fingerprint])? yes<br>Warning: Permanently added ‘localhost’ (ED25519) to the list of known hosts.<br>test01@localhost’s password:<br>Last failed login: Thu Sep 23 13:55:10 CST 2021 from ::1 on ssh:notty<br>There was 1 failed login attempt since the last successful login.<br>This account is currently not available.<br>Connection to localhost closed.</p>
+<p>[<a href="mailto:&#x72;&#111;&#x6f;&#x74;&#x40;&#x63;&#x6f;&#x64;&#101;&#x34;&#48;&#52;&#46;&#x69;&#x63;&#117;">&#x72;&#111;&#x6f;&#x74;&#x40;&#x63;&#x6f;&#x64;&#101;&#x34;&#48;&#52;&#46;&#x69;&#x63;&#117;</a> ~]# echo ‘123’ passwd –stdin test01<br>Changing password for user test01.<br>passwd: all authentication tokens updated successfully.<br>[<a href="mailto:&#x72;&#111;&#111;&#x74;&#64;&#x63;&#x6f;&#x64;&#x65;&#52;&#48;&#x34;&#46;&#105;&#99;&#x75;">&#x72;&#111;&#111;&#x74;&#64;&#x63;&#x6f;&#x64;&#x65;&#52;&#48;&#x34;&#46;&#105;&#99;&#x75;</a> ~]# ssh test01@localhost<br>The authenticity of host ‘localhost (::1)’ can’t be established.<br>ED25519 key fingerprint is SHA256:m5Jq5lPu+cyabudG7fzf5E9A4QjKojGm9j3bAacIlTw.<br>This key is not known by any other names<br>Are you sure you want to continue connecting (yes&#x2F;no&#x2F;[fingerprint])? yes<br>Warning: Permanently added ‘localhost’ (ED25519) to the list of known hosts.<br>test01@localhost’s password:<br>Last failed login: Thu Sep 23 13:55:10 CST 2021 from ::1 on ssh:notty<br>There was 1 failed login attempt since the last successful login.<br>This account is currently not available.<br>Connection to localhost closed.</p>
 <p><img src="https://img-blog.csdnimg.cn/2d8cda8d167c4d08a1f8c0be55749976.png" alt="在这里插入图片描述"></p>
 <p>输入密码之后，提示<strong>This account is current not available</strong>，然后连接就关闭了。</p>
 <h3 id="为现有用户时设置禁止shell登录"><a href="#为现有用户时设置禁止shell登录" class="headerlink" title="为现有用户时设置禁止shell登录"></a>为现有用户时设置禁止shell登录</h3><hr>
 <p>更改现有用户的shell，可以使用usermod和chsh两个命令来修改：<br><strong>chsh</strong>命令使用语法如下：</p>
 <p>chsh -s &#x2F;sbin&#x2F;nologin {username}</p>
 <p>下面修改<strong>user02</strong>用户的<strong>shell</strong>：</p>
-<p># Centos8默认没有安装chsh，使用下面命令安装：<br>[<a href="mailto:&#114;&#x6f;&#111;&#x74;&#64;&#99;&#x6f;&#x64;&#x65;&#52;&#x30;&#52;&#x2e;&#x69;&#x63;&#117;">&#114;&#x6f;&#111;&#x74;&#64;&#99;&#x6f;&#x64;&#x65;&#52;&#x30;&#52;&#x2e;&#x69;&#x63;&#117;</a> ~]# yum -y install util-linux-user<br>[<a href="mailto:&#x72;&#x6f;&#111;&#116;&#64;&#99;&#111;&#100;&#101;&#x34;&#x30;&#x34;&#46;&#105;&#99;&#x75;">&#x72;&#x6f;&#111;&#116;&#64;&#99;&#111;&#100;&#101;&#x34;&#x30;&#x34;&#46;&#105;&#99;&#x75;</a> ~]# useradd user02<br>[<a href="mailto:&#x72;&#x6f;&#x6f;&#x74;&#x40;&#x63;&#x6f;&#100;&#101;&#52;&#48;&#x34;&#46;&#105;&#x63;&#x75;">&#x72;&#x6f;&#x6f;&#x74;&#x40;&#x63;&#x6f;&#100;&#101;&#52;&#48;&#x34;&#46;&#105;&#x63;&#x75;</a> ~]# tail -1 &#x2F;etc&#x2F;passwd<br>user02:x:1002:1002::&#x2F;home&#x2F;user02:&#x2F;bin&#x2F;bash<br>[<a href="mailto:&#x72;&#111;&#111;&#x74;&#64;&#x63;&#111;&#x64;&#x65;&#x34;&#48;&#x34;&#x2e;&#105;&#x63;&#x75;">&#x72;&#111;&#111;&#x74;&#64;&#x63;&#111;&#x64;&#x65;&#x34;&#48;&#x34;&#x2e;&#105;&#x63;&#x75;</a> ~]# chsh -s &#x2F;sbin&#x2F;nologin user02<br>Changing shell for user02.<br>Shell changed.<br>[<a href="mailto:&#x72;&#x6f;&#111;&#x74;&#x40;&#99;&#x6f;&#100;&#101;&#x34;&#48;&#x34;&#x2e;&#x69;&#99;&#117;">&#x72;&#x6f;&#111;&#x74;&#x40;&#99;&#x6f;&#100;&#101;&#x34;&#48;&#x34;&#x2e;&#x69;&#99;&#117;</a> ~]# tail -1 &#x2F;etc&#x2F;passwd<br>user02:x:1002:1002::&#x2F;home&#x2F;user02:&#x2F;sbin&#x2F;nologin</p>
+<p># Centos8默认没有安装chsh，使用下面命令安装：<br>[<a href="mailto:&#114;&#111;&#111;&#116;&#64;&#99;&#111;&#100;&#101;&#52;&#x30;&#52;&#x2e;&#x69;&#x63;&#x75;">&#114;&#111;&#111;&#116;&#64;&#99;&#111;&#100;&#101;&#52;&#x30;&#52;&#x2e;&#x69;&#x63;&#x75;</a> ~]# yum -y install util-linux-user<br>[<a href="mailto:&#x72;&#x6f;&#x6f;&#116;&#64;&#99;&#x6f;&#100;&#x65;&#52;&#48;&#52;&#46;&#x69;&#x63;&#117;">&#x72;&#x6f;&#x6f;&#116;&#64;&#99;&#x6f;&#100;&#x65;&#52;&#48;&#52;&#46;&#x69;&#x63;&#117;</a> ~]# useradd user02<br>[<a href="mailto:&#x72;&#x6f;&#x6f;&#x74;&#x40;&#99;&#x6f;&#x64;&#x65;&#52;&#48;&#52;&#46;&#x69;&#99;&#x75;">&#x72;&#x6f;&#x6f;&#x74;&#x40;&#99;&#x6f;&#x64;&#x65;&#52;&#48;&#52;&#46;&#x69;&#99;&#x75;</a> ~]# tail -1 &#x2F;etc&#x2F;passwd<br>user02:x:1002:1002::&#x2F;home&#x2F;user02:&#x2F;bin&#x2F;bash<br>[<a href="mailto:&#114;&#x6f;&#111;&#116;&#64;&#99;&#111;&#100;&#x65;&#52;&#x30;&#x34;&#x2e;&#105;&#x63;&#117;">&#114;&#x6f;&#111;&#116;&#64;&#99;&#111;&#100;&#x65;&#52;&#x30;&#x34;&#x2e;&#105;&#x63;&#117;</a> ~]# chsh -s &#x2F;sbin&#x2F;nologin user02<br>Changing shell for user02.<br>Shell changed.<br>[<a href="mailto:&#114;&#x6f;&#111;&#116;&#64;&#x63;&#111;&#x64;&#101;&#x34;&#x30;&#x34;&#x2e;&#x69;&#99;&#x75;">&#114;&#x6f;&#111;&#116;&#64;&#x63;&#111;&#x64;&#101;&#x34;&#x30;&#x34;&#x2e;&#x69;&#99;&#x75;</a> ~]# tail -1 &#x2F;etc&#x2F;passwd<br>user02:x:1002:1002::&#x2F;home&#x2F;user02:&#x2F;sbin&#x2F;nologin</p>
 <p><img src="https://img-blog.csdnimg.cn/87215b368559423f81e8b77da7326966.png" alt="在这里插入图片描述"></p>
 <p>usermod命令使用语法如下：</p>
 <p>usermod -s &#x2F;sbin&#x2F;nologin {username} </p>
 <p>下面修改user03用户的shell：</p>
-<p>[<a href="mailto:&#114;&#111;&#x6f;&#116;&#64;&#x63;&#x6f;&#x64;&#x65;&#x34;&#x30;&#x34;&#46;&#x69;&#99;&#x75;">&#114;&#111;&#x6f;&#116;&#64;&#x63;&#x6f;&#x64;&#x65;&#x34;&#x30;&#x34;&#46;&#x69;&#99;&#x75;</a> ~]# useradd user04<br>[<a href="mailto:&#x72;&#111;&#x6f;&#116;&#64;&#99;&#111;&#x64;&#x65;&#x34;&#48;&#52;&#x2e;&#x69;&#99;&#x75;">&#x72;&#111;&#x6f;&#116;&#64;&#99;&#111;&#x64;&#x65;&#x34;&#48;&#52;&#x2e;&#x69;&#99;&#x75;</a> ~]# tail -1 &#x2F;etc&#x2F;passwd<br>user04:x:1004:1004::&#x2F;home&#x2F;user04:&#x2F;bin&#x2F;bash<br>[<a href="mailto:&#x72;&#x6f;&#111;&#x74;&#x40;&#x63;&#x6f;&#x64;&#101;&#52;&#x30;&#52;&#x2e;&#x69;&#x63;&#117;">&#x72;&#x6f;&#111;&#x74;&#x40;&#x63;&#x6f;&#x64;&#101;&#52;&#x30;&#52;&#x2e;&#x69;&#x63;&#117;</a> ~]# usermod -s &#x2F;sbin&#x2F;nologin user04<br>[<a href="mailto:&#114;&#111;&#111;&#116;&#64;&#99;&#111;&#100;&#101;&#52;&#48;&#x34;&#46;&#105;&#99;&#x75;">&#114;&#111;&#111;&#116;&#64;&#99;&#111;&#100;&#101;&#52;&#48;&#x34;&#46;&#105;&#99;&#x75;</a> ~]# tail -1 &#x2F;etc&#x2F;passwd<br>user04:x:1004:1004::&#x2F;home&#x2F;user04:&#x2F;sbin&#x2F;nologin</p>
+<p>[<a href="mailto:&#114;&#x6f;&#x6f;&#x74;&#64;&#x63;&#x6f;&#x64;&#101;&#x34;&#x30;&#52;&#x2e;&#x69;&#x63;&#x75;">&#114;&#x6f;&#x6f;&#x74;&#64;&#x63;&#x6f;&#x64;&#101;&#x34;&#x30;&#52;&#x2e;&#x69;&#x63;&#x75;</a> ~]# useradd user04<br>[<a href="mailto:&#114;&#111;&#111;&#x74;&#x40;&#x63;&#x6f;&#100;&#101;&#52;&#x30;&#x34;&#x2e;&#x69;&#x63;&#117;">&#114;&#111;&#111;&#x74;&#x40;&#x63;&#x6f;&#100;&#101;&#52;&#x30;&#x34;&#x2e;&#x69;&#x63;&#117;</a> ~]# tail -1 &#x2F;etc&#x2F;passwd<br>user04:x:1004:1004::&#x2F;home&#x2F;user04:&#x2F;bin&#x2F;bash<br>[<a href="mailto:&#x72;&#111;&#x6f;&#x74;&#x40;&#x63;&#x6f;&#100;&#x65;&#x34;&#x30;&#x34;&#46;&#x69;&#99;&#x75;">&#x72;&#111;&#x6f;&#x74;&#x40;&#x63;&#x6f;&#100;&#x65;&#x34;&#x30;&#x34;&#46;&#x69;&#99;&#x75;</a> ~]# usermod -s &#x2F;sbin&#x2F;nologin user04<br>[<a href="mailto:&#114;&#111;&#111;&#x74;&#64;&#99;&#111;&#x64;&#x65;&#52;&#x30;&#x34;&#46;&#105;&#x63;&#117;">&#114;&#111;&#111;&#x74;&#64;&#99;&#111;&#x64;&#x65;&#52;&#x30;&#x34;&#46;&#105;&#x63;&#117;</a> ~]# tail -1 &#x2F;etc&#x2F;passwd<br>user04:x:1004:1004::&#x2F;home&#x2F;user04:&#x2F;sbin&#x2F;nologin</p>
 <p><img src="https://img-blog.csdnimg.cn/eaa08bc1a6334705adf8888e8e2155a3.png" alt="在这里插入图片描述"></p>
 <p>也可以手动修改&#x2F;etc&#x2F;passwd文件中的用户shell。</p>
 <h3 id="总-结"><a href="#总-结" class="headerlink" title="总 结"></a>总 结</h3><hr>
@@ -5193,7 +5193,7 @@ query.Scan()
 <p>4月 29 03:01:01 k8s-master01 anacron[3213759]: Jobs will be executed sequentially<br>4月 29 03:46:01 k8s-master01 anacron[3213759]: Job `cron.daily’ started<br>4月 29 03:46:01 k8s-master01 anacron[3213759]: Job `cron.daily’ terminated<br>4月 29 03:46:01 k8s-master01 anacron[3213759]: Normal exit (1 job run)<br>4月 29 04:01:01 k8s-master01 CROND[3266006]: (root) CMD (run-parts &#x2F;etc&#x2F;cron.hourly)<br>4月 29 05:01:01 k8s-master01 CROND[3318305]: (root) CMD (run-parts &#x2F;etc&#x2F;cron.hourly)<br>4月 29 06:01:01 k8s-master01 CROND[3370655]: (root) CMD (run-parts &#x2F;etc&#x2F;cron.hourly)<br>4月 29 07:01:01 k8s-master01 CROND[3422976]: (root) CMD (run-parts &#x2F;etc&#x2F;cron.hourly)<br>4月 29 08:01:01 k8s-master01 CROND[3475277]: (root) CMD (run-parts &#x2F;etc&#x2F;cron.hourly)<br>4月 29 09:01:01 k8s-master01 CROND[3527598]: (root) CMD (run-parts &#x2F;etc&#x2F;cron.hourly)</p>
 <p>crond在运行中，到这里就可以了配置成功，等明天上班看一下效果</p>
 <h2 id="全部配置说明"><a href="#全部配置说明" class="headerlink" title="全部配置说明"></a>全部配置说明</h2><p>有需要自己选用，但我们项目上面配置已够用</p>
-<p>daily,weekly,monthly  # 转储周期分别是每天&#x2F;每周&#x2F;每月;<br>minsize 15M           # 日志体积大于此值时轮换(例如:100K,4M);<br>dateext              # 轮询的文件名字带有日期信息;<br>missingok             # 如果日志文件丢失,不要显示错误;<br>rotate 5              # 轮转存储中包含多少备份日志文件,0为无备份,以数字为准;<br>compress              # 通过gzip压缩转储以后的日志,以*.gz结尾;<br>nocompress            # 不需要压缩时,用这个参数;<br>delaycompress         # 延迟压缩,和compress一起使用时压缩所有日志,除当前和下一个最近的;<br>nodelaycompress       # 覆盖delaycompress选项，转储同时压缩;<br>copytruncate          # 用于还在打开中的日志文件,把当前日志备份并截断;<br>nocopytruncate        # 备份日志文件但是不截断;<br>create 644 www root   # 转储文件,使用指定的文件模式创建新的日志文件;<br>nocreate              # 不建立新的日志文件;<br>errors <a href="mailto:&#114;&#x65;&#110;&#119;&#111;&#108;&#x65;&#x40;&#x6d;&#x79;&#x2e;&#x6f;&#114;&#103;">&#114;&#x65;&#110;&#119;&#111;&#108;&#x65;&#x40;&#x6d;&#x79;&#x2e;&#x6f;&#114;&#103;</a> # 专储时的错误信息发送到指定的Email地址;<br>ifempty               # 即使是空文件也转储，这个是logrotate的缺省选项；<br>notifempty            # 如果日志文件为空，则不转储;<br>mail <a href="mailto:&#x72;&#x65;&#110;&#119;&#111;&#x6c;&#x65;&#x40;&#x6d;&#x79;&#x2e;&#111;&#x72;&#103;">&#x72;&#x65;&#110;&#119;&#111;&#x6c;&#x65;&#x40;&#x6d;&#x79;&#x2e;&#111;&#x72;&#103;</a>   # 把转储的日志文件发送到指定的E-mail地;<br>nomail                # 转储时不发送日志文件;<br>olddir &#x2F;tmp           # 转储后的日志文件放入指定目录,必须和当前日志文件在同一个文件系统;<br>noolddir              # 转储后的日志文件和当前日志文件放在同一个目录下;<br>prerotate&#x2F;endscript   # 在转储以前需要执行的命令可以放入这个对,这两个关键字必须单独成行;<br>postrotate&#x2F;endscript  # 在转储以后需要执行的命令可以放入这个对,这两个关键字必须单独成行;<br>tabooext              # 不转储指定扩展名的文件,缺省扩展名：cfsaved,.disabled,.dpkg-dist等;<br>sharedscripts         # 共享脚本,让postrotate&#x2F;endscript包含脚本只执行一次即可;<br>dateformat            # 配合dateext使用可以为切割后的日志加上YYYYMMDD格式的日期;</p>
+<p>daily,weekly,monthly  # 转储周期分别是每天&#x2F;每周&#x2F;每月;<br>minsize 15M           # 日志体积大于此值时轮换(例如:100K,4M);<br>dateext              # 轮询的文件名字带有日期信息;<br>missingok             # 如果日志文件丢失,不要显示错误;<br>rotate 5              # 轮转存储中包含多少备份日志文件,0为无备份,以数字为准;<br>compress              # 通过gzip压缩转储以后的日志,以*.gz结尾;<br>nocompress            # 不需要压缩时,用这个参数;<br>delaycompress         # 延迟压缩,和compress一起使用时压缩所有日志,除当前和下一个最近的;<br>nodelaycompress       # 覆盖delaycompress选项，转储同时压缩;<br>copytruncate          # 用于还在打开中的日志文件,把当前日志备份并截断;<br>nocopytruncate        # 备份日志文件但是不截断;<br>create 644 www root   # 转储文件,使用指定的文件模式创建新的日志文件;<br>nocreate              # 不建立新的日志文件;<br>errors <a href="mailto:&#x72;&#101;&#110;&#x77;&#111;&#108;&#101;&#x40;&#x6d;&#x79;&#x2e;&#x6f;&#x72;&#x67;">&#x72;&#101;&#110;&#x77;&#111;&#108;&#101;&#x40;&#x6d;&#x79;&#x2e;&#x6f;&#x72;&#x67;</a> # 专储时的错误信息发送到指定的Email地址;<br>ifempty               # 即使是空文件也转储，这个是logrotate的缺省选项；<br>notifempty            # 如果日志文件为空，则不转储;<br>mail <a href="mailto:&#x72;&#x65;&#x6e;&#x77;&#x6f;&#x6c;&#101;&#64;&#109;&#121;&#46;&#111;&#x72;&#103;">&#x72;&#x65;&#x6e;&#x77;&#x6f;&#x6c;&#101;&#64;&#109;&#121;&#46;&#111;&#x72;&#103;</a>   # 把转储的日志文件发送到指定的E-mail地;<br>nomail                # 转储时不发送日志文件;<br>olddir &#x2F;tmp           # 转储后的日志文件放入指定目录,必须和当前日志文件在同一个文件系统;<br>noolddir              # 转储后的日志文件和当前日志文件放在同一个目录下;<br>prerotate&#x2F;endscript   # 在转储以前需要执行的命令可以放入这个对,这两个关键字必须单独成行;<br>postrotate&#x2F;endscript  # 在转储以后需要执行的命令可以放入这个对,这两个关键字必须单独成行;<br>tabooext              # 不转储指定扩展名的文件,缺省扩展名：cfsaved,.disabled,.dpkg-dist等;<br>sharedscripts         # 共享脚本,让postrotate&#x2F;endscript包含脚本只执行一次即可;<br>dateformat            # 配合dateext使用可以为切割后的日志加上YYYYMMDD格式的日期;</p>
 ]]></content>
       <categories>
         <category>运维</category>
@@ -5880,14 +5880,14 @@ query.Scan()
 <p>Sep 18 03:30:02 bpm1 python: SELinux is preventing logrotate from ‘read, write’ accesses on the file &#x2F;data&#x2F;bpm&#x2F;engine&#x2F;logs&#x2F;logs.txt.#012#012*****  Plugin restorecon (82.4 confidence) suggests   ************************#012#012If you want to fix the label. #012&#x2F;data&#x2F;bpm&#x2F;engine&#x2F;logs&#x2F;logs.txt default label should be default_t.#012Then you can run restorecon. The access attempt may have been stopped due to insufficient permissions to access a parent directory in which case try to change the following command accordingly.#012Do#012# &#x2F;sbin&#x2F;restorecon -v &#x2F;data&#x2F;bpm&#x2F;engine&#x2F;logs&#x2F;logs.txt#012#012*****  Plugin file (7.05 confidence) suggests   ******************************#012#012If you think this is caused by a badly mislabeled machine.#012Then you need to fully relabel.#012Do#012touch &#x2F;.autorelabel; reboot#012#012*****  Plugin file (7.05 confidence) suggests   ******************************#012#012If you think this is caused by a badly mislabeled machine.#012Then you need to fully relabel.#012Do#012touch &#x2F;.autorelabel; reboot#012#012*****  Plugin catchall_labels (4.59 confidence) suggests   *******************#012#012If you want to allow logrotate to have read write access on the logs.txt file#012Then you need to change the label on &#x2F;data&#x2F;bpm&#x2F;engine&#x2F;logs&#x2F;logs.txt#012Do#012# semanage fcontext -a -t FILE_TYPE ‘&#x2F;data&#x2F;bpm&#x2F;engine&#x2F;logs&#x2F;logs.txt’#012where FILE_TYPE is one of the following: NetworkManager_log_t, abrt_var_cache_t, abrt_var_log_t, acct_data_t, afs_cache_t, afs_logfile_t, aide_log_t, amanda_log_t, antivirus_log_t, apcupsd_log_t, apmd_log_t, asterisk_log_t, auth_cache_t, bacula_log_t, bitlbee_log_t, boinc_log_t, brltty_log_t, calamaris_log_t, callweaver_log_t, canna_log_t, ccs_var_lib_t, ccs_var_log_t, certmaster_var_log_t, cfengine_log_t, cgred_log_t, checkpc_log_t, chronyd_var_log_t, cinder_log_t, cloud_log_t, cluster_var_log_t, cobbler_var_log_t, condor_log_t, conman_log_t, consolekit_log_t, container_log_t, couchdb_log_t, cron_log_t, ctdbd_log_t, cupsd_log_t, cyphesis_log_t, ddclient_log_t, deltacloudd_log_t, denyhosts_var_log_t, devicekit_var_log_t, dirsrv_snmp_var_log_t, dirsrv_var_log_t, dlm_controld_var_log_t, dnsmasq_var_log_t, dovecot_var_log_t, dspam_log_t, evtchnd_var_log_t, exim_log_t, fail2ban_log_t, faillog_t, fenced_var_log_t, fetchmail_log_t, fingerd_log_t, firewalld_var_log_t, foghorn_var_log_t, fsadm_log_t, getty_log_t, gfs_controld_var_log_t, glance_log_t, glusterd_log_t, groupd_var_log_t, haproxy_var_log_t, httpd_log_t, icecast_log_t, inetd_log_t, initrc_var_log_t, innd_log_t, ipa_log_t, ipsec_log_t, iscsi_log_t, iwhd_log_t, jetty_log_t, jockey_var_log_t, kadmind_log_t, keystone_log_t, kismet_log_t, krb5kdc_log_t, ksmtuned_log_t, ktalkd_log_t, lastlog_t, logrotate_lock_t, logrotate_tmp_t, logrotate_var_lib_t, mailman_log_t, mcelog_log_t, mdadm_log_t, minidlna_log_t, mirrormanager_log_t, mongod_log_t, motion_log_t, mpd_log_t, mrtg_log_t, munin_log_t, mysqld_log_t, mythtv_var_log_t, nagios_log_t, named_cache_t, named_log_t, neutron_log_t, nova_log_t, nscd_log_t, nsd_log_t, ntpd_log_t, numad_var_log_t, openhpid_log_t, openshift_log_t, openshift_var_lib_t, opensm_log_t, openvpn_status_t, openvpn_var_log_t, openvswitch_log_t, openwsman_log_t, osad_log_t, passenger_log_t, pcp_log_t, piranha_log_t, pkcs_slotd_log_t, pki_log_t, pki_ra_log_t, pki_tomcat_log_t, pki_tps_log_t, plymouthd_var_log_t, polipo_log_t, postgresql_log_t, pppd_log_t, pptp_log_t, prelink_log_t, prelude_log_t, privoxy_log_t, procmail_log_t, prosody_log_t, psad_var_log_t, puppet_log_t, puppet_tmp_t, pyicqt_log_t, qdiskd_var_log_t, rabbitmq_var_log_t, radiusd_log_t, redis_log_t, rhev_agentd_log_t, rhsmcertd_log_t, ricci_modcluster_var_log_t, ricci_var_log_t, rpm_log_t, rsync_log_t, rtas_errd_log_t, samba_log_t, sanlock_log_t, sectool_var_log_t, sendmail_log_t, sensord_log_t, setroubleshoot_var_log_t, shorewall_log_t, slapd_log_t, slpd_log_t, smsd_log_t, snapperd_log_t, snmpd_log_t, snort_log_t, spamd_log_t, speech-dispatcher_log_t, squid_log_t, sssd_var_log_t, stapserver_log_t, stunnel_log_t, sudo_log_t, svnserve_log_t, sysstat_log_t, systemd_passwd_var_run_t, thin_aeolus_configserver_log_t, thin_log_t, tomcat_log_t, tor_var_log_t, tuned_log_t, ulogd_var_log_t, uucpd_log_t, var_log_t, var_spool_t, varnishlog_log_t, vdagent_log_t, virt_cache_t, virt_log_t, virt_qemu_ga_log_t, vmware_log_t, watchdog_log_t, winbind_log_t, wtmp_t, xdm_log_t, xend_var_log_t, xenstored_var_log_t, xferlog_t, xserver_log_t, zabbix_log_t, zarafa_deliver_log_t, zarafa_gateway_log_t, zarafa_ical_log_t, zarafa_indexer_log_t, zarafa_monitor_log_t, zarafa_server_log_t, zarafa_spooler_log_t, zebra_log_t, zoneminder_log_t.#012Then execute:#012restorecon -v ‘&#x2F;data&#x2F;bpm&#x2F;engine&#x2F;logs&#x2F;logs.txt’#012#012#012*****  Plugin catchall (1.31 confidence) suggests   **************************#012#012If you believe that logrotate should be allowed read write access on the logs.txt file by default.#012Then you should report this as a bug.#012You can generate a local policy module to allow this access.#012Do#012allow this access for now by executing:#012# ausearch -c ‘logrotate’ –raw  audit2allow -M my-logrotate#012# semodule -i my-logrotate.pp#012<br>Sep 18 03:31:01 bpm1 systemd: Started Session 274417 of user root.<br>Sep 18 03:32:01 bpm1 systemd: Started Session 274418 of user root.<br>Sep 18 03:33:01 bpm1 systemd: Started Session 274419 of user root.<br>Sep 18 03:34:01 bpm1 systemd: Started Session 274420 of user root.<br>Sep 18 03:35:01 bpm1 systemd: Started Session 274421 of user root.<br>Sep 18 03:36:01 bpm1 systemd: Started Session 274422 of user root.<br>Sep 18 03:37:01 bpm1 systemd: Started Session 274423 of user root.<br>Sep 18 03:38:01 bpm1 systemd: Started Session 274424 of user root.</p>
 <h3 id="分析报错内容是selinux"><a href="#分析报错内容是selinux" class="headerlink" title="分析报错内容是selinux"></a>分析报错内容是selinux</h3><hr>
 <p>查看selinux状态，发现selinux是开开启的</p>
-<p>[<a href="mailto:&#x72;&#x6f;&#111;&#116;&#x40;&#x63;&#111;&#x64;&#x65;&#x34;&#48;&#52;&#46;&#x69;&#99;&#x75;">&#x72;&#x6f;&#111;&#116;&#x40;&#x63;&#111;&#x64;&#x65;&#x34;&#48;&#52;&#46;&#x69;&#99;&#x75;</a> ~]# sestatus<br>SELinux status:                 enabled<br>SELinuxfs mount:                &#x2F;sys&#x2F;fs&#x2F;selinux<br>SELinux root directory:         &#x2F;etc&#x2F;selinux<br>Loaded policy name:             targeted<br>Current mode:                   enforcing<br>Mode from config file:          enforcing<br>Policy MLS status:              enabled<br>Policy deny_unknown status:     allowed<br>Max kernel policy version:      31</p>
+<p>[<a href="mailto:&#x72;&#x6f;&#x6f;&#x74;&#64;&#x63;&#111;&#100;&#x65;&#x34;&#x30;&#x34;&#x2e;&#x69;&#x63;&#117;">&#x72;&#x6f;&#x6f;&#x74;&#64;&#x63;&#111;&#100;&#x65;&#x34;&#x30;&#x34;&#x2e;&#x69;&#x63;&#117;</a> ~]# sestatus<br>SELinux status:                 enabled<br>SELinuxfs mount:                &#x2F;sys&#x2F;fs&#x2F;selinux<br>SELinux root directory:         &#x2F;etc&#x2F;selinux<br>Loaded policy name:             targeted<br>Current mode:                   enforcing<br>Mode from config file:          enforcing<br>Policy MLS status:              enabled<br>Policy deny_unknown status:     allowed<br>Max kernel policy version:      31</p>
 <h3 id="调整selinux配置"><a href="#调整selinux配置" class="headerlink" title="调整selinux配置"></a>调整selinux配置</h3><hr>
 <p>把selinux 调整为 permissive<br>临时修改</p>
 <p>setenforce 0</p>
 <p>永久修改</p>
 <p>vim &#x2F;etc&#x2F;selinux&#x2F;config<br>SELINUX&#x3D;permissive</p>
 <p>查看当前状态</p>
-<p>[<a href="mailto:&#114;&#111;&#x6f;&#x74;&#64;&#99;&#x6f;&#x64;&#101;&#x34;&#x30;&#52;&#46;&#105;&#99;&#x75;">&#114;&#111;&#x6f;&#x74;&#64;&#99;&#x6f;&#x64;&#101;&#x34;&#x30;&#52;&#46;&#105;&#99;&#x75;</a> ~]# sestatus<br>SELinux status:                 enabled<br>SELinuxfs mount:                &#x2F;sys&#x2F;fs&#x2F;selinux<br>SELinux root directory:         &#x2F;etc&#x2F;selinux<br>Loaded policy name:             targeted<br>Current mode:                   permissive<br>Mode from config file:          permissive<br>Policy MLS status:              enabled<br>Policy deny_unknown status:     allowed<br>Max kernel policy version:      31</p>
+<p>[<a href="mailto:&#x72;&#111;&#x6f;&#116;&#x40;&#x63;&#x6f;&#x64;&#x65;&#x34;&#48;&#52;&#46;&#x69;&#99;&#x75;">&#x72;&#111;&#x6f;&#116;&#x40;&#x63;&#x6f;&#x64;&#x65;&#x34;&#48;&#52;&#46;&#x69;&#99;&#x75;</a> ~]# sestatus<br>SELinux status:                 enabled<br>SELinuxfs mount:                &#x2F;sys&#x2F;fs&#x2F;selinux<br>SELinux root directory:         &#x2F;etc&#x2F;selinux<br>Loaded policy name:             targeted<br>Current mode:                   permissive<br>Mode from config file:          permissive<br>Policy MLS status:              enabled<br>Policy deny_unknown status:     allowed<br>Max kernel policy version:      31</p>
 <p>此时，可以调整crontab 让logrotate 触发，就正常切割了</p>
 ]]></content>
       <categories>
@@ -5902,92 +5902,6 @@ query.Scan()
         <tag>retrieve</tag>
         <tag>selinux</tag>
         <tag>sestatus</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Maven仓库配置163源</title>
-    <url>/2021/04/16/maven%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE163%E6%BA%90/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/04/2021041600263985.png"></p>
-<h2 id="一、在maven软件中使用"><a href="#一、在maven软件中使用" class="headerlink" title="一、在maven软件中使用"></a>一、在maven软件中使用</h2><h6 id="以apache-maven-3-8-1-为例："><a href="#以apache-maven-3-8-1-为例：" class="headerlink" title="以apache-maven-3.8.1 为例："></a>以apache-maven-3.8.1 为例：</h6><p>打开maven配置文件</p>
-<p>.&#x2F;apache-maven-3.8.1&#x2F;conf&#x2F;settings.xml</p>
-<p>找到<code>&lt;mirrors&gt;&lt;/mirrors&gt;</code>标签节点</p>
-<p>添加一个的mirror子节点：</p>
-<mirror>
-    <id>nexus-163</id>
-    <mirrorOf>\*</mirrorOf>
-    <name>Nexus 163</name>
-    <url>http://mirrors.163.com/maven/repository/maven-public/</url>
-</mirror>
-
-<h1 id="二、在maven项目pom中使用"><a href="#二、在maven项目pom中使用" class="headerlink" title="二、在maven项目pom中使用"></a>二、在maven项目pom中使用</h1><p>打开项目配置文件<code>pom.xml</code><br>添加或修改</p>
-<repositories>
-    <repository>
-        <id>nexus-163</id>
-        <name>Nexus 163</name>
-        <url>http://mirrors.163.com/maven/repository/maven-public/</url>
-        <layout>default</layout>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-        <releases>
-            <enabled>true</enabled>
-        </releases>
-    </repository>
-</repositories>
-<pluginRepositories>
-    <pluginRepository>
-        <id>nexus-163</id>
-        <name>Nexus 163</name>
-        <url>http://mirrors.163.com/maven/repository/maven-public/</url>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-        <releases>
-            <enabled>true</enabled>
-        </releases>
-    </pluginRepository>
-</pluginRepositories>
-
-<p>执行更新一下即可。</p>
-<p>mvn update</p>
-<p>已上就是Maven仓库配置163源配置过程，觉得有用就给个赞吧</p>
-]]></content>
-      <categories>
-        <category>运维</category>
-      </categories>
-      <tags>
-        <tag>仓库</tag>
-        <tag>163</tag>
-        <tag>Maven</tag>
-        <tag>源</tag>
-        <tag>配置</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>mount 挂载 nfs 报错 mount: wrong fs type, bad option, bad superblock on</title>
-    <url>/2021/12/29/mount-%E6%8C%82%E8%BD%BD-nfs-%E6%8A%A5%E9%94%99-mount-wrong-fs-type-bad-option-bad-superblock-on/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-21.png"></p>
-<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
-<p>NFS就是Network File System的缩写，它最大的功能就是可以通过网络，让不同的机器、不同的操作系统可以共享彼此的文件。<br>NFS服务器可以让PC将网络中的NFS服务器共享的目录挂载到本地端的文件系统中，而在本地端的系统中来看，那个远程主机的目录就好像是自己的一个磁盘分区一样，在使用上相当便利</p>
-<h3 id="远程挂载时发生错误"><a href="#远程挂载时发生错误" class="headerlink" title="远程挂载时发生错误"></a>远程挂载时发生错误</h3><hr>
-<p>在远程服务器上挂载时报错</p>
-<p>mount: wrong fs type, bad option, bad superblock on 192.168.55.102:&#x2F;data,<br>missing codepage or helper program, or other error<br>(for several filesystems (e.g. nfs, cifs) you might<br>need a &#x2F;sbin&#x2F;mount. helper program)<br>In some cases useful info is found in syslog - try<br>dmesg tail or so</p>
-<h3 id="问题解决方法"><a href="#问题解决方法" class="headerlink" title="问题解决方法"></a>问题解决方法</h3><hr>
-<p>这个问题是由于远程客户端没有安装 nfs 工具<br>在客户端安装nfs-utils</p>
-<p>#centos<br>yum install nfs-utils<br>#ubuntu<br>apt-get install nfs-common</p>
-<h3 id="验证-mount-挂载"><a href="#验证-mount-挂载" class="headerlink" title="验证 mount 挂载"></a>验证 mount 挂载</h3><hr>
-<p>这回就不报错了</p>
-<p>mount -t nfs 192.168.55.102:&#x2F;data &#x2F;data</p>
-]]></content>
-      <categories>
-        <category>运维</category>
-        <category>NFS</category>
-      </categories>
-      <tags>
-        <tag>bad superblock</tag>
-        <tag>nfs</tag>
-        <tag>NFS挂载</tag>
-        <tag>远程挂载</tag>
       </tags>
   </entry>
   <entry>
@@ -6201,6 +6115,92 @@ public void test() &#123;
         <tag>重置密码</tag>
         <tag>mariadb</tag>
         <tag>systemd</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Maven仓库配置163源</title>
+    <url>/2021/04/16/maven%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE163%E6%BA%90/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/04/2021041600263985.png"></p>
+<h2 id="一、在maven软件中使用"><a href="#一、在maven软件中使用" class="headerlink" title="一、在maven软件中使用"></a>一、在maven软件中使用</h2><h6 id="以apache-maven-3-8-1-为例："><a href="#以apache-maven-3-8-1-为例：" class="headerlink" title="以apache-maven-3.8.1 为例："></a>以apache-maven-3.8.1 为例：</h6><p>打开maven配置文件</p>
+<p>.&#x2F;apache-maven-3.8.1&#x2F;conf&#x2F;settings.xml</p>
+<p>找到<code>&lt;mirrors&gt;&lt;/mirrors&gt;</code>标签节点</p>
+<p>添加一个的mirror子节点：</p>
+<mirror>
+    <id>nexus-163</id>
+    <mirrorOf>\*</mirrorOf>
+    <name>Nexus 163</name>
+    <url>http://mirrors.163.com/maven/repository/maven-public/</url>
+</mirror>
+
+<h1 id="二、在maven项目pom中使用"><a href="#二、在maven项目pom中使用" class="headerlink" title="二、在maven项目pom中使用"></a>二、在maven项目pom中使用</h1><p>打开项目配置文件<code>pom.xml</code><br>添加或修改</p>
+<repositories>
+    <repository>
+        <id>nexus-163</id>
+        <name>Nexus 163</name>
+        <url>http://mirrors.163.com/maven/repository/maven-public/</url>
+        <layout>default</layout>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+    </repository>
+</repositories>
+<pluginRepositories>
+    <pluginRepository>
+        <id>nexus-163</id>
+        <name>Nexus 163</name>
+        <url>http://mirrors.163.com/maven/repository/maven-public/</url>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+        <releases>
+            <enabled>true</enabled>
+        </releases>
+    </pluginRepository>
+</pluginRepositories>
+
+<p>执行更新一下即可。</p>
+<p>mvn update</p>
+<p>已上就是Maven仓库配置163源配置过程，觉得有用就给个赞吧</p>
+]]></content>
+      <categories>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>仓库</tag>
+        <tag>163</tag>
+        <tag>Maven</tag>
+        <tag>源</tag>
+        <tag>配置</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>mount 挂载 nfs 报错 mount: wrong fs type, bad option, bad superblock on</title>
+    <url>/2021/12/29/mount-%E6%8C%82%E8%BD%BD-nfs-%E6%8A%A5%E9%94%99-mount-wrong-fs-type-bad-option-bad-superblock-on/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-21.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>NFS就是Network File System的缩写，它最大的功能就是可以通过网络，让不同的机器、不同的操作系统可以共享彼此的文件。<br>NFS服务器可以让PC将网络中的NFS服务器共享的目录挂载到本地端的文件系统中，而在本地端的系统中来看，那个远程主机的目录就好像是自己的一个磁盘分区一样，在使用上相当便利</p>
+<h3 id="远程挂载时发生错误"><a href="#远程挂载时发生错误" class="headerlink" title="远程挂载时发生错误"></a>远程挂载时发生错误</h3><hr>
+<p>在远程服务器上挂载时报错</p>
+<p>mount: wrong fs type, bad option, bad superblock on 192.168.55.102:&#x2F;data,<br>missing codepage or helper program, or other error<br>(for several filesystems (e.g. nfs, cifs) you might<br>need a &#x2F;sbin&#x2F;mount. helper program)<br>In some cases useful info is found in syslog - try<br>dmesg tail or so</p>
+<h3 id="问题解决方法"><a href="#问题解决方法" class="headerlink" title="问题解决方法"></a>问题解决方法</h3><hr>
+<p>这个问题是由于远程客户端没有安装 nfs 工具<br>在客户端安装nfs-utils</p>
+<p>#centos<br>yum install nfs-utils<br>#ubuntu<br>apt-get install nfs-common</p>
+<h3 id="验证-mount-挂载"><a href="#验证-mount-挂载" class="headerlink" title="验证 mount 挂载"></a>验证 mount 挂载</h3><hr>
+<p>这回就不报错了</p>
+<p>mount -t nfs 192.168.55.102:&#x2F;data &#x2F;data</p>
+]]></content>
+      <categories>
+        <category>运维</category>
+        <category>NFS</category>
+      </categories>
+      <tags>
+        <tag>bad superblock</tag>
+        <tag>nfs</tag>
+        <tag>NFS挂载</tag>
+        <tag>远程挂载</tag>
       </tags>
   </entry>
   <entry>
@@ -7645,7 +7645,7 @@ public void test() &#123;
 <p>asset size limit: The following asset(s) exceed the recommended size limit (244 KiB).<br>This can impact web performance.</p>
 <p>leenhem@leenhem-Thinkpad-T440P:~&#x2F;code&#x2F;vue-element-admin$ npm run prod</p>
 <blockquote>
-<p><a href="mailto:&#x76;&#117;&#x65;&#45;&#x65;&#x6c;&#101;&#109;&#101;&#110;&#x74;&#45;&#x61;&#100;&#x6d;&#x69;&#110;&#64;&#52;&#46;&#52;&#46;&#x30;">&#x76;&#117;&#x65;&#45;&#x65;&#x6c;&#101;&#109;&#101;&#110;&#x74;&#45;&#x61;&#100;&#x6d;&#x69;&#110;&#64;&#52;&#46;&#52;&#46;&#x30;</a> prod<br>vue-cli-service serve –mode production</p>
+<p><a href="mailto:&#118;&#117;&#x65;&#45;&#x65;&#108;&#101;&#109;&#101;&#x6e;&#x74;&#45;&#x61;&#x64;&#109;&#x69;&#110;&#64;&#52;&#46;&#52;&#46;&#x30;">&#118;&#117;&#x65;&#45;&#x65;&#108;&#101;&#109;&#101;&#x6e;&#x74;&#45;&#x61;&#x64;&#109;&#x69;&#110;&#64;&#52;&#46;&#52;&#46;&#x30;</a> prod<br>vue-cli-service serve –mode production</p>
 </blockquote>
 <p> INFO  Starting development server…</p>
 <p> WARNING  Compiled with 2 warnings                                                                                                                          上午10:37:26</p>
@@ -7744,7 +7744,7 @@ public void test() &#123;
 <p>openssl req -new -key <a href="http://www.code404.icu.key/">www.code404.icu.key</a> -out <a href="http://www.code404.icu.csr/">www.code404.icu.csr</a></p>
 <p>会要求输入下面内容</p>
 <p>输出内容为：</p>
-<p>Enter pass phrase for root.key: 输入前面创建的密码<br>Country Name (2 letter code) [AU]:CN   国家代号，中国输入CN<br>State or Province Name (full name) [Some-State]:BeiJing   省的全名，拼音<br>Locality Name (eg, city) []:BeiJing  市的全名，拼音<br>Organization Name (eg, company) [Internet Widgits Pty Ltd]:Yvioo  公司英文名(可以随便输入)<br>Organizational Unit Name (eg, section) []:  单位名 可以不输入<br>Common Name (eg, YOUR name) []: 输入你的名子或域名 必填<br>Email Address []:<a href="mailto:&#97;&#x64;&#109;&#105;&#110;&#x40;&#109;&#x79;&#x63;&#x6f;&#109;&#x70;&#x61;&#110;&#x79;&#46;&#x63;&#x6f;&#109;">&#97;&#x64;&#109;&#105;&#110;&#x40;&#109;&#x79;&#x63;&#x6f;&#109;&#x70;&#x61;&#110;&#x79;&#46;&#x63;&#x6f;&#109;</a>  电子邮箱随便填<br>Please enter the following ‘extra’ attributes<br>to be sent with your certificate request<br>A challenge password []:  可以不输入<br>An optional company name []:   可以不输入</p>
+<p>Enter pass phrase for root.key: 输入前面创建的密码<br>Country Name (2 letter code) [AU]:CN   国家代号，中国输入CN<br>State or Province Name (full name) [Some-State]:BeiJing   省的全名，拼音<br>Locality Name (eg, city) []:BeiJing  市的全名，拼音<br>Organization Name (eg, company) [Internet Widgits Pty Ltd]:Yvioo  公司英文名(可以随便输入)<br>Organizational Unit Name (eg, section) []:  单位名 可以不输入<br>Common Name (eg, YOUR name) []: 输入你的名子或域名 必填<br>Email Address []:<a href="mailto:&#97;&#100;&#x6d;&#105;&#110;&#x40;&#x6d;&#x79;&#99;&#111;&#x6d;&#112;&#x61;&#110;&#121;&#x2e;&#99;&#x6f;&#x6d;">&#97;&#100;&#x6d;&#105;&#110;&#x40;&#x6d;&#x79;&#99;&#111;&#x6d;&#112;&#x61;&#110;&#121;&#x2e;&#99;&#x6f;&#x6d;</a>  电子邮箱随便填<br>Please enter the following ‘extra’ attributes<br>to be sent with your certificate request<br>A challenge password []:  可以不输入<br>An optional company name []:   可以不输入</p>
 <h4 id="生成证书文件www-code404-icu-crt"><a href="#生成证书文件www-code404-icu-crt" class="headerlink" title="生成证书文件www.code404.icu.crt"></a>生成证书文件<a href="http://www.code404.icu.crt/">www.code404.icu.crt</a></h4><hr>
 <p>openssl x509 -req -days 365 -in <a href="http://www.code404.icu.csr/">www.code404.icu.csr</a> -signkey <a href="http://www.code404.icu.key/">www.code404.icu.key</a> -out <a href="http://www.code404.icu.crt/">www.code404.icu.crt</a></p>
 <h3 id="配置Nginx的证书"><a href="#配置Nginx的证书" class="headerlink" title="配置Nginx的证书"></a>配置Nginx的证书</h3><hr>
@@ -7783,7 +7783,7 @@ public void test() &#123;
     <url>/2021/06/30/oracal%E5%AE%98%E7%BD%91%E8%B4%A6%E5%8F%B7%E5%85%B1%E4%BA%AB/</url>
     <content><![CDATA[<p><strong>目前在官网下载 jdk以及其他oracle公司的产品的时候需要登陆，这边分享一个账号，方便下载</strong></p>
 <hr>
-<h3 id="Username-x74-x74-x61-x75-x65-114-x6e-64-116-114-x61-115-x68-x2d-109-97-105-x6c-x2e-x63-x6f-x6d"><a href="#Username-x74-x74-x61-x75-x65-114-x6e-64-116-114-x61-115-x68-x2d-109-97-105-x6c-x2e-x63-x6f-x6d" class="headerlink" title="Username: &#x74;&#x74;&#x61;&#x75;&#x65;&#114;&#x6e;&#64;&#116;&#114;&#x61;&#115;&#x68;&#x2d;&#109;&#97;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;"></a><strong>Username</strong>: <a href="mailto:&#x74;&#x74;&#x61;&#x75;&#x65;&#114;&#x6e;&#64;&#116;&#114;&#x61;&#115;&#x68;&#x2d;&#109;&#97;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;">&#x74;&#x74;&#x61;&#x75;&#x65;&#114;&#x6e;&#64;&#116;&#114;&#x61;&#115;&#x68;&#x2d;&#109;&#97;&#105;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;</a></h3><h3 id="Password-nhXpiFpk3KztJ43"><a href="#Password-nhXpiFpk3KztJ43" class="headerlink" title="Password: nhXpiFpk3KztJ43"></a><strong>Password</strong>: nhXpiFpk3KztJ43</h3><p><em>挥一挥衣袖，提供一份方便</em></p>
+<h3 id="Username-x74-116-x61-117-101-x72-x6e-x40-116-x72-x61-x73-x68-x2d-x6d-x61-x69-x6c-x2e-x63-x6f-x6d"><a href="#Username-x74-116-x61-117-101-x72-x6e-x40-116-x72-x61-x73-x68-x2d-x6d-x61-x69-x6c-x2e-x63-x6f-x6d" class="headerlink" title="Username: &#x74;&#116;&#x61;&#117;&#101;&#x72;&#x6e;&#x40;&#116;&#x72;&#x61;&#x73;&#x68;&#x2d;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;"></a><strong>Username</strong>: <a href="mailto:&#x74;&#116;&#x61;&#117;&#101;&#x72;&#x6e;&#x40;&#116;&#x72;&#x61;&#x73;&#x68;&#x2d;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;">&#x74;&#116;&#x61;&#117;&#101;&#x72;&#x6e;&#x40;&#116;&#x72;&#x61;&#x73;&#x68;&#x2d;&#x6d;&#x61;&#x69;&#x6c;&#x2e;&#x63;&#x6f;&#x6d;</a></h3><h3 id="Password-nhXpiFpk3KztJ43"><a href="#Password-nhXpiFpk3KztJ43" class="headerlink" title="Password: nhXpiFpk3KztJ43"></a><strong>Password</strong>: nhXpiFpk3KztJ43</h3><p><em>挥一挥衣袖，提供一份方便</em></p>
 <p><strong>如果无法访问请告知我更新blog</strong></p>
 ]]></content>
       <categories>
@@ -8361,7 +8361,7 @@ public void test() &#123;
 <h3 id="生成二维码"><a href="#生成二维码" class="headerlink" title="生成二维码"></a>生成二维码</h3><hr>
 <p>使用 python 模块 qrcode</p>
 <p>pip install qrcode</p>
-<p>url&#x3D;pyotp.totp.TOTP(secretKey).provisioning_uri(“<a href="mailto:&#x6c;&#105;&#x68;&#x65;&#64;&#99;&#111;&#100;&#101;&#52;&#48;&#52;&#x2e;&#x69;&#99;&#117;">&#x6c;&#105;&#x68;&#x65;&#64;&#99;&#111;&#100;&#101;&#52;&#48;&#52;&#x2e;&#x69;&#99;&#117;</a>“,issuer_name&#x3D;’码404’)<br>img&#x3D;qrcode.make(url)<br>print(url)<br>with open(‘code404_qrcode.png’,’wb’) as f:<br>    img.save(f)</p>
+<p>url&#x3D;pyotp.totp.TOTP(secretKey).provisioning_uri(“<a href="mailto:&#108;&#105;&#104;&#101;&#64;&#x63;&#111;&#x64;&#x65;&#x34;&#x30;&#x34;&#x2e;&#x69;&#99;&#117;">&#108;&#105;&#104;&#101;&#64;&#x63;&#111;&#x64;&#x65;&#x34;&#x30;&#x34;&#x2e;&#x69;&#99;&#117;</a>“,issuer_name&#x3D;’码404’)<br>img&#x3D;qrcode.make(url)<br>print(url)<br>with open(‘code404_qrcode.png’,’wb’) as f:<br>    img.save(f)</p>
 <p>绑定手机APP Google身份验证器<br>使用APP扫 刚才生成的二维码<br><img src="https://img-blog.csdnimg.cn/60dd5fb1030f4ee28925cd09eaae461c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
 <h3 id="验证口令"><a href="#验证口令" class="headerlink" title="验证口令"></a>验证口令</h3><hr>
 <p>import base64<br>import pyotp<br>string&#x3D;’<a href="http://www.code404&/#39;">www.code404&#39;</a><br>secretKey&#x3D;base64.b32encode(string.encode(encoding&#x3D;’utf-8’))<br>print(secretKey)<br>totp&#x3D;pyotp.TOTP(secretKey)<br>print(totp.verify(276269))<br>True</p>
@@ -8475,7 +8475,7 @@ public void test() &#123;
 <p>来举个例子</p>
 <p># 在全局环境中未安装 requests<br>[root@localhost ~]# pip list  grep requests<br>[root@localhost ~]# su - wangbm<br>[root@localhost ~]# </p>
 <h1 id="由于用户环境继承自全局环境，这里也未安装"><a href="#由于用户环境继承自全局环境，这里也未安装" class="headerlink" title="由于用户环境继承自全局环境，这里也未安装"></a>由于用户环境继承自全局环境，这里也未安装</h1><p>[wangbm@localhost ~]# pip list  grep requests<br>[wangbm@localhost ~]# pip install –user requests<br>[wangbm@localhost ~]# pip list  grep requests<br>requests (2.22.0)<br>[wangbm@localhost ~]# </p>
-<h1 id="从-Location-属性可发现-requests-只安装在当前用户环境中"><a href="#从-Location-属性可发现-requests-只安装在当前用户环境中" class="headerlink" title="从 Location 属性可发现 requests 只安装在当前用户环境中"></a>从 Location 属性可发现 requests 只安装在当前用户环境中</h1><h2 id="wangbm-ws-compute01-pip-show-requests"><a href="#wangbm-ws-compute01-pip-show-requests" class="headerlink" title="[wangbm@ws_compute01 ~]$ pip show requests"></a>[wangbm@ws_compute01 ~]$ pip show requests</h2><p>Metadata-Version: 2.1<br>Name: requests<br>Version: 2.22.0<br>Summary: Python HTTP for Humans.<br>Home-page: <a href="http://python-requests.org/">http://python-requests.org</a><br>Author: Kenneth Reitz<br>Author-email: <a href="mailto:&#x6d;&#101;&#x40;&#x6b;&#101;&#x6e;&#x6e;&#x65;&#116;&#104;&#114;&#101;&#x69;&#x74;&#122;&#46;&#x6f;&#114;&#103;">&#x6d;&#101;&#x40;&#x6b;&#101;&#x6e;&#x6e;&#x65;&#116;&#104;&#114;&#101;&#x69;&#x74;&#122;&#46;&#x6f;&#114;&#103;</a><br>Installer: pip<br>License: Apache 2.0<br>Location: &#x2F;home&#x2F;wangbm&#x2F;.local&#x2F;lib&#x2F;python2.7&#x2F;site-packages<br>[wangbm@localhost ~]$ exit<br>logout</p>
+<h1 id="从-Location-属性可发现-requests-只安装在当前用户环境中"><a href="#从-Location-属性可发现-requests-只安装在当前用户环境中" class="headerlink" title="从 Location 属性可发现 requests 只安装在当前用户环境中"></a>从 Location 属性可发现 requests 只安装在当前用户环境中</h1><h2 id="wangbm-ws-compute01-pip-show-requests"><a href="#wangbm-ws-compute01-pip-show-requests" class="headerlink" title="[wangbm@ws_compute01 ~]$ pip show requests"></a>[wangbm@ws_compute01 ~]$ pip show requests</h2><p>Metadata-Version: 2.1<br>Name: requests<br>Version: 2.22.0<br>Summary: Python HTTP for Humans.<br>Home-page: <a href="http://python-requests.org/">http://python-requests.org</a><br>Author: Kenneth Reitz<br>Author-email: <a href="mailto:&#109;&#101;&#x40;&#107;&#101;&#x6e;&#110;&#x65;&#x74;&#104;&#x72;&#x65;&#x69;&#116;&#122;&#46;&#x6f;&#x72;&#x67;">&#109;&#101;&#x40;&#107;&#101;&#x6e;&#110;&#x65;&#x74;&#104;&#x72;&#x65;&#x69;&#116;&#122;&#46;&#x6f;&#x72;&#x67;</a><br>Installer: pip<br>License: Apache 2.0<br>Location: &#x2F;home&#x2F;wangbm&#x2F;.local&#x2F;lib&#x2F;python2.7&#x2F;site-packages<br>[wangbm@localhost ~]$ exit<br>logout</p>
 <h1 id="退出-wangbm-用户，在-root-用户环境中发现-requests-未安装"><a href="#退出-wangbm-用户，在-root-用户环境中发现-requests-未安装" class="headerlink" title="退出 wangbm 用户，在 root 用户环境中发现 requests 未安装"></a>退出 wangbm 用户，在 root 用户环境中发现 requests 未安装</h1><p>[root@localhost ~]$ pip list  grep requests<br>[root@localhost ~]$ </p>
 <p>当你身处个人用户环境中，python 导包时会先检索当前用户环境中是否已安装这个包，已安装则优先使用，未安装则使用全局环境中的包。</p>
 <p>验证如下：</p>
@@ -8625,173 +8625,6 @@ public void test() &#123;
         <tag>.exe</tag>
         <tag>Pyinstaller</tag>
         <tag>可执行文件</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Python 如何字符串格式化使用_format格式化_详解码404</title>
-    <url>/2021/08/15/python-%E5%A6%82%E4%BD%95%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%BD%BF%E7%94%A8-format%E6%A0%BC%E5%BC%8F%E5%8C%96-%E8%AF%A6%E8%A7%A3%E7%A0%81404/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/08/image-12-1024x640.png"></p>
-<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><hr>
-<p>本文中介绍的字符串一个非常重要的知识点：字符串格式化输出。<br>格式化怎么理解？简答来说：就是让字符串按照我们设定的格式来输出，达到我们想要的结果。主要是有4种方式：</p>
-<ul>
-<li>%：基于占位符的格式化</li>
-<li>format()函数的格式化：重点掌握</li>
-<li>f-string格式化：重点掌握</li>
-<li>字符串模板函数</li>
-</ul>
-<h4 id="format格式化"><a href="#format格式化" class="headerlink" title="format格式化"></a>format格式化</h4><hr>
-<p>从python2.6+开始，新增了一种格式化字符串的函数str.format，可以说极大地增强了字符串格式化的功能，基本语法是通过{}和:来代替占位符%</p>
-<ul>
-<li>接收多个不限制的参数</li>
-<li>位置可以不按照顺序</li>
-</ul>
-<h4 id="语法形式"><a href="#语法形式" class="headerlink" title="语法形式"></a>语法形式</h4><hr>
-<p><code>&#123;&lt;参数序号&gt;:&lt;格式控制标记&gt;&#125;</code>，中间有一个冒号，不能省略！！！</p>
-<p>name &#x3D; “Yule Cottage”  # 字符串类型<br>age &#x3D; 25  # 整数类型<br>height &#x3D; 1.76   # 浮点数类型<br>sex &#x3D; “男”</p>
-<h3 id="多个参数连用"><a href="#多个参数连用" class="headerlink" title="多个参数连用"></a>多个参数连用</h3><hr>
-<p># 1、不设置位置<br>print(“名字是：{}，年龄是：{}，身高是：{}，性别：{}”.format(name,age,height,sex))<br>名字是：Yule Cottage，年龄是：25，身高是：1.76，性别：男</p>
-<h1 id="2、设置位置参数"><a href="#2、设置位置参数" class="headerlink" title="2、设置位置参数"></a>2、设置位置参数</h1><p>print(“名字是：{0}，年龄是：{1}，身高是：{2}，性别：{3}”.format(name,age,height,sex))<br>名字是：Yule Cottage，年龄是：25，身高是：1.76，性别：男</p>
-<h1 id="设置位置参数"><a href="#设置位置参数" class="headerlink" title="设置位置参数"></a>设置位置参数</h1><h1 id="索引从0开始；2号位对应的height"><a href="#索引从0开始；2号位对应的height" class="headerlink" title="索引从0开始；2号位对应的height"></a>索引从0开始；2号位对应的height</h1><p>print(“名字是：{0}，身高是：{2}，年龄是：{1}，性别：{3}”.format(name,age,height,sex))<br>名字是：Yule Cottage，身高是：1.76，年龄是：25，性别：男<br>print(“性别：{3}，身高是：{2}，名字是：{0}，年龄是：{1}”.format(name,age,height,sex))<br>性别：男，身高是：1.76，名字是：Yule Cottage，年龄是：25</p>
-<h1 id="3、元组形式"><a href="#3、元组形式" class="headerlink" title="3、元组形式"></a>3、元组形式</h1><h1 id="使用-进行解析"><a href="#使用-进行解析" class="headerlink" title="使用*进行解析"></a>使用*进行解析</h1><p>information &#x3D; (“Peter”,25)</p>
-<p>print(“姓名是：{}，年龄是：{}”.format(*information))<br>姓名是：Peter，年龄是：25</p>
-<h1 id="4、字典形式"><a href="#4、字典形式" class="headerlink" title="4、字典形式"></a>4、字典形式</h1><h1 id="参数为字典时候，通过-进行解析配对"><a href="#参数为字典时候，通过-进行解析配对" class="headerlink" title="参数为字典时候，通过**进行解析配对"></a>参数为字典时候，通过**进行解析配对</h1><p>print(“名字是：{name}，年龄是：{age}，身高是：{height}，性别：{sex}”.format(**{“name”:name,”age”:age,”height”:height,”sex”:sex}))<br>名字是：Yule Cottage，年龄是：25，身高是：1.76，性别：男</p>
-<h1 id="5、直接变量赋值"><a href="#5、直接变量赋值" class="headerlink" title="5、直接变量赋值"></a>5、直接变量赋值</h1><p>print(“名字是：{name}，年龄是：{age}，身高是：{height}，性别：{sex}”.format(name&#x3D;”Yule Cottage”,age&#x3D;”2岁”,height&#x3D;”1.75m”,sex&#x3D;”男”))<br>名字是：Yule Cottage，年龄是：2岁，身高是：1.75m，性别：男</p>
-<h3 id="对齐"><a href="#对齐" class="headerlink" title="对齐"></a>对齐</h3><hr>
-<p>宽度为20，我们实现居中、靠左、靠右对齐</p>
-<p>name<br>‘Yule Cottage’<br>print(“{:^20s}”.format(name))  # 居中<br>print(“{:&gt;20s}”.format(name))  # 靠右<br>print(“{:&lt;20s}”.format(name))  # 靠左<br>    Yule Cottage<br>        Yule Cottage<br>Yule Cottage</p>
-<h3 id="数值多种形式"><a href="#数值多种形式" class="headerlink" title="数值多种形式"></a>数值多种形式</h3><hr>
-<p>首先我们还是看看对齐问题，浮点数的对齐只保留6位小数：</p>
-<p>pi &#x3D; 3.1415926</p>
-<p>print(“{:^20f}”.format(pi))  # 居中  # 默认只保留6位小数<br>print(“{:&gt;20f}”.format(pi))  # 靠右<br>print(“{:&lt;20f}”.format(pi))  # 靠左<br>      3.141593<br>            3.141593<br>3.141593</p>
-<p>看看不同情况下的输出格式，浮点数需要带上小数点，默认全部是左对齐：</p>
-<p># 不同的输出方式</p>
-<p>print(“{}”.format(pi))  # 原数据<br>print(“{:.2f}”.format(pi))   # 2位小数<br>print(“{:&gt;.10f}”.format(pi))  # 位数不足，右侧补0<br>print(“{:.4%}”.format(pi))  # 百分比输出<br>print(“{:.2e}”.format(pi))<br>3.1415926<br>3.14<br>3.1415926000<br>314.1593%<br>3.14e+00</p>
-<h3 id="填充"><a href="#填充" class="headerlink" title="填充"></a>填充</h3><hr>
-<p>sex<br>‘男’<br>print(“{0:30}”.format(sex))  # 字符串默认左对齐<br>print(“{:&gt;30}”.format(sex))  # 改成右对齐<br>print(“{0:30}”.format(age))  # 数值类型默认右对齐<br>print(“{:&lt;30}”.format(height)) # 改成左对齐<br>男<br>                             男<br>                            25<br>1.76</p>
-<h1 id="指定填充的字符"><a href="#指定填充的字符" class="headerlink" title="指定填充的字符"></a>指定填充的字符</h1><p>print(“{:*&gt;30}”.format(sex))  # *<br>print(“{:+&gt;30}”.format(sex))  # +<br>print(“{:+^30}”.format(sex))  # 居中后填充+<br>print(“{:+&lt;30}”.format(height)) # +<br>*****************************男<br>+++++++++++++++++++++++++++++男<br>++++++++++++++男+++++++++++++++<br>1.76++++++++++++++++++++++++++</p>
-<h3 id="千位分隔符"><a href="#千位分隔符" class="headerlink" title="千位分隔符"></a>千位分隔符</h3><hr>
-<p>主要是用来显示数字的千位分隔符，在货币金额中使用的比较多：</p>
-<p>b &#x3D; 1003005000600</p>
-<p>print(“{:-^20}”.format(b))   # 不用逗号<br>print(“{:-^20,}”.format(b))  # 用逗号<br>—1003005000600—-<br>-1,003,005,000,600–</p>
-<h1 id="小数的千位分隔符显示"><a href="#小数的千位分隔符显示" class="headerlink" title="小数的千位分隔符显示"></a>小数的千位分隔符显示</h1><p>print(“{0:-20,}”.format(12567.98760))  # 不填充<br>print(“{0:-^20,}”.format(12567.98760))  # 居中+填充<br>print(“{0:-&gt;20,}”.format(12567.98760))  # 右对齐+填充<br>print(“{0:-&lt;20,}”.format(12567.98760))  # 左对齐+填充<br>         12,567.9876<br>—-12,567.9876—–<br>———12,567.9876<br>12,567.9876———</p>
-<h3 id="精度"><a href="#精度" class="headerlink" title="精度"></a>精度</h3><hr>
-<p>精度输出的时候前面必须有一个小数点开头，具有两层含义：</p>
-<ul>
-<li>浮点数：表示输出小数位的有效位数</li>
-<li>字符串：精度表示输出的最大长度</li>
-</ul>
-<p>pi<br>3.1415926<br>“{:.3f}”.format(pi)<br>‘3.142’<br>“{:30.5f}”.format(pi)  # 小数点后5位，整体宽度30<br>‘                       3.14159’<br>“{:*^30.5f}”.format(pi)  # 小数点后5位，宽度30,居中后补充*<br>‘***********3.14159************‘<br>name<br>‘Yule Cottage’<br>“{:.4}”.format(name)  # 最大长度为4<br>‘Yule’<br>“{:.6}”.format(name)  # 输出最大长度为6<br>‘Yule C’</p>
-<h3 id="多种输出类型"><a href="#多种输出类型" class="headerlink" title="多种输出类型"></a>多种输出类型</h3><hr>
-<p>表示输出整数和浮点数类型的格式规则。对于整数类型，输出格式包括6 种：</p>
-<ul>
-<li>c: 输出整数对应的 Unicode 字符；</li>
-<li>b: 输出整数的二进制方式；</li>
-<li>o: 输出整数的八进制方式；</li>
-<li>d: 输出整数的十进制方式；</li>
-<li>x: 输出整数的小写十六进制方式；</li>
-<li>X: 输出整数的大写十六进制方式；</li>
-</ul>
-<p>下面的例子表示的是365的二进制、Unicode字符、十进制、小写16进制和大写的16进制的不同输出格式：</p>
-<p>“{0:b},{0:c},{0:d},{0:o},{0:x},{0:X}”.format(365)<br>‘101101101,ŭ,365,555,16d,16D’</p>
-<p>如果是浮点数类型，那么输出格式包括4种：</p>
-<ul>
-<li>e: 输出浮点数对应的小写字母 e 的指数形式；</li>
-<li>E: 输出浮点数对应的大写字母 E 的指数形式；</li>
-<li>f: 输出浮点数的标准浮点形式；</li>
-<li>%: 输出浮点数的百分形式。</li>
-</ul>
-<blockquote>
-<p>浮点数输出时尽量使用&lt;.精度&gt;表示小数部分的宽度，有助于更好控制输出格式。</p>
-</blockquote>
-<p>“{0:e},{0:E}”.format(3.1415)<br>‘3.141500e+00,3.141500E+00’<br>“{0:f},{0:F}”.format(3.1415)<br>‘3.141500,3.141500’<br>“{0:%}”.format(3.1415)  # 保留6位小数，百分比输出<br>‘314.150000%’<br>“{0:.2%}”.format(3.1415)  # 2位小数，百分比输出<br>‘314.15%’</p>
-]]></content>
-      <categories>
-        <category>Python</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>format格式化</tag>
-        <tag>字符串格式化</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Python 如何字符串格式化使用_占位符%_详解码404</title>
-    <url>/2021/08/14/python-%E5%A6%82%E4%BD%95%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%BD%BF%E7%94%A8-%E5%8D%A0%E4%BD%8D%E7%AC%A6-%E8%AF%A6%E8%A7%A3%E7%A0%81404/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/08/image-12-1024x640.png"></p>
-<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><hr>
-<p>本文中介绍的字符串一个非常重要的知识点：字符串格式化输出。<br>格式化怎么理解？简答来说：就是让字符串按照我们设定的格式来输出，达到我们想要的结果。主要是有4种方式：</p>
-<ul>
-<li>%：基于占位符的格式化</li>
-<li>format()函数的格式化：重点掌握</li>
-<li>f-string格式化：重点掌握</li>
-<li>字符串模板函数</li>
-</ul>
-<h4 id="占位符"><a href="#占位符" class="headerlink" title="占位符%"></a>占位符%</h4><h3 id="常见格式符"><a href="#常见格式符" class="headerlink" title="常见格式符"></a>常见格式符</h3><hr>
-<p>格式化符号其实是为真实的值预留出一个空位，而且还可以控制显示的格式。格式符包含一个类型码，用来显示不同的数据类型，比如字符串、二进制、指数等。常见的不同的占位符如下：</p>
-<ul>
-<li>%s： 字符串 (采用str()的显示)，常用</li>
-<li>%r： 字符串 (采用repr()的显示)</li>
-<li>%c： 单个字符，格式化字符及其ASCII码</li>
-<li>%b： 二进制整数</li>
-<li>%u： 格式化无符号整数，常用</li>
-<li>%d： 格式化十进制整数，常用</li>
-<li>%i： 十进制整数</li>
-<li>%o： 八进制整数</li>
-<li>%x： 十六进制整数</li>
-<li>%g： 指数(e)或浮点数%f (根据显示长度)</li>
-<li>%G： 指数(E)或浮点数%F (根据显示长度)</li>
-<li>%e： 指数 (基底写为e)，用科学计数法格式化浮点数</li>
-<li>%E： 指数 (基底写为E)，用法同%e</li>
-<li>%f： 浮点数，格式化浮点数字，可以指定小数点后面的精度，常用</li>
-<li>%F： 浮点数，与%f相同</li>
-<li>%%： 字符“%”，用来显示百分号%</li>
-</ul>
-<h3 id="对齐问题"><a href="#对齐问题" class="headerlink" title="对齐问题"></a>对齐问题</h3><hr>
-<p>关于对齐问题：</p>
-<p>1. ^：居中对齐<br>2. &gt;：右对齐<br>3. &lt;：左对齐<br>4. +、-：显示正负号</p>
-<h3 id="语法形式"><a href="#语法形式" class="headerlink" title="语法形式"></a>语法形式</h3><hr>
-<p>常用的语法形式为：<code>%[(name)][flags][width].[precision] typecode</code></p>
-<ul>
-<li>(name)：参数的名称，可以省略；如果使用必须加上()</li>
-<li>flags：对齐标志位；可以是+、-、“”、0；+右对齐，-左对齐，””填充一个空格；0表示左侧使用0填充</li>
-<li>width：显示的宽度</li>
-<li>precision：小数点后的精度</li>
-</ul>
-<h3 id="多种类型连用"><a href="#多种类型连用" class="headerlink" title="多种类型连用"></a>多种类型连用</h3><hr>
-<p>print(“%9.3f” % 2.3)<br>2.300  #  前面4个空格</p>
-<ul>
-<li>第一个 % 后面的内容为显示的格式说明，9 为显示宽度，3 为小数点位数，f 表示输出为浮点数类型</li>
-<li>第二个 % 后面为显示的内容来源，输出结果默认为右对齐，2.300 长度为 5，故前面有4个空格</li>
-</ul>
-<p>print(“%+9.3f” % 2.3)  # 带上+符号输出，9表示宽度，3表示小数位<br>   +2.300<br>print(“%-9.3f” % 2.3)  # -表示左对齐输出<br>2.300<br>print(“%-9.3f” % -2.3)<br>-2.300</p>
-<h1 id="我们显示声明3个变量"><a href="#我们显示声明3个变量" class="headerlink" title="我们显示声明3个变量"></a>我们显示声明3个变量</h1><p>name &#x3D; “Yule Cottage”  # 字符串类型<br>age &#x3D; 25  # 整数类型<br>height &#x3D; 1.76   # 浮点数类型</p>
-<h1 id="1、浮点数默认是6位小数"><a href="#1、浮点数默认是6位小数" class="headerlink" title="1、浮点数默认是6位小数"></a>1、浮点数默认是6位小数</h1><h1 id="2、-f和-F相同"><a href="#2、-f和-F相同" class="headerlink" title="2、%f和%F相同"></a>2、%f和%F相同</h1><p>print(“我是：%s，年龄: %d，身高是：%f” % (name,age,height))<br>我是：Yule Cottage，年龄: 25，身高是：1.760000</p>
-<h1 id="指定浮点数的小数位"><a href="#指定浮点数的小数位" class="headerlink" title="指定浮点数的小数位"></a>指定浮点数的小数位</h1><p>print(“我是：%s，年龄: %d，身高是：%.3f” % (name,age,height))<br>我是：Yule Cottage，年龄: 25，身高是：1.760</p>
-<p>下面的代码是通过字典对的形式来传入不同的数据类型，字典（后面会介绍python的字典）的值就是待格式的内容。</p>
-<blockquote>
-<p>需要注意的是name、age、height必须写在%号的后面</p>
-</blockquote>
-<p>print(“我是：%(name)s，年龄: %(age)d，身高是：%(height).3f” % {“name”:name,”age”:age,”height”:height})<br>我是：Yule Cottage，年龄: 25，身高是：1.760</p>
-<h3 id="输出不同进制"><a href="#输出不同进制" class="headerlink" title="输出不同进制"></a>输出不同进制</h3><hr>
-<p>print(“八进制：%o，十进制：%i，十六进制：%x” %(age,age,age))<br>八进制：31，十进制：25，十六进制：19</p>
-<h1 id="print-“二进制：-b”-age-二进制不能使用"><a href="#print-“二进制：-b”-age-二进制不能使用" class="headerlink" title="print(“二进制：%b” %(age))   # 二进制不能使用"></a>print(“二进制：%b” %(age))   # 二进制不能使用</h1><p>bin(age)  # 通过bin函数查看<br>‘0b11001’</p>
-<h3 id="输出的宽度、精度等设置"><a href="#输出的宽度、精度等设置" class="headerlink" title="输出的宽度、精度等设置"></a>输出的宽度、精度等设置</h3><hr>
-<p>number &#x3D; 1.23456789</p>
-<h1 id="宽度为10，保留小数点后4位，默认是右对齐"><a href="#宽度为10，保留小数点后4位，默认是右对齐" class="headerlink" title="宽度为10，保留小数点后4位，默认是右对齐"></a>宽度为10，保留小数点后4位，默认是右对齐</h1><p>print(“%10.4f” % number)<br>    1.2346<br>print(“%-10.4f” % number)  # -符号表示左对齐，显示4位小数<br>1.2346</p>
-<h1 id="右对齐，保留10位小数，不足的用0补齐"><a href="#右对齐，保留10位小数，不足的用0补齐" class="headerlink" title="右对齐，保留10位小数，不足的用0补齐"></a>右对齐，保留10位小数，不足的用0补齐</h1><p>print(“%10.10f” % number)<br>1.2345678900<br>print(“%-10.8f” % number)  # 左对齐，保留8位小数<br>1.23456789</p>
-<h1 id="左对齐，保留7位小数，会自动地进行四舍五入"><a href="#左对齐，保留7位小数，会自动地进行四舍五入" class="headerlink" title="左对齐，保留7位小数，会自动地进行四舍五入"></a>左对齐，保留7位小数，会自动地进行四舍五入</h1><p>print(“%-10.7f” % number)<br>1.2345679</p>
-<p>下面是针对字符串的宽度等输出设置：</p>
-<p>name<br>‘Yule Cottage’<br>print(“%.10s” % name) # 9个字母+一个空格：左对齐<br>Yule Cotta<br>print(“%.15s” % name) # 如果位数不够，直接全部输出<br>Yule Cottage<br>print(“%10.6s” % name) # 右对齐，取出6个字符<br>    Yule C</p>
-<p>解释：总长度为10，前面4个空格，加上4+一个空格+C</p>
-]]></content>
-      <categories>
-        <category>Python</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>占位符</tag>
-        <tag>字符串</tag>
-        <tag>格式化</tag>
       </tags>
   </entry>
   <entry>
@@ -9108,6 +8941,173 @@ except Exception as e:
       </tags>
   </entry>
   <entry>
+    <title>Python 如何字符串格式化使用_占位符%_详解码404</title>
+    <url>/2021/08/14/python-%E5%A6%82%E4%BD%95%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%BD%BF%E7%94%A8-%E5%8D%A0%E4%BD%8D%E7%AC%A6-%E8%AF%A6%E8%A7%A3%E7%A0%81404/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/08/image-12-1024x640.png"></p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><hr>
+<p>本文中介绍的字符串一个非常重要的知识点：字符串格式化输出。<br>格式化怎么理解？简答来说：就是让字符串按照我们设定的格式来输出，达到我们想要的结果。主要是有4种方式：</p>
+<ul>
+<li>%：基于占位符的格式化</li>
+<li>format()函数的格式化：重点掌握</li>
+<li>f-string格式化：重点掌握</li>
+<li>字符串模板函数</li>
+</ul>
+<h4 id="占位符"><a href="#占位符" class="headerlink" title="占位符%"></a>占位符%</h4><h3 id="常见格式符"><a href="#常见格式符" class="headerlink" title="常见格式符"></a>常见格式符</h3><hr>
+<p>格式化符号其实是为真实的值预留出一个空位，而且还可以控制显示的格式。格式符包含一个类型码，用来显示不同的数据类型，比如字符串、二进制、指数等。常见的不同的占位符如下：</p>
+<ul>
+<li>%s： 字符串 (采用str()的显示)，常用</li>
+<li>%r： 字符串 (采用repr()的显示)</li>
+<li>%c： 单个字符，格式化字符及其ASCII码</li>
+<li>%b： 二进制整数</li>
+<li>%u： 格式化无符号整数，常用</li>
+<li>%d： 格式化十进制整数，常用</li>
+<li>%i： 十进制整数</li>
+<li>%o： 八进制整数</li>
+<li>%x： 十六进制整数</li>
+<li>%g： 指数(e)或浮点数%f (根据显示长度)</li>
+<li>%G： 指数(E)或浮点数%F (根据显示长度)</li>
+<li>%e： 指数 (基底写为e)，用科学计数法格式化浮点数</li>
+<li>%E： 指数 (基底写为E)，用法同%e</li>
+<li>%f： 浮点数，格式化浮点数字，可以指定小数点后面的精度，常用</li>
+<li>%F： 浮点数，与%f相同</li>
+<li>%%： 字符“%”，用来显示百分号%</li>
+</ul>
+<h3 id="对齐问题"><a href="#对齐问题" class="headerlink" title="对齐问题"></a>对齐问题</h3><hr>
+<p>关于对齐问题：</p>
+<p>1. ^：居中对齐<br>2. &gt;：右对齐<br>3. &lt;：左对齐<br>4. +、-：显示正负号</p>
+<h3 id="语法形式"><a href="#语法形式" class="headerlink" title="语法形式"></a>语法形式</h3><hr>
+<p>常用的语法形式为：<code>%[(name)][flags][width].[precision] typecode</code></p>
+<ul>
+<li>(name)：参数的名称，可以省略；如果使用必须加上()</li>
+<li>flags：对齐标志位；可以是+、-、“”、0；+右对齐，-左对齐，””填充一个空格；0表示左侧使用0填充</li>
+<li>width：显示的宽度</li>
+<li>precision：小数点后的精度</li>
+</ul>
+<h3 id="多种类型连用"><a href="#多种类型连用" class="headerlink" title="多种类型连用"></a>多种类型连用</h3><hr>
+<p>print(“%9.3f” % 2.3)<br>2.300  #  前面4个空格</p>
+<ul>
+<li>第一个 % 后面的内容为显示的格式说明，9 为显示宽度，3 为小数点位数，f 表示输出为浮点数类型</li>
+<li>第二个 % 后面为显示的内容来源，输出结果默认为右对齐，2.300 长度为 5，故前面有4个空格</li>
+</ul>
+<p>print(“%+9.3f” % 2.3)  # 带上+符号输出，9表示宽度，3表示小数位<br>   +2.300<br>print(“%-9.3f” % 2.3)  # -表示左对齐输出<br>2.300<br>print(“%-9.3f” % -2.3)<br>-2.300</p>
+<h1 id="我们显示声明3个变量"><a href="#我们显示声明3个变量" class="headerlink" title="我们显示声明3个变量"></a>我们显示声明3个变量</h1><p>name &#x3D; “Yule Cottage”  # 字符串类型<br>age &#x3D; 25  # 整数类型<br>height &#x3D; 1.76   # 浮点数类型</p>
+<h1 id="1、浮点数默认是6位小数"><a href="#1、浮点数默认是6位小数" class="headerlink" title="1、浮点数默认是6位小数"></a>1、浮点数默认是6位小数</h1><h1 id="2、-f和-F相同"><a href="#2、-f和-F相同" class="headerlink" title="2、%f和%F相同"></a>2、%f和%F相同</h1><p>print(“我是：%s，年龄: %d，身高是：%f” % (name,age,height))<br>我是：Yule Cottage，年龄: 25，身高是：1.760000</p>
+<h1 id="指定浮点数的小数位"><a href="#指定浮点数的小数位" class="headerlink" title="指定浮点数的小数位"></a>指定浮点数的小数位</h1><p>print(“我是：%s，年龄: %d，身高是：%.3f” % (name,age,height))<br>我是：Yule Cottage，年龄: 25，身高是：1.760</p>
+<p>下面的代码是通过字典对的形式来传入不同的数据类型，字典（后面会介绍python的字典）的值就是待格式的内容。</p>
+<blockquote>
+<p>需要注意的是name、age、height必须写在%号的后面</p>
+</blockquote>
+<p>print(“我是：%(name)s，年龄: %(age)d，身高是：%(height).3f” % {“name”:name,”age”:age,”height”:height})<br>我是：Yule Cottage，年龄: 25，身高是：1.760</p>
+<h3 id="输出不同进制"><a href="#输出不同进制" class="headerlink" title="输出不同进制"></a>输出不同进制</h3><hr>
+<p>print(“八进制：%o，十进制：%i，十六进制：%x” %(age,age,age))<br>八进制：31，十进制：25，十六进制：19</p>
+<h1 id="print-“二进制：-b”-age-二进制不能使用"><a href="#print-“二进制：-b”-age-二进制不能使用" class="headerlink" title="print(“二进制：%b” %(age))   # 二进制不能使用"></a>print(“二进制：%b” %(age))   # 二进制不能使用</h1><p>bin(age)  # 通过bin函数查看<br>‘0b11001’</p>
+<h3 id="输出的宽度、精度等设置"><a href="#输出的宽度、精度等设置" class="headerlink" title="输出的宽度、精度等设置"></a>输出的宽度、精度等设置</h3><hr>
+<p>number &#x3D; 1.23456789</p>
+<h1 id="宽度为10，保留小数点后4位，默认是右对齐"><a href="#宽度为10，保留小数点后4位，默认是右对齐" class="headerlink" title="宽度为10，保留小数点后4位，默认是右对齐"></a>宽度为10，保留小数点后4位，默认是右对齐</h1><p>print(“%10.4f” % number)<br>    1.2346<br>print(“%-10.4f” % number)  # -符号表示左对齐，显示4位小数<br>1.2346</p>
+<h1 id="右对齐，保留10位小数，不足的用0补齐"><a href="#右对齐，保留10位小数，不足的用0补齐" class="headerlink" title="右对齐，保留10位小数，不足的用0补齐"></a>右对齐，保留10位小数，不足的用0补齐</h1><p>print(“%10.10f” % number)<br>1.2345678900<br>print(“%-10.8f” % number)  # 左对齐，保留8位小数<br>1.23456789</p>
+<h1 id="左对齐，保留7位小数，会自动地进行四舍五入"><a href="#左对齐，保留7位小数，会自动地进行四舍五入" class="headerlink" title="左对齐，保留7位小数，会自动地进行四舍五入"></a>左对齐，保留7位小数，会自动地进行四舍五入</h1><p>print(“%-10.7f” % number)<br>1.2345679</p>
+<p>下面是针对字符串的宽度等输出设置：</p>
+<p>name<br>‘Yule Cottage’<br>print(“%.10s” % name) # 9个字母+一个空格：左对齐<br>Yule Cotta<br>print(“%.15s” % name) # 如果位数不够，直接全部输出<br>Yule Cottage<br>print(“%10.6s” % name) # 右对齐，取出6个字符<br>    Yule C</p>
+<p>解释：总长度为10，前面4个空格，加上4+一个空格+C</p>
+]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>占位符</tag>
+        <tag>字符串</tag>
+        <tag>格式化</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Python 如何字符串格式化使用_format格式化_详解码404</title>
+    <url>/2021/08/15/python-%E5%A6%82%E4%BD%95%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%A0%BC%E5%BC%8F%E5%8C%96%E4%BD%BF%E7%94%A8-format%E6%A0%BC%E5%BC%8F%E5%8C%96-%E8%AF%A6%E8%A7%A3%E7%A0%81404/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/08/image-12-1024x640.png"></p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><hr>
+<p>本文中介绍的字符串一个非常重要的知识点：字符串格式化输出。<br>格式化怎么理解？简答来说：就是让字符串按照我们设定的格式来输出，达到我们想要的结果。主要是有4种方式：</p>
+<ul>
+<li>%：基于占位符的格式化</li>
+<li>format()函数的格式化：重点掌握</li>
+<li>f-string格式化：重点掌握</li>
+<li>字符串模板函数</li>
+</ul>
+<h4 id="format格式化"><a href="#format格式化" class="headerlink" title="format格式化"></a>format格式化</h4><hr>
+<p>从python2.6+开始，新增了一种格式化字符串的函数str.format，可以说极大地增强了字符串格式化的功能，基本语法是通过{}和:来代替占位符%</p>
+<ul>
+<li>接收多个不限制的参数</li>
+<li>位置可以不按照顺序</li>
+</ul>
+<h4 id="语法形式"><a href="#语法形式" class="headerlink" title="语法形式"></a>语法形式</h4><hr>
+<p><code>&#123;&lt;参数序号&gt;:&lt;格式控制标记&gt;&#125;</code>，中间有一个冒号，不能省略！！！</p>
+<p>name &#x3D; “Yule Cottage”  # 字符串类型<br>age &#x3D; 25  # 整数类型<br>height &#x3D; 1.76   # 浮点数类型<br>sex &#x3D; “男”</p>
+<h3 id="多个参数连用"><a href="#多个参数连用" class="headerlink" title="多个参数连用"></a>多个参数连用</h3><hr>
+<p># 1、不设置位置<br>print(“名字是：{}，年龄是：{}，身高是：{}，性别：{}”.format(name,age,height,sex))<br>名字是：Yule Cottage，年龄是：25，身高是：1.76，性别：男</p>
+<h1 id="2、设置位置参数"><a href="#2、设置位置参数" class="headerlink" title="2、设置位置参数"></a>2、设置位置参数</h1><p>print(“名字是：{0}，年龄是：{1}，身高是：{2}，性别：{3}”.format(name,age,height,sex))<br>名字是：Yule Cottage，年龄是：25，身高是：1.76，性别：男</p>
+<h1 id="设置位置参数"><a href="#设置位置参数" class="headerlink" title="设置位置参数"></a>设置位置参数</h1><h1 id="索引从0开始；2号位对应的height"><a href="#索引从0开始；2号位对应的height" class="headerlink" title="索引从0开始；2号位对应的height"></a>索引从0开始；2号位对应的height</h1><p>print(“名字是：{0}，身高是：{2}，年龄是：{1}，性别：{3}”.format(name,age,height,sex))<br>名字是：Yule Cottage，身高是：1.76，年龄是：25，性别：男<br>print(“性别：{3}，身高是：{2}，名字是：{0}，年龄是：{1}”.format(name,age,height,sex))<br>性别：男，身高是：1.76，名字是：Yule Cottage，年龄是：25</p>
+<h1 id="3、元组形式"><a href="#3、元组形式" class="headerlink" title="3、元组形式"></a>3、元组形式</h1><h1 id="使用-进行解析"><a href="#使用-进行解析" class="headerlink" title="使用*进行解析"></a>使用*进行解析</h1><p>information &#x3D; (“Peter”,25)</p>
+<p>print(“姓名是：{}，年龄是：{}”.format(*information))<br>姓名是：Peter，年龄是：25</p>
+<h1 id="4、字典形式"><a href="#4、字典形式" class="headerlink" title="4、字典形式"></a>4、字典形式</h1><h1 id="参数为字典时候，通过-进行解析配对"><a href="#参数为字典时候，通过-进行解析配对" class="headerlink" title="参数为字典时候，通过**进行解析配对"></a>参数为字典时候，通过**进行解析配对</h1><p>print(“名字是：{name}，年龄是：{age}，身高是：{height}，性别：{sex}”.format(**{“name”:name,”age”:age,”height”:height,”sex”:sex}))<br>名字是：Yule Cottage，年龄是：25，身高是：1.76，性别：男</p>
+<h1 id="5、直接变量赋值"><a href="#5、直接变量赋值" class="headerlink" title="5、直接变量赋值"></a>5、直接变量赋值</h1><p>print(“名字是：{name}，年龄是：{age}，身高是：{height}，性别：{sex}”.format(name&#x3D;”Yule Cottage”,age&#x3D;”2岁”,height&#x3D;”1.75m”,sex&#x3D;”男”))<br>名字是：Yule Cottage，年龄是：2岁，身高是：1.75m，性别：男</p>
+<h3 id="对齐"><a href="#对齐" class="headerlink" title="对齐"></a>对齐</h3><hr>
+<p>宽度为20，我们实现居中、靠左、靠右对齐</p>
+<p>name<br>‘Yule Cottage’<br>print(“{:^20s}”.format(name))  # 居中<br>print(“{:&gt;20s}”.format(name))  # 靠右<br>print(“{:&lt;20s}”.format(name))  # 靠左<br>    Yule Cottage<br>        Yule Cottage<br>Yule Cottage</p>
+<h3 id="数值多种形式"><a href="#数值多种形式" class="headerlink" title="数值多种形式"></a>数值多种形式</h3><hr>
+<p>首先我们还是看看对齐问题，浮点数的对齐只保留6位小数：</p>
+<p>pi &#x3D; 3.1415926</p>
+<p>print(“{:^20f}”.format(pi))  # 居中  # 默认只保留6位小数<br>print(“{:&gt;20f}”.format(pi))  # 靠右<br>print(“{:&lt;20f}”.format(pi))  # 靠左<br>      3.141593<br>            3.141593<br>3.141593</p>
+<p>看看不同情况下的输出格式，浮点数需要带上小数点，默认全部是左对齐：</p>
+<p># 不同的输出方式</p>
+<p>print(“{}”.format(pi))  # 原数据<br>print(“{:.2f}”.format(pi))   # 2位小数<br>print(“{:&gt;.10f}”.format(pi))  # 位数不足，右侧补0<br>print(“{:.4%}”.format(pi))  # 百分比输出<br>print(“{:.2e}”.format(pi))<br>3.1415926<br>3.14<br>3.1415926000<br>314.1593%<br>3.14e+00</p>
+<h3 id="填充"><a href="#填充" class="headerlink" title="填充"></a>填充</h3><hr>
+<p>sex<br>‘男’<br>print(“{0:30}”.format(sex))  # 字符串默认左对齐<br>print(“{:&gt;30}”.format(sex))  # 改成右对齐<br>print(“{0:30}”.format(age))  # 数值类型默认右对齐<br>print(“{:&lt;30}”.format(height)) # 改成左对齐<br>男<br>                             男<br>                            25<br>1.76</p>
+<h1 id="指定填充的字符"><a href="#指定填充的字符" class="headerlink" title="指定填充的字符"></a>指定填充的字符</h1><p>print(“{:*&gt;30}”.format(sex))  # *<br>print(“{:+&gt;30}”.format(sex))  # +<br>print(“{:+^30}”.format(sex))  # 居中后填充+<br>print(“{:+&lt;30}”.format(height)) # +<br>*****************************男<br>+++++++++++++++++++++++++++++男<br>++++++++++++++男+++++++++++++++<br>1.76++++++++++++++++++++++++++</p>
+<h3 id="千位分隔符"><a href="#千位分隔符" class="headerlink" title="千位分隔符"></a>千位分隔符</h3><hr>
+<p>主要是用来显示数字的千位分隔符，在货币金额中使用的比较多：</p>
+<p>b &#x3D; 1003005000600</p>
+<p>print(“{:-^20}”.format(b))   # 不用逗号<br>print(“{:-^20,}”.format(b))  # 用逗号<br>—1003005000600—-<br>-1,003,005,000,600–</p>
+<h1 id="小数的千位分隔符显示"><a href="#小数的千位分隔符显示" class="headerlink" title="小数的千位分隔符显示"></a>小数的千位分隔符显示</h1><p>print(“{0:-20,}”.format(12567.98760))  # 不填充<br>print(“{0:-^20,}”.format(12567.98760))  # 居中+填充<br>print(“{0:-&gt;20,}”.format(12567.98760))  # 右对齐+填充<br>print(“{0:-&lt;20,}”.format(12567.98760))  # 左对齐+填充<br>         12,567.9876<br>—-12,567.9876—–<br>———12,567.9876<br>12,567.9876———</p>
+<h3 id="精度"><a href="#精度" class="headerlink" title="精度"></a>精度</h3><hr>
+<p>精度输出的时候前面必须有一个小数点开头，具有两层含义：</p>
+<ul>
+<li>浮点数：表示输出小数位的有效位数</li>
+<li>字符串：精度表示输出的最大长度</li>
+</ul>
+<p>pi<br>3.1415926<br>“{:.3f}”.format(pi)<br>‘3.142’<br>“{:30.5f}”.format(pi)  # 小数点后5位，整体宽度30<br>‘                       3.14159’<br>“{:*^30.5f}”.format(pi)  # 小数点后5位，宽度30,居中后补充*<br>‘***********3.14159************‘<br>name<br>‘Yule Cottage’<br>“{:.4}”.format(name)  # 最大长度为4<br>‘Yule’<br>“{:.6}”.format(name)  # 输出最大长度为6<br>‘Yule C’</p>
+<h3 id="多种输出类型"><a href="#多种输出类型" class="headerlink" title="多种输出类型"></a>多种输出类型</h3><hr>
+<p>表示输出整数和浮点数类型的格式规则。对于整数类型，输出格式包括6 种：</p>
+<ul>
+<li>c: 输出整数对应的 Unicode 字符；</li>
+<li>b: 输出整数的二进制方式；</li>
+<li>o: 输出整数的八进制方式；</li>
+<li>d: 输出整数的十进制方式；</li>
+<li>x: 输出整数的小写十六进制方式；</li>
+<li>X: 输出整数的大写十六进制方式；</li>
+</ul>
+<p>下面的例子表示的是365的二进制、Unicode字符、十进制、小写16进制和大写的16进制的不同输出格式：</p>
+<p>“{0:b},{0:c},{0:d},{0:o},{0:x},{0:X}”.format(365)<br>‘101101101,ŭ,365,555,16d,16D’</p>
+<p>如果是浮点数类型，那么输出格式包括4种：</p>
+<ul>
+<li>e: 输出浮点数对应的小写字母 e 的指数形式；</li>
+<li>E: 输出浮点数对应的大写字母 E 的指数形式；</li>
+<li>f: 输出浮点数的标准浮点形式；</li>
+<li>%: 输出浮点数的百分形式。</li>
+</ul>
+<blockquote>
+<p>浮点数输出时尽量使用&lt;.精度&gt;表示小数部分的宽度，有助于更好控制输出格式。</p>
+</blockquote>
+<p>“{0:e},{0:E}”.format(3.1415)<br>‘3.141500e+00,3.141500E+00’<br>“{0:f},{0:F}”.format(3.1415)<br>‘3.141500,3.141500’<br>“{0:%}”.format(3.1415)  # 保留6位小数，百分比输出<br>‘314.150000%’<br>“{0:.2%}”.format(3.1415)  # 2位小数，百分比输出<br>‘314.15%’</p>
+]]></content>
+      <categories>
+        <category>Python</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>format格式化</tag>
+        <tag>字符串格式化</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>python开发celery异步任务调度与定时触发_定时任务beat</title>
     <url>/2021/10/24/python%E5%BC%80%E5%8F%91celery%E5%BC%82%E6%AD%A5%E4%BB%BB%E5%8A%A1%E8%B0%83%E5%BA%A6%E4%B8%8E%E5%AE%9A%E6%97%B6%E8%A7%A6%E5%8F%91-%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1beat/</url>
     <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/10/image-20.png"></p>
@@ -9265,7 +9265,7 @@ except Exception as e:
 <p>#第一种</p>
 <p>con &#x3D; cx.connect(‘root’, ‘123456’, ‘127.0.0.1:1521&#x2F;orcl’)</p>
 <p>#第二种</p>
-<p>con &#x3D; cx.connect(‘root&#x2F;<a href="mailto:&#x31;&#50;&#51;&#x34;&#x35;&#54;&#x40;&#49;&#x32;&#x37;&#46;&#x30;&#46;&#x30;&#x2e;&#x31;">&#x31;&#50;&#51;&#x34;&#x35;&#54;&#x40;&#49;&#x32;&#x37;&#46;&#x30;&#46;&#x30;&#x2e;&#x31;</a>:1521&#x2F;orcl’)</p>
+<p>con &#x3D; cx.connect(‘root&#x2F;<a href="mailto:&#x31;&#x32;&#x33;&#52;&#x35;&#54;&#64;&#49;&#x32;&#55;&#x2e;&#48;&#46;&#48;&#x2e;&#x31;">&#x31;&#x32;&#x33;&#52;&#x35;&#54;&#64;&#49;&#x32;&#55;&#x2e;&#48;&#46;&#48;&#x2e;&#x31;</a>:1521&#x2F;orcl’)</p>
 <p>#第三种</p>
 <p>dsn &#x3D; cx.makedsn(‘127.0.0.1’, ‘1521’, ‘orcl’)<br>connection &#x3D; cx.connect(‘root’, ‘123456’, dsn)</p>
 <h3 id="简单使用"><a href="#简单使用" class="headerlink" title="简单使用"></a>简单使用</h3><p># -*- coding: utf-8 -*-<br>import cx_Oracle as cx      #导入模块<br>con &#x3D; cx.connect(‘root’, ‘123456’, ‘192.168.80.208&#x2F;orcl’)  #创建连接<br>cursor &#x3D; con.cursor()       #创建游标<br>cursor.execute(“select sysdate from dual”)  #执行sql语句<br>data &#x3D; cursor.fetchone()        #获取一条数据<br>print(data)     #打印数据<br>cursor.close()  #关闭游标<br>con.close()     #关闭数据库连接</p>
@@ -9816,7 +9816,7 @@ else:
 <p>执行命令</p>
 <p>gem install redis</p>
 <p>如果没有网的话，执行命令，提前把redis的gem包传到服务器上</p>
-<p>[<a href="mailto:&#x63;&#111;&#100;&#101;&#x34;&#48;&#x34;&#x40;&#x63;&#x6f;&#x64;&#x65;&#52;&#48;&#x34;&#x2e;&#105;&#99;&#117;">&#x63;&#111;&#100;&#101;&#x34;&#48;&#x34;&#x40;&#x63;&#x6f;&#x64;&#x65;&#52;&#48;&#x34;&#x2e;&#105;&#99;&#117;</a> ~&#x2F;redis]$gem install -l redis-3.3.0.gem<br>Successfully installed redis-3.3.0<br>Parsing documentation for redis-3.3.0<br>Installing ri documentation for redis-3.3.0<br>1 gem installed</p>
+<p>[<a href="mailto:&#99;&#111;&#x64;&#x65;&#x34;&#x30;&#52;&#64;&#x63;&#111;&#x64;&#x65;&#52;&#48;&#x34;&#x2e;&#105;&#99;&#117;">&#99;&#111;&#x64;&#x65;&#x34;&#x30;&#52;&#64;&#x63;&#111;&#x64;&#x65;&#52;&#48;&#x34;&#x2e;&#105;&#99;&#117;</a> ~&#x2F;redis]$gem install -l redis-3.3.0.gem<br>Successfully installed redis-3.3.0<br>Parsing documentation for redis-3.3.0<br>Installing ri documentation for redis-3.3.0<br>1 gem installed</p>
 <p>安装成功后重新执行创建指令即可成功。</p>
 <h3 id="创建Redis集群"><a href="#创建Redis集群" class="headerlink" title="创建Redis集群"></a>创建Redis集群</h3><hr>
 <p>redis-trib.rb create –replicas 1 192.168.100.10:8001 192.168.100.10:8002 \<br>192.168.100.11:8001 192.168.100.11:8002 \<br>192.168.100.12:8001 192.168.100.12:8002 </p>
@@ -9972,25 +9972,25 @@ else:
     <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/09/image-27.png"></p>
 <h3 id="退出状态码"><a href="#退出状态码" class="headerlink" title="退出状态码"></a>退出状态码</h3><hr>
 <p>命令执行后，使用变量“？”来保存状态码，不同的值反应成功或失败，它的取值范围是0-255</p>
-<p>[<a href="mailto:&#114;&#111;&#111;&#116;&#x40;&#x63;&#111;&#x64;&#x65;&#52;&#48;&#52;&#46;&#105;&#x63;&#x75;">&#114;&#111;&#111;&#116;&#x40;&#x63;&#111;&#x64;&#x65;&#52;&#48;&#52;&#46;&#105;&#x63;&#x75;</a> www]# echo $?<br>0           # 上一个 命令执行成功<br>[<a href="mailto:&#x72;&#x6f;&#111;&#116;&#x40;&#99;&#111;&#x64;&#x65;&#x34;&#x30;&#52;&#46;&#x69;&#x63;&#117;">&#x72;&#x6f;&#111;&#116;&#x40;&#99;&#111;&#x64;&#x65;&#x34;&#x30;&#52;&#46;&#x69;&#x63;&#117;</a> www]# echo $?<br>127         # 上一个命令执行失败</p>
+<p>[<a href="mailto:&#x72;&#111;&#111;&#x74;&#64;&#x63;&#111;&#x64;&#101;&#52;&#x30;&#52;&#x2e;&#105;&#x63;&#117;">&#x72;&#111;&#111;&#x74;&#64;&#x63;&#111;&#x64;&#101;&#52;&#x30;&#52;&#x2e;&#105;&#x63;&#117;</a> www]# echo $?<br>0           # 上一个 命令执行成功<br>[<a href="mailto:&#x72;&#111;&#x6f;&#116;&#x40;&#99;&#x6f;&#100;&#x65;&#x34;&#48;&#52;&#46;&#105;&#x63;&#117;">&#x72;&#111;&#x6f;&#116;&#x40;&#99;&#x6f;&#100;&#x65;&#x34;&#48;&#52;&#46;&#105;&#x63;&#117;</a> www]# echo $?<br>127         # 上一个命令执行失败</p>
 <p>关于命令的退出，可以在命令脚本的中使用一下命令自定义退出状态码：</p>
 <p>exit [n]</p>
 <p>我们验证一下这个exit的作用：</p>
-<p>[<a href="mailto:&#x72;&#111;&#111;&#x74;&#x40;&#x63;&#x6f;&#x64;&#x65;&#52;&#x30;&#x34;&#46;&#105;&#99;&#x75;">&#x72;&#111;&#111;&#x74;&#x40;&#x63;&#x6f;&#x64;&#x65;&#52;&#x30;&#x34;&#46;&#105;&#99;&#x75;</a> www]# cat sysinfo.sh<br>#!&#x2F;bin&#x2F;bash<br>#</p>
+<p>[<a href="mailto:&#114;&#x6f;&#x6f;&#116;&#x40;&#99;&#111;&#x64;&#101;&#52;&#48;&#52;&#46;&#x69;&#x63;&#117;">&#114;&#x6f;&#x6f;&#116;&#x40;&#99;&#111;&#x64;&#101;&#52;&#48;&#52;&#46;&#x69;&#x63;&#117;</a> www]# cat sysinfo.sh<br>#!&#x2F;bin&#x2F;bash<br>#</p>
 <h1 id=""><a href="#" class="headerlink" title="**************************************************************"></a>**************************************************************</h1><h1 id="Author-leenhem-lh"><a href="#Author-leenhem-lh" class="headerlink" title="Author: leenhem.lh"></a>Author: leenhem.lh</h1><h1 id="Create-time-2021年9月30日17-26-59"><a href="#Create-time-2021年9月30日17-26-59" class="headerlink" title="Create time: 2021年9月30日17:26:59"></a>Create time: 2021年9月30日17:26:59</h1><h1 id="site-www-code404-icu"><a href="#site-www-code404-icu" class="headerlink" title="site: www.code404.icu"></a>site: <a href="http://www.code404.icu/">www.code404.icu</a></h1><h1 id="Description-this-is-a-test-file-for-set"><a href="#Description-this-is-a-test-file-for-set" class="headerlink" title="Description: this is a test file for set"></a>Description: this is a test file for set</h1><h1 id="File-name-test-set-sh"><a href="#File-name-test-set-sh" class="headerlink" title="File name: test_set.sh"></a>File name: test_set.sh</h1><h1 id="Copyright-C-2021-All-rights-reserved"><a href="#Copyright-C-2021-All-rights-reserved" class="headerlink" title="Copyright (C): 2021 All rights reserved"></a>Copyright (C): 2021 All rights reserved</h1><h1 id="-1"><a href="#-1" class="headerlink" title="**************************************************************"></a>**************************************************************</h1><p>echo “——————-host systeminfo——————-“<br>echo “HOSTNAME: `hostname`“<br>echo “IPADDR: `ifconfig ens33  egrep -o ‘([0-9]{1,3}\.){3}[0-9]{1,3}’  head -n1`“<br>echo “OS_Version: `cat &#x2F;etc&#x2F;redhat-release`“<br>echo “Kernel: `uname -r`“<br>echo “CPU: `lscpugrep ‘Model name’tr -s ‘ ‘ cut -d : -f2`“<br>echo “Memory: `free -h  grep Mem  tr -s ‘ ‘ :  cut -d : -f2`“</p>
 <p>按照上面的脚本书写，然后执行脚本，执行后我们看结果：</p>
 <p>[root@k8s-master01 ~]# sh test_set.sh<br>——————-host systeminfo——————-<br>HOSTNAME: k8s-master01<br>ens33: error fetching interface information: Device not found<br>IPADDR:<br>OS_Version: CentOS Linux release 8.3.2011<br>Kernel: 4.18.0-240.el8.x86_64<br>CPU:<br>Memory: 15Gi<br>[root@k8s-master01 ~]# echo $?<br>0</p>
 <p>0 # 结果是0，说明sysinfo.sh执行成功</p>
 <p>我们再来看：在脚本中随机加上一些不存在的命令</p>
-<p>[<a href="mailto:&#x72;&#x6f;&#x6f;&#x74;&#64;&#x63;&#x6f;&#x64;&#101;&#52;&#x30;&#x34;&#46;&#x69;&#99;&#x75;">&#x72;&#x6f;&#x6f;&#x74;&#64;&#x63;&#x6f;&#x64;&#101;&#52;&#x30;&#x34;&#46;&#x69;&#99;&#x75;</a> www]# cat sysinfo.sh<br>#!&#x2F;bin&#x2F;bash<br>#</p>
+<p>[<a href="mailto:&#114;&#x6f;&#x6f;&#x74;&#x40;&#x63;&#111;&#100;&#x65;&#x34;&#x30;&#x34;&#46;&#105;&#x63;&#x75;">&#114;&#x6f;&#x6f;&#x74;&#x40;&#x63;&#111;&#100;&#x65;&#x34;&#x30;&#x34;&#46;&#105;&#x63;&#x75;</a> www]# cat sysinfo.sh<br>#!&#x2F;bin&#x2F;bash<br>#</p>
 <h1 id="-2"><a href="#-2" class="headerlink" title="**************************************************************"></a>**************************************************************</h1><h1 id="Author-Jason-Zhuo"><a href="#Author-Jason-Zhuo" class="headerlink" title="Author: Jason Zhuo"></a>Author: Jason Zhuo</h1><h1 id="Create-time-2021年7月1日17-26-59"><a href="#Create-time-2021年7月1日17-26-59" class="headerlink" title="Create time: 2021年7月1日17:26:59"></a>Create time: 2021年7月1日17:26:59</h1><h1 id="Description-this-is-a-test-file-for-set-1"><a href="#Description-this-is-a-test-file-for-set-1" class="headerlink" title="Description: this is a test file for set"></a>Description: this is a test file for set</h1><h1 id="File-name-test-set-sh-1"><a href="#File-name-test-set-sh-1" class="headerlink" title="File name: test_set.sh"></a>File name: test_set.sh</h1><h1 id="Copyright-C-2021-All-rights-reserved-1"><a href="#Copyright-C-2021-All-rights-reserved-1" class="headerlink" title="Copyright (C): 2021 All rights reserved"></a>Copyright (C): 2021 All rights reserved</h1><h1 id="-3"><a href="#-3" class="headerlink" title="**************************************************************"></a>**************************************************************</h1><p>echo “——————-host systeminfo——————-“<br>echo “HOSTNAME: `hostname`“<br>xxx # 这一行我们加上一个不存在的xxx命令。<br>echo “IPADDR: `ifconfig ens33  egrep -o ‘([0-9]{1,3}\.){3}[0-9]{1,3}’  head -n1`“<br>echo “OS_Version: `cat &#x2F;etc&#x2F;redhat-release`“<br>echo “Kernel: `uname -r`“<br>echo “CPU: `lscpugrep ‘Model name’tr -s ‘ ‘ cut -d : -f2`“<br>echo “Memory: `free -h  grep Mem  tr -s ‘ ‘ :  cut -d : -f2`“</p>
 <p>执行一下，然后看执行是否成功</p>
-<p>[<a href="mailto:&#114;&#x6f;&#x6f;&#116;&#x40;&#x63;&#111;&#x64;&#x65;&#52;&#48;&#x34;&#46;&#x69;&#99;&#x75;">&#114;&#x6f;&#x6f;&#116;&#x40;&#x63;&#111;&#x64;&#x65;&#52;&#48;&#x34;&#46;&#x69;&#99;&#x75;</a> www]# sh sysinfo.sh<br>——————-host systeminfo——————-<br>HOSTNAME: k8s-master01<br>sysinfo.sh: line 12: xxx: command not found # 有报错信息<br>IPADDR: 10.0.0.136<br>OS_Version: CentOS Linux release 7.6.1810 (Core)<br>Kernel: 3.10.0-957.el7.x86_64<br>CPU: Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz<br>Memory: 972M<br>[<a href="mailto:&#x72;&#111;&#111;&#116;&#64;&#99;&#x6f;&#x64;&#x65;&#52;&#48;&#x34;&#x2e;&#x69;&#99;&#x75;">&#x72;&#111;&#111;&#116;&#64;&#99;&#x6f;&#x64;&#x65;&#52;&#48;&#x34;&#x2e;&#x69;&#99;&#x75;</a> www]# echo $? # 查看脚本执行是否成功<br>0 # 0，说明执行成功</p>
+<p>[<a href="mailto:&#114;&#111;&#111;&#116;&#x40;&#x63;&#x6f;&#100;&#x65;&#52;&#x30;&#52;&#46;&#x69;&#x63;&#117;">&#114;&#111;&#111;&#116;&#x40;&#x63;&#x6f;&#100;&#x65;&#52;&#x30;&#52;&#46;&#x69;&#x63;&#117;</a> www]# sh sysinfo.sh<br>——————-host systeminfo——————-<br>HOSTNAME: k8s-master01<br>sysinfo.sh: line 12: xxx: command not found # 有报错信息<br>IPADDR: 10.0.0.136<br>OS_Version: CentOS Linux release 7.6.1810 (Core)<br>Kernel: 3.10.0-957.el7.x86_64<br>CPU: Intel(R) Core(TM) i7-1065G7 CPU @ 1.30GHz<br>Memory: 972M<br>[<a href="mailto:&#x72;&#111;&#x6f;&#x74;&#64;&#x63;&#x6f;&#x64;&#x65;&#x34;&#x30;&#x34;&#x2e;&#x69;&#x63;&#x75;">&#x72;&#111;&#x6f;&#x74;&#64;&#x63;&#x6f;&#x64;&#x65;&#x34;&#x30;&#x34;&#x2e;&#x69;&#x63;&#x75;</a> www]# echo $? # 查看脚本执行是否成功<br>0 # 0，说明执行成功</p>
 <p>为什么明明有执行报错，但是查看执行是否成功的时候却显示为0呢？这是因为“$?”仅记录脚本退出时最后一条命令的执行状态，本例中使用的脚本最后一条命令是echo语句，所以这里是执行成功的，这就导致我们查看脚本的执行结果的时候，脚本的执行结果是成功的。</p>
 <p>这个时候我们修改一下脚本，就让它在退出时返回99：</p>
-<p>[<a href="mailto:&#114;&#x6f;&#111;&#116;&#x40;&#x63;&#x6f;&#100;&#101;&#52;&#x30;&#x34;&#46;&#x69;&#99;&#117;">&#114;&#x6f;&#111;&#116;&#x40;&#x63;&#x6f;&#100;&#101;&#52;&#x30;&#x34;&#46;&#x69;&#99;&#117;</a> www]# cat sysinfo.sh<br>#!&#x2F;bin&#x2F;bash<br>……为了节省篇幅这地方就省略了<br>echo “Memory: `free -h  grep Mem  tr -s ‘ ‘ :  cut -d : -f2`“<br>exit 99 # 新增这一行</p>
+<p>[<a href="mailto:&#x72;&#x6f;&#111;&#116;&#64;&#x63;&#x6f;&#100;&#x65;&#52;&#x30;&#52;&#x2e;&#x69;&#x63;&#x75;">&#x72;&#x6f;&#111;&#116;&#64;&#x63;&#x6f;&#100;&#x65;&#52;&#x30;&#52;&#x2e;&#x69;&#x63;&#x75;</a> www]# cat sysinfo.sh<br>#!&#x2F;bin&#x2F;bash<br>……为了节省篇幅这地方就省略了<br>echo “Memory: `free -h  grep Mem  tr -s ‘ ‘ :  cut -d : -f2`“<br>exit 99 # 新增这一行</p>
 <p>我们再执行一次这个脚本</p>
-<p>[<a href="mailto:&#x72;&#111;&#x6f;&#x74;&#64;&#x63;&#111;&#x64;&#x65;&#x34;&#48;&#x34;&#x2e;&#x69;&#99;&#117;">&#x72;&#111;&#x6f;&#x74;&#64;&#x63;&#111;&#x64;&#x65;&#x34;&#48;&#x34;&#x2e;&#x69;&#99;&#117;</a> www]# sh sysinfo.sh<br>……<br>[<a href="mailto:&#114;&#111;&#x6f;&#x74;&#64;&#x63;&#111;&#x64;&#101;&#52;&#x30;&#52;&#46;&#x69;&#99;&#117;">&#114;&#111;&#x6f;&#x74;&#64;&#x63;&#111;&#x64;&#101;&#52;&#x30;&#52;&#46;&#x69;&#99;&#117;</a> www]# echo $?<br>99 # 这不就是我们希望的99嘛</p>
+<p>[<a href="mailto:&#114;&#111;&#x6f;&#x74;&#x40;&#x63;&#111;&#100;&#x65;&#52;&#x30;&#x34;&#46;&#105;&#x63;&#117;">&#114;&#111;&#x6f;&#x74;&#x40;&#x63;&#111;&#100;&#x65;&#52;&#x30;&#x34;&#46;&#105;&#x63;&#117;</a> www]# sh sysinfo.sh<br>……<br>[<a href="mailto:&#114;&#111;&#x6f;&#x74;&#x40;&#99;&#x6f;&#100;&#x65;&#52;&#x30;&#52;&#46;&#x69;&#x63;&#117;">&#114;&#111;&#x6f;&#x74;&#x40;&#99;&#x6f;&#100;&#x65;&#52;&#x30;&#52;&#46;&#x69;&#x63;&#117;</a> www]# echo $?<br>99 # 这不就是我们希望的99嘛</p>
 <p>好了，虽然我们可以自定义脚本退出时的状态码，但是我们还是要遵从Linux的做法，成功时退出码是0，不成功时退出码才是非0。上面仅仅是演示exit的用法，但是错误码可以根据自己的情况去定义。</p>
 <h3 id="练习"><a href="#练习" class="headerlink" title="练习"></a>练习</h3><hr>
 <ul>
@@ -10024,6 +10024,38 @@ else:
       </tags>
   </entry>
   <entry>
+    <title>skywalking 如何显示 Oracle 数据库操作SQL参数？</title>
+    <url>/2021/09/29/skywalking-%E5%A6%82%E4%BD%95%E6%98%BE%E7%A4%BA-oracle-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9Csql%E5%8F%82%E6%95%B0%EF%BC%9F/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/09/image-26-1024x576.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>SkyWalking默认不采集SQL参数，但是提供了采集SQL参数采集的方式，在应用端启动时，加入启动参数，或者在agent&#x2F;config&#x2F;agent.config配置文件里面配置相关参数即可。</p>
+<h3 id="方式一：应用端启动参数"><a href="#方式一：应用端启动参数" class="headerlink" title="方式一：应用端启动参数"></a>方式一：应用端启动参数</h3><hr>
+<p>plugin.jdbc.trace_sql_parameters，数据库参数采集选项，默认false不采集，如果需要采集，将其配置为true。</p>
+<p>-Dskywalking.plugin.jdbc.trace_sql_parameters&#x3D;true</p>
+<p>不推荐应用端加启动参数</p>
+<h3 id="方式二：配置文件agent"><a href="#方式二：配置文件agent" class="headerlink" title="方式二：配置文件agent"></a>方式二：配置文件agent</h3><hr>
+<p>配置文件 apache-skywalking-apm-bin-es7&#x2F;agent&#x2F;config&#x2F;agent.config</p>
+<p># plugin.jdbc.trace_sql_parameters&#x3D;${SW_JDBC_TRACE_SQL_PARAMETERS:false}<br>plugin.jdbc.trace_sql_parameters&#x3D;${SW_JDBC_TRACE_SQL_PARAMETERS:true}</p>
+<h3 id="添加apm-oracle驱动"><a href="#添加apm-oracle驱动" class="headerlink" title="添加apm-oracle驱动"></a>添加apm-oracle驱动</h3><hr>
+<p>把驱动放到应用服务agent端 apache-skywalking-apm-bin-es7&#x2F;agent&#x2F;plugin&#x2F; 下面</p>
+<p>[<a href="mailto:&#x72;&#x6f;&#111;&#116;&#64;&#99;&#x6f;&#x64;&#101;&#52;&#48;&#52;&#x2e;&#105;&#99;&#117;">&#x72;&#x6f;&#111;&#116;&#64;&#99;&#x6f;&#x64;&#101;&#52;&#48;&#52;&#x2e;&#105;&#99;&#117;</a> plugins]# ll apm-oracle-10.x-plugin-2.1.0.jar<br>-rw-r–r– 1 root root 25083 9月   2 11:06 apm-oracle-10.x-plugin-2.1.0.jar</p>
+<h3 id="启动应用脚本"><a href="#启动应用脚本" class="headerlink" title="启动应用脚本"></a>启动应用脚本</h3><p># SkyWalking Agent 配置<br>export SW_AGENT_NAME&#x3D;demo-application # 配置 Agent 名字。一般来说，我们直接使用 Spring Boot 项目的 `spring.application.name` 。<br>export SW_AGENT_COLLECTOR_BACKEND_SERVICES&#x3D;127.0.0.1:11800 # 配置 Collector 地址。<br>export SW_AGENT_SPAN_LIMIT&#x3D;2000 # 配置链路的最大 Span 数量。一般情况下，不需要配置，默认为 300 。主要考虑，有些新上 SkyWalking Agent 的项目，代码可能比较糟糕。<br>export JAVA_AGENT&#x3D;-javaagent:&#x2F;data&#x2F;skywalking&#x2F;apache-skywalking-apm-bin-es7&#x2F;agent&#x2F;skywalking-agent.jar # SkyWalking Agent jar 地址。</p>
+<h1 id="Jar-启动"><a href="#Jar-启动" class="headerlink" title="Jar 启动"></a>Jar 启动</h1><p>java -jar $JAVA_AGENT -jar lab-39-demo-2.2.2.RELEASE.jar</p>
+<p>注意：修改完agent配置后要重启 应用程序，以加载新的agent配置</p>
+]]></content>
+      <categories>
+        <category>Skywalking</category>
+      </categories>
+      <tags>
+        <tag>数据库</tag>
+        <tag>Oracle</tag>
+        <tag>skywalking</tag>
+        <tag>SQL参数</tag>
+        <tag>操作</tag>
+        <tag>显示</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Skywalking如何过滤不需要被监控的接口地址？</title>
     <url>/2021/11/27/skywalking%E5%A6%82%E4%BD%95%E8%BF%87%E6%BB%A4%E4%B8%8D%E9%9C%80%E8%A6%81%E8%A2%AB%E7%9B%91%E6%8E%A7%E7%9A%84%E6%8E%A5%E5%8F%A3%E5%9C%B0%E5%9D%80%EF%BC%9F/</url>
     <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/09/image-26-1024x576.png" alt="skywalking"></p>
@@ -10048,8 +10080,8 @@ else:
       </categories>
       <tags>
         <tag>分布式</tag>
-        <tag>APM</tag>
         <tag>skywalking</tag>
+        <tag>APM</tag>
         <tag>trace_ignore</tag>
         <tag>忽略接口</tag>
         <tag>链路追踪</tag>
@@ -10847,38 +10879,6 @@ else
       </tags>
   </entry>
   <entry>
-    <title>skywalking 如何显示 Oracle 数据库操作SQL参数？</title>
-    <url>/2021/09/29/skywalking-%E5%A6%82%E4%BD%95%E6%98%BE%E7%A4%BA-oracle-%E6%95%B0%E6%8D%AE%E5%BA%93%E6%93%8D%E4%BD%9Csql%E5%8F%82%E6%95%B0%EF%BC%9F/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/09/image-26-1024x576.png"></p>
-<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
-<p>SkyWalking默认不采集SQL参数，但是提供了采集SQL参数采集的方式，在应用端启动时，加入启动参数，或者在agent&#x2F;config&#x2F;agent.config配置文件里面配置相关参数即可。</p>
-<h3 id="方式一：应用端启动参数"><a href="#方式一：应用端启动参数" class="headerlink" title="方式一：应用端启动参数"></a>方式一：应用端启动参数</h3><hr>
-<p>plugin.jdbc.trace_sql_parameters，数据库参数采集选项，默认false不采集，如果需要采集，将其配置为true。</p>
-<p>-Dskywalking.plugin.jdbc.trace_sql_parameters&#x3D;true</p>
-<p>不推荐应用端加启动参数</p>
-<h3 id="方式二：配置文件agent"><a href="#方式二：配置文件agent" class="headerlink" title="方式二：配置文件agent"></a>方式二：配置文件agent</h3><hr>
-<p>配置文件 apache-skywalking-apm-bin-es7&#x2F;agent&#x2F;config&#x2F;agent.config</p>
-<p># plugin.jdbc.trace_sql_parameters&#x3D;${SW_JDBC_TRACE_SQL_PARAMETERS:false}<br>plugin.jdbc.trace_sql_parameters&#x3D;${SW_JDBC_TRACE_SQL_PARAMETERS:true}</p>
-<h3 id="添加apm-oracle驱动"><a href="#添加apm-oracle驱动" class="headerlink" title="添加apm-oracle驱动"></a>添加apm-oracle驱动</h3><hr>
-<p>把驱动放到应用服务agent端 apache-skywalking-apm-bin-es7&#x2F;agent&#x2F;plugin&#x2F; 下面</p>
-<p>[<a href="mailto:&#114;&#x6f;&#111;&#116;&#64;&#x63;&#x6f;&#100;&#101;&#52;&#x30;&#52;&#46;&#x69;&#99;&#117;">&#114;&#x6f;&#111;&#116;&#64;&#x63;&#x6f;&#100;&#101;&#52;&#x30;&#52;&#46;&#x69;&#99;&#117;</a> plugins]# ll apm-oracle-10.x-plugin-2.1.0.jar<br>-rw-r–r– 1 root root 25083 9月   2 11:06 apm-oracle-10.x-plugin-2.1.0.jar</p>
-<h3 id="启动应用脚本"><a href="#启动应用脚本" class="headerlink" title="启动应用脚本"></a>启动应用脚本</h3><p># SkyWalking Agent 配置<br>export SW_AGENT_NAME&#x3D;demo-application # 配置 Agent 名字。一般来说，我们直接使用 Spring Boot 项目的 `spring.application.name` 。<br>export SW_AGENT_COLLECTOR_BACKEND_SERVICES&#x3D;127.0.0.1:11800 # 配置 Collector 地址。<br>export SW_AGENT_SPAN_LIMIT&#x3D;2000 # 配置链路的最大 Span 数量。一般情况下，不需要配置，默认为 300 。主要考虑，有些新上 SkyWalking Agent 的项目，代码可能比较糟糕。<br>export JAVA_AGENT&#x3D;-javaagent:&#x2F;data&#x2F;skywalking&#x2F;apache-skywalking-apm-bin-es7&#x2F;agent&#x2F;skywalking-agent.jar # SkyWalking Agent jar 地址。</p>
-<h1 id="Jar-启动"><a href="#Jar-启动" class="headerlink" title="Jar 启动"></a>Jar 启动</h1><p>java -jar $JAVA_AGENT -jar lab-39-demo-2.2.2.RELEASE.jar</p>
-<p>注意：修改完agent配置后要重启 应用程序，以加载新的agent配置</p>
-]]></content>
-      <categories>
-        <category>Skywalking</category>
-      </categories>
-      <tags>
-        <tag>数据库</tag>
-        <tag>Oracle</tag>
-        <tag>skywalking</tag>
-        <tag>SQL参数</tag>
-        <tag>操作</tag>
-        <tag>显示</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>vscode中6个好用的前端重构插件</title>
     <url>/2021/08/01/vscode%E4%B8%AD6%E4%B8%AA%E5%A5%BD%E7%94%A8%E7%9A%84%E5%89%8D%E7%AB%AF%E9%87%8D%E6%9E%84%E6%8F%92%E4%BB%B6/</url>
     <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/08/image.png"></p>
@@ -10920,6 +10920,33 @@ else
       <tags>
         <tag>windows子系统</tag>
         <tag>WSL2</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WPS 广告关闭 如何取消WPS的广告？ 关闭弹窗-热点-广告推送</title>
+    <url>/2021/07/21/wps-%E5%B9%BF%E5%91%8A%E5%85%B3%E9%97%AD-%E5%A6%82%E4%BD%95%E5%8F%96%E6%B6%88wps%E7%9A%84%E5%B9%BF%E5%91%8A%EF%BC%9F-%E5%85%B3%E9%97%AD%E5%BC%B9%E7%AA%97-%E7%83%AD%E7%82%B9-%E5%B9%BF%E5%91%8A%E6%8E%A8/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/07/wps.png"></p>
+<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><hr>
+<p>不知道为啥雷总的公司对于广告是情有独钟的喜爱，比如：金山毒霸、MIUI、WPS等等全是广告大户。<br>今天在无意中发现了关闭WPS广告的方法</p>
+<h3 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h3><hr>
+<ol>
+<li>打开wps</li>
+<li>左上角“首页”</li>
+<li>右上角齿轮标志 &gt; 配置和修复工具<br><img src="https://img-blog.csdnimg.cn/20210720145452870.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+<li>高级<br><img src="https://img-blog.csdnimg.cn/2021072014550216.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+<li>其他选项，“关闭WPS热点” + “关闭广告弹窗推送”<br><img src="https://img-blog.csdnimg.cn/20210720145522973.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
+<li>确定，重启wps</li>
+</ol>
+]]></content>
+      <categories>
+        <category>IT杂谈</category>
+      </categories>
+      <tags>
+        <tag>Office</tag>
+        <tag>WPS</tag>
+        <tag>办公</tag>
+        <tag>广告</tag>
+        <tag>弹窗</tag>
       </tags>
   </entry>
   <entry>
@@ -10982,50 +11009,6 @@ else
         <tag>Linux子系统</tag>
         <tag>windows内安装linux</tag>
         <tag>WSL</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>WPS 广告关闭 如何取消WPS的广告？ 关闭弹窗-热点-广告推送</title>
-    <url>/2021/07/21/wps-%E5%B9%BF%E5%91%8A%E5%85%B3%E9%97%AD-%E5%A6%82%E4%BD%95%E5%8F%96%E6%B6%88wps%E7%9A%84%E5%B9%BF%E5%91%8A%EF%BC%9F-%E5%85%B3%E9%97%AD%E5%BC%B9%E7%AA%97-%E7%83%AD%E7%82%B9-%E5%B9%BF%E5%91%8A%E6%8E%A8/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/07/wps.png"></p>
-<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><hr>
-<p>不知道为啥雷总的公司对于广告是情有独钟的喜爱，比如：金山毒霸、MIUI、WPS等等全是广告大户。<br>今天在无意中发现了关闭WPS广告的方法</p>
-<h3 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h3><hr>
-<ol>
-<li>打开wps</li>
-<li>左上角“首页”</li>
-<li>右上角齿轮标志 &gt; 配置和修复工具<br><img src="https://img-blog.csdnimg.cn/20210720145452870.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
-<li>高级<br><img src="https://img-blog.csdnimg.cn/2021072014550216.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
-<li>其他选项，“关闭WPS热点” + “关闭广告弹窗推送”<br><img src="https://img-blog.csdnimg.cn/20210720145522973.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></li>
-<li>确定，重启wps</li>
-</ol>
-]]></content>
-      <categories>
-        <category>IT杂谈</category>
-      </categories>
-      <tags>
-        <tag>Office</tag>
-        <tag>WPS</tag>
-        <tag>办公</tag>
-        <tag>广告</tag>
-        <tag>弹窗</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>xshell脚本统计一个目录下的所有目录的文件数量，并实现按照数量大小排序和打印。</title>
-    <url>/2021/05/22/xshell%E8%84%9A%E6%9C%AC%E7%BB%9F%E8%AE%A1%E4%B8%80%E4%B8%AA%E7%9B%AE%E5%BD%95%E4%B8%8B%E7%9A%84%E6%89%80%E6%9C%89%E7%9B%AE%E5%BD%95%E7%9A%84%E6%96%87%E4%BB%B6%E6%95%B0%E9%87%8F%EF%BC%8C%E5%B9%B6/</url>
-    <content><![CDATA[<p>xshell脚本统计一个总目录下的所有分目录的文件数量，并实现按照每个目录下的文件数量大小排序，打印到一个文本里。</p>
-<p>#!&#x2F;bin&#x2F;bash<br>echo &gt;  &#x2F;tmp&#x2F;tmp.txt<br>echo &gt;  &#x2F;tmp&#x2F;tmp1.txt</p>
-<p>find &#x2F;etc -type d &gt; &#x2F;tmp&#x2F;tmp.txt<br>cat &#x2F;tmp&#x2F;tmp.txt while read line<br>do<br>echo  `ls -l $linegrep ^-wc -l` “$line” &gt;&gt; tmp1.txt<br>done<br>cat &#x2F;tmp&#x2F;tmp1.txtuniq sort -n -k 1 -r </p>
-<p>cat &#x2F;tmp&#x2F;tmp1.txtuniq sort -n -k 1 -r &gt; result.txt</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-      </categories>
-      <tags>
-        <tag>文件数</tag>
-        <tag>shell</tag>
-        <tag>目录</tag>
       </tags>
   </entry>
   <entry>
@@ -11285,7 +11268,7 @@ else
 <p>我这里不知道为什么会卡在这个地方不动，所以我在 vscode 直接创建并编辑 JenkinsFile，这种方式更灵活，我更推荐这种方式，下面我会先简单介绍下 JeninsFile 的基础语法，仅包含本项目用到的，对于中小企业的构建需求，基本够用了。</p>
 <h3 id="JenkinsFile-基础语法"><a href="#JenkinsFile-基础语法" class="headerlink" title="JenkinsFile 基础语法"></a>JenkinsFile 基础语法</h3><hr>
 <p>只需先了解大致的语法，具体的用法会在后面说明：</p>
-<p>&#x2F;&#x2F; 前端项目JenkinsFile配置，后端项目配置稍有不同，后面会区分说明<br>pipeline {<br>  agent any<br>  environment {<br>    HOST_TEST &#x3D; ‘<a href="mailto:&#x72;&#111;&#111;&#116;&#64;&#49;&#50;&#x31;&#46;&#x34;&#x31;&#46;&#x31;&#x36;&#46;&#x31;&#56;&#x33;">&#x72;&#111;&#111;&#116;&#64;&#49;&#50;&#x31;&#46;&#x34;&#x31;&#46;&#x31;&#x36;&#46;&#x31;&#56;&#x33;</a>‘<br>    HOST_ONLINE &#x3D; ‘<a href="mailto:&#106;&#101;&#110;&#107;&#105;&#110;&#115;&#x40;&#x33;&#x39;&#x2e;&#x31;&#48;&#49;&#x2e;&#50;&#x31;&#x39;&#46;&#x31;&#x31;&#x30;">&#106;&#101;&#110;&#107;&#105;&#110;&#115;&#x40;&#x33;&#x39;&#x2e;&#x31;&#48;&#49;&#x2e;&#50;&#x31;&#x39;&#46;&#x31;&#x31;&#x30;</a>‘<br>    SOURCE_DIR &#x3D; ‘dist&#x2F;*‘<br>    TARGET_DIR &#x3D; ‘&#x2F;data&#x2F;www&#x2F;kuaimen-yunying-front’<br>  }<br>  parameters {<br>    choice(<br>      description: ‘你需要选择哪个环境进行部署 ?’,<br>      name: ‘env’,<br>      choices: [‘测试环境’, ‘线上环境’]<br>    )<br>    string(name: ‘update’, defaultValue: ‘’, description: ‘本次更新内容?’)<br>  }<br>  triggers {<br>    GenericTrigger(<br>     genericVariables: [<br>      [key: ‘ref’, value: ‘$.ref’]<br>     ],<br>     causeString: ‘Triggered on $ref’,<br>     token: ‘runcenter-front-q1w2e3r4t5’,<br>     tokenCredentialId: ‘’,<br>     printContributedVariables: true,<br>     printPostContent: true,<br>     silentResponse: false,<br>     regexpFilterText: ‘$ref’,<br>     regexpFilterExpression: ‘refs&#x2F;heads&#x2F;‘ + BRANCH_NAME<br>    )<br>  }<br>  stages {<br>    stage(‘获取git commit message’) {<br>     steps {<br>       script {<br>         env.GIT_COMMIT_MSG &#x3D; sh (script: ‘git log -1 –pretty&#x3D;%B ${GIT_COMMIT}’, returnStdout: true).trim()<br>       }<br>     }<br>  }</p>
+<p>&#x2F;&#x2F; 前端项目JenkinsFile配置，后端项目配置稍有不同，后面会区分说明<br>pipeline {<br>  agent any<br>  environment {<br>    HOST_TEST &#x3D; ‘<a href="mailto:&#x72;&#x6f;&#x6f;&#116;&#64;&#x31;&#x32;&#49;&#x2e;&#52;&#x31;&#46;&#49;&#x36;&#x2e;&#49;&#56;&#51;">&#x72;&#x6f;&#x6f;&#116;&#64;&#x31;&#x32;&#49;&#x2e;&#52;&#x31;&#46;&#49;&#x36;&#x2e;&#49;&#56;&#51;</a>‘<br>    HOST_ONLINE &#x3D; ‘<a href="mailto:&#x6a;&#101;&#x6e;&#x6b;&#105;&#110;&#x73;&#64;&#51;&#x39;&#46;&#49;&#48;&#x31;&#46;&#x32;&#x31;&#57;&#46;&#x31;&#x31;&#x30;">&#x6a;&#101;&#x6e;&#x6b;&#105;&#110;&#x73;&#64;&#51;&#x39;&#46;&#49;&#48;&#x31;&#46;&#x32;&#x31;&#57;&#46;&#x31;&#x31;&#x30;</a>‘<br>    SOURCE_DIR &#x3D; ‘dist&#x2F;*‘<br>    TARGET_DIR &#x3D; ‘&#x2F;data&#x2F;www&#x2F;kuaimen-yunying-front’<br>  }<br>  parameters {<br>    choice(<br>      description: ‘你需要选择哪个环境进行部署 ?’,<br>      name: ‘env’,<br>      choices: [‘测试环境’, ‘线上环境’]<br>    )<br>    string(name: ‘update’, defaultValue: ‘’, description: ‘本次更新内容?’)<br>  }<br>  triggers {<br>    GenericTrigger(<br>     genericVariables: [<br>      [key: ‘ref’, value: ‘$.ref’]<br>     ],<br>     causeString: ‘Triggered on $ref’,<br>     token: ‘runcenter-front-q1w2e3r4t5’,<br>     tokenCredentialId: ‘’,<br>     printContributedVariables: true,<br>     printPostContent: true,<br>     silentResponse: false,<br>     regexpFilterText: ‘$ref’,<br>     regexpFilterExpression: ‘refs&#x2F;heads&#x2F;‘ + BRANCH_NAME<br>    )<br>  }<br>  stages {<br>    stage(‘获取git commit message’) {<br>     steps {<br>       script {<br>         env.GIT_COMMIT_MSG &#x3D; sh (script: ‘git log -1 –pretty&#x3D;%B ${GIT_COMMIT}’, returnStdout: true).trim()<br>       }<br>     }<br>  }</p>
 <pre><code>stage(&#39;打包&#39;) &#123;
   steps &#123;
     nodejs(&#39;nodejs-12.16&#39;) &#123;
@@ -12588,6 +12571,23 @@ public static void main(String\[\] args) throws Exception &#123;
       </tags>
   </entry>
   <entry>
+    <title>xshell脚本统计一个目录下的所有目录的文件数量，并实现按照数量大小排序和打印。</title>
+    <url>/2021/05/22/xshell%E8%84%9A%E6%9C%AC%E7%BB%9F%E8%AE%A1%E4%B8%80%E4%B8%AA%E7%9B%AE%E5%BD%95%E4%B8%8B%E7%9A%84%E6%89%80%E6%9C%89%E7%9B%AE%E5%BD%95%E7%9A%84%E6%96%87%E4%BB%B6%E6%95%B0%E9%87%8F%EF%BC%8C%E5%B9%B6/</url>
+    <content><![CDATA[<p>xshell脚本统计一个总目录下的所有分目录的文件数量，并实现按照每个目录下的文件数量大小排序，打印到一个文本里。</p>
+<p>#!&#x2F;bin&#x2F;bash<br>echo &gt;  &#x2F;tmp&#x2F;tmp.txt<br>echo &gt;  &#x2F;tmp&#x2F;tmp1.txt</p>
+<p>find &#x2F;etc -type d &gt; &#x2F;tmp&#x2F;tmp.txt<br>cat &#x2F;tmp&#x2F;tmp.txt while read line<br>do<br>echo  `ls -l $linegrep ^-wc -l` “$line” &gt;&gt; tmp1.txt<br>done<br>cat &#x2F;tmp&#x2F;tmp1.txtuniq sort -n -k 1 -r </p>
+<p>cat &#x2F;tmp&#x2F;tmp1.txtuniq sort -n -k 1 -r &gt; result.txt</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>文件数</tag>
+        <tag>shell</tag>
+        <tag>目录</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>内网DNS服务安装使用系列教程（四）高级功能之编译安装BIND服务</title>
     <url>/2021/09/07/%E5%86%85%E7%BD%91dns%E6%9C%8D%E5%8A%A1%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8%E7%B3%BB%E5%88%97%E6%95%99%E7%A8%8B%EF%BC%88%E5%9B%9B%EF%BC%89%E9%AB%98%E7%BA%A7%E5%8A%9F%E8%83%BD%E4%B9%8B%E7%BC%96/</url>
     <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/09/image-5.png"></p>
@@ -13869,7 +13869,7 @@ nginx -s reload
 <p>vi &#x2F;etc&#x2F;keepalived&#x2F;keepalived.conf</p>
 <p>配置文件中主要由全局段、VRRP实例段、脚本段组成。</p>
 <h5 id="1．全局段定义（global-defs）"><a href="#1．全局段定义（global-defs）" class="headerlink" title="1．全局段定义（global_defs）"></a>1．全局段定义（global_defs）</h5><p>全局段定义允许用户设置全局相关信息，例如通知信息、关键参数配置等，该段配置在Master节点和Backup节点上应当一致。</p>
-<p>global_defs {<br>   notification_email {<br>     <a href="mailto:&#115;&#x79;&#115;&#97;&#100;&#109;&#x69;&#110;&#64;&#x65;&#x78;&#x61;&#x6d;&#112;&#x6c;&#101;&#46;&#99;&#111;&#x6d;">&#115;&#x79;&#115;&#97;&#100;&#109;&#x69;&#110;&#64;&#x65;&#x78;&#x61;&#x6d;&#112;&#x6c;&#101;&#46;&#99;&#111;&#x6d;</a><br>   }<br>   notification_email_from  <a href="mailto:&#110;&#111;&#x72;&#101;&#x70;&#108;&#x79;&#x40;&#x65;&#120;&#x61;&#109;&#x70;&#108;&#101;&#x2e;&#99;&#x6f;&#x6d;">&#110;&#111;&#x72;&#101;&#x70;&#108;&#x79;&#x40;&#x65;&#120;&#x61;&#109;&#x70;&#108;&#101;&#x2e;&#99;&#x6f;&#x6d;</a><br>   smtp_server  127.0.0.1<br>   smtp_connect_timeout  60<br>   vrrp_mcast_group4  224.0.0.18<br>}</p>
+<p>global_defs {<br>   notification_email {<br>     <a href="mailto:&#115;&#121;&#x73;&#x61;&#x64;&#x6d;&#105;&#x6e;&#x40;&#101;&#x78;&#97;&#x6d;&#112;&#108;&#101;&#x2e;&#99;&#x6f;&#109;">&#115;&#121;&#x73;&#x61;&#x64;&#x6d;&#105;&#x6e;&#x40;&#101;&#x78;&#97;&#x6d;&#112;&#108;&#101;&#x2e;&#99;&#x6f;&#109;</a><br>   }<br>   notification_email_from  <a href="mailto:&#x6e;&#111;&#x72;&#101;&#x70;&#108;&#x79;&#x40;&#101;&#120;&#x61;&#109;&#x70;&#x6c;&#101;&#46;&#99;&#x6f;&#109;">&#x6e;&#111;&#x72;&#101;&#x70;&#108;&#x79;&#x40;&#101;&#120;&#x61;&#109;&#x70;&#x6c;&#101;&#46;&#99;&#x6f;&#109;</a><br>   smtp_server  127.0.0.1<br>   smtp_connect_timeout  60<br>   vrrp_mcast_group4  224.0.0.18<br>}</p>
 <p><strong>notification_email</strong>定义报警邮件地址，当服务切换时发送报警邮件。<br><strong>notification_email_from</strong>定义发件人信息，<br><strong>smtp_server</strong>和<strong>smtp_connect_timeout</strong>分别定义了SMTP服务器及相应的连接超时时间，<br><strong>vrrp_mcast_group4</strong>为VRRP IPv4多播地址，默认为224.0.0.18，如果同一局域网内有多组Keepalived时需要指定不同多播地址。</p>
 <h5 id="2．VRRP实例段定义（vrrp-instance）"><a href="#2．VRRP实例段定义（vrrp-instance）" class="headerlink" title="2．VRRP实例段定义（vrrp_instance）"></a>2．VRRP实例段定义（vrrp_instance）</h5><p>这部分主要用来定义具体服务的实例配置，包括Keepalived主备状态、接口、优先级、认证方式和VIP信息等,每个VRRP实例可以认为是Keepalived服务的一个实例或作为一个业务服务，在一组Keepalived服务配置中，VRRP实例可以有多个。</p>
 <p>注意，存在于Master节点中的VRRP实例配置在Backup节点中也要有一致的配置（除了节点角色、优先级不同），这样才能实现故障切换转移。</p>
@@ -14340,7 +14340,7 @@ print(f&quot;全部任务执行完成，耗时 &#123;round(finish - start,2)&#12
 <p>-- my-app<br>    – .gitignore<br>    – README.md<br>    – LICENSE<br>    – go.mod<br>    – go.sum<br>    – main.go<br>    – pkg<br>        – …</p>
 <h3 id="项目构建"><a href="#项目构建" class="headerlink" title="项目构建"></a>项目构建</h3><hr>
 <p>因为这里构建的是 Go 的项目，如果用到私有库，在 go mod tidy 时会要求提供 Git 凭证，我们可以现在 Jenkins 的凭证管理中创建 Username with password 类型的凭证，其中 Username 就是 GitHub 的用户名，password 则是 GitHub 的 AccessToken，这里主要用到的是 AccessToken，Username 其实并不需要。但在 Jenkins Pipeline 中使用 usernamePassword 时要求同时定义用户名变量名 usernameVariable 和 密码变量名 passwordVariable 。</p>
-<p>stage(‘Build’) {<br>    steps {<br>        withCredentials(bindings: [<br>            usernamePassword(credentialsId: ‘GITHUB_CREDENTIAL’,                usernameVariable: ‘GITHUB_USER’,                passwordVariable: ‘GITHUB_ACCESS_TOKEN’<br>            )<br>        ]) {<br>            sh ‘’’<br>            git config –global url.”https:&#x2F;&#x2F;${GITHUB_ACCESS_TOKEN}:<a href="mailto:&#120;&#x2d;&#111;&#x61;&#x75;&#116;&#104;&#x2d;&#x62;&#x61;&#x73;&#x69;&#x63;&#x40;&#x67;&#x69;&#116;&#104;&#117;&#98;&#x2e;&#x63;&#x6f;&#109;">&#120;&#x2d;&#111;&#x61;&#x75;&#116;&#104;&#x2d;&#x62;&#x61;&#x73;&#x69;&#x63;&#x40;&#x67;&#x69;&#116;&#104;&#117;&#98;&#x2e;&#x63;&#x6f;&#109;</a>&#x2F;“.insteadOf “<a href="https://github.com/&quot;">https://github.com/&quot;</a></p>
+<p>stage(‘Build’) {<br>    steps {<br>        withCredentials(bindings: [<br>            usernamePassword(credentialsId: ‘GITHUB_CREDENTIAL’,                usernameVariable: ‘GITHUB_USER’,                passwordVariable: ‘GITHUB_ACCESS_TOKEN’<br>            )<br>        ]) {<br>            sh ‘’’<br>            git config –global url.”https:&#x2F;&#x2F;${GITHUB_ACCESS_TOKEN}:<a href="mailto:&#120;&#x2d;&#111;&#97;&#117;&#x74;&#104;&#x2d;&#98;&#97;&#115;&#105;&#99;&#x40;&#103;&#x69;&#x74;&#x68;&#117;&#98;&#46;&#99;&#111;&#x6d;">&#120;&#x2d;&#111;&#97;&#117;&#x74;&#104;&#x2d;&#98;&#97;&#115;&#105;&#99;&#x40;&#103;&#x69;&#x74;&#x68;&#117;&#98;&#46;&#99;&#111;&#x6d;</a>&#x2F;“.insteadOf “<a href="https://github.com/&quot;">https://github.com/&quot;</a></p>
 <pre><code>        go mod tidy
         go build -o bin/my-app main.go
         &#39;&#39;&#39;
@@ -15086,45 +15086,6 @@ location @product\_env &#123;
       </tags>
   </entry>
   <entry>
-    <title>如何更新 Linux 的符号链接？</title>
-    <url>/2021/11/16/%E5%A6%82%E4%BD%95%E6%9B%B4%E6%96%B0-linux-%E7%9A%84%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5%EF%BC%9F/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/11/2021111509535610.png"></p>
-<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
-<p>UNIX 和 Linux 用户发现链接有很多用途，特别是符号链接。我喜欢使用符号链接的一种方式是管理各种 IT 设备的配置备份。</p>
-<p>我有一个目录结构，用来存放我的文档、更新及网络上其他和计算机和设备有关的文件。设备可以包括路由器、接入点、NAS 服务器和笔记本电脑，通常有不同的品牌和版本。配置备份本身可能在目录树的深处，例如 &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;NetgearRL5000&#x2F;config。</p>
-<p>为了简化备份过程，我在主目录中有一个名为 Configuration 的目录。我使用这个目录的符号链接来指向特定的设备目录：</p>
-<p>:~&#x2F;Configuration&#x2F; $ ls -F1<br>Router@<br>Accesspoint@<br>NAS@</p>
-<p>注意：ls 命令的 -F 选项在每个文件名上附加特殊字符以表示其类型。如上所示，@ 符号表示这些是链接。</p>
-<h3 id="创建一个链接"><a href="#创建一个链接" class="headerlink" title="创建一个链接"></a>创建一个链接</h3><hr>
-<p>符号链接 Router 指向我的 Netgear RL5000 的 config 目录。创建它的命令是 ln -s：</p>
-<p>$ ln -s &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;NetgearRL5000&#x2F;config Router</p>
-<p>然后，用 ls -l 看一下并确认：</p>
-<p>:~&#x2F;Configuration&#x2F; $ ls -l<br>Router -&gt; &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;NetgearRL5000&#x2F;config<br>NAS -&gt; &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;NFSBox&#x2F;config<br>…</p>
-<p>这样做的好处是，当对这个设备进行维护时，我只需进入 ~&#x2F;Configuration&#x2F;Router。</p>
-<p>如果我决定用一个新的型号替换这个路由器，使用符号链接的第二个好处就很明显了。我可能会把旧的路由器改成一个接入点。因此，它的目录并没有被删除。相反，我有一个新的目录，对应于新的路由器，也许是华硕 DF-3760。我创建这个目录并确认它的存在：</p>
-<p>$ mkdir -p <del>&#x2F;Documents&#x2F;network&#x2F;device&#x2F;ASUSDF-3760&#x2F;config<br>:</del>&#x2F;Documents&#x2F;network&#x2F;device&#x2F; $ ls<br>NetgearRL5000<br>ASUSDF-3760<br>NFSBox<br>…</p>
-<p>另一个例子是，如果你的办公室里有几个接入点。你可以使用符号链接在逻辑上代表每一个，用一个通用的名字，如 ap1，ap2，等等，或者你可以使用描述性的词语，如 ap_floor2，ap_floor3，等等。这样，当物理设备随时间变化时，你不必持续更新任何可能管理它们的进程，因为它们是在处理链接而不是实际的设备目录。</p>
-<h3 id="更新一个链接"><a href="#更新一个链接" class="headerlink" title="更新一个链接"></a>更新一个链接</h3><hr>
-<p>由于我的主路由器已经改变，我想让路由器的符号链接指向它的目录。我可以使用 rm 和 ln 命令来删除和创建一个新的符号链接，但是有一种方法可以只用 ln 命令和几个选项就可以一步完成：</p>
-<p>:<del>&#x2F;Configuration&#x2F; $ ln -vfns ~&#x2F;Documents&#x2F;network&#x2F;device&#x2F;ASUSDF-3760&#x2F;config&#x2F; Router<br>‘Router’ -&gt; ‘&#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;ASUSDF-3760&#x2F;config&#x2F;‘<br>:</del>&#x2F;Configuration&#x2F; $ ls -l<br>Router -&gt; &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;ASUSDF-3760&#x2F;config<br>NAS -&gt; &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;NFSBox&#x2F;config</p>
-<p>根据手册页，这些选项如下：</p>
-<p>◈ -v、–verbose：打印每个链接文件的名称<br>◈ -f、–force：删除目标文件（有必要，因为已经存在一个链接）<br>◈ -n、–no-dereference：如果链接名是一个目录的符号链接，就把它当作一个正常的文件<br>◈ -s、–symbolic：制作符号链接而不是硬链接</p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><hr>
-<p>链接是 UNIX 和 Linux 文件系统中最强大的功能之一。其他操作系统也曾试图模仿这种能力，但由于他们的文件系统缺乏基本的链接设计，这些系统从来没有工作得那么好，也没有那么可用。</p>
-<p>上面的演示只是利用链接在生活生产环境中无缝浏览不断变化的目录结构的众多可能性中的一种。链接提供了一个永远不会长期静态的组织所需的灵活性。</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>运维</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
-        <tag>symlink</tag>
-        <tag>更新</tag>
-        <tag>符号链接</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>如何清除Linux历史记录？</title>
     <url>/2021/11/02/%E5%A6%82%E4%BD%95%E6%B8%85%E9%99%A4linux%E5%8E%86%E5%8F%B2%E8%AE%B0%E5%BD%95%EF%BC%9F/</url>
     <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/11/image-2.png"></p>
@@ -15133,10 +15094,10 @@ location @product\_env &#123;
 <p>另外，如果在操作中输入过密码等信息，如果不想保存到历史纪录中是可以删除的。</p>
 <h3 id="1-隐藏远程SSH登陆记录"><a href="#1-隐藏远程SSH登陆记录" class="headerlink" title="1. 隐藏远程SSH登陆记录"></a>1. 隐藏远程SSH登陆记录</h3><hr>
 <p>隐身登录系统，不会被w、last等指令检测到。</p>
-<p>ssh -T <a href="mailto:&#114;&#111;&#111;&#x74;&#64;&#49;&#x39;&#50;&#46;&#x30;&#46;&#48;&#46;&#x31;">&#114;&#111;&#111;&#x74;&#64;&#49;&#x39;&#50;&#46;&#x30;&#46;&#48;&#46;&#x31;</a> &#x2F;bin&#x2F;bash -i</p>
+<p>ssh -T <a href="mailto:&#114;&#x6f;&#x6f;&#116;&#x40;&#49;&#57;&#x32;&#46;&#x30;&#x2e;&#x30;&#x2e;&#49;">&#114;&#x6f;&#x6f;&#116;&#x40;&#49;&#57;&#x32;&#46;&#x30;&#x2e;&#x30;&#x2e;&#49;</a> &#x2F;bin&#x2F;bash -i</p>
 <p>-T表示不分配伪终端，&#x2F;usr&#x2F;bin&#x2F;bash 表示在登录后调用bash命令 -i 表示是交互式shell</p>
 <h4 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h4><hr>
-<p>w&#x2F;last命令日志&#x2F;var&#x2F;log&#x2F;wtmp 是utmp和wtmp的日志接口产生的，而这俩接口是正常登陆分配伪终端（tty）之后才调用的，ssh -T <a href="mailto:&#x72;&#x6f;&#x6f;&#x74;&#64;&#49;&#x39;&#50;&#x2e;&#48;&#46;&#x30;&#x2e;&#49;">&#x72;&#x6f;&#x6f;&#x74;&#64;&#49;&#x39;&#50;&#x2e;&#48;&#46;&#x30;&#x2e;&#49;</a> &#x2F;usr&#x2F;bin&#x2F;bash表示登陆后调用bash命令。不是一个完整的会话 类似执行一个临时命令,系统不会分配伪终端</p>
+<p>w&#x2F;last命令日志&#x2F;var&#x2F;log&#x2F;wtmp 是utmp和wtmp的日志接口产生的，而这俩接口是正常登陆分配伪终端（tty）之后才调用的，ssh -T <a href="mailto:&#x72;&#x6f;&#111;&#116;&#x40;&#x31;&#x39;&#50;&#x2e;&#48;&#x2e;&#x30;&#x2e;&#49;">&#x72;&#x6f;&#111;&#116;&#x40;&#x31;&#x39;&#50;&#x2e;&#48;&#x2e;&#x30;&#x2e;&#49;</a> &#x2F;usr&#x2F;bin&#x2F;bash表示登陆后调用bash命令。不是一个完整的会话 类似执行一个临时命令,系统不会分配伪终端</p>
 <p>伪终端(pseudo terminal有时也被称为pty)应用场景:</p>
 <ol>
 <li>在图形界面下打开的命令行终端</li>
@@ -15294,6 +15255,45 @@ location @product\_env &#123;
         <tag>Kubernetes</tag>
         <tag>token</tag>
         <tag>secret</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>如何更新 Linux 的符号链接？</title>
+    <url>/2021/11/16/%E5%A6%82%E4%BD%95%E6%9B%B4%E6%96%B0-linux-%E7%9A%84%E7%AC%A6%E5%8F%B7%E9%93%BE%E6%8E%A5%EF%BC%9F/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/11/2021111509535610.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>UNIX 和 Linux 用户发现链接有很多用途，特别是符号链接。我喜欢使用符号链接的一种方式是管理各种 IT 设备的配置备份。</p>
+<p>我有一个目录结构，用来存放我的文档、更新及网络上其他和计算机和设备有关的文件。设备可以包括路由器、接入点、NAS 服务器和笔记本电脑，通常有不同的品牌和版本。配置备份本身可能在目录树的深处，例如 &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;NetgearRL5000&#x2F;config。</p>
+<p>为了简化备份过程，我在主目录中有一个名为 Configuration 的目录。我使用这个目录的符号链接来指向特定的设备目录：</p>
+<p>:~&#x2F;Configuration&#x2F; $ ls -F1<br>Router@<br>Accesspoint@<br>NAS@</p>
+<p>注意：ls 命令的 -F 选项在每个文件名上附加特殊字符以表示其类型。如上所示，@ 符号表示这些是链接。</p>
+<h3 id="创建一个链接"><a href="#创建一个链接" class="headerlink" title="创建一个链接"></a>创建一个链接</h3><hr>
+<p>符号链接 Router 指向我的 Netgear RL5000 的 config 目录。创建它的命令是 ln -s：</p>
+<p>$ ln -s &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;NetgearRL5000&#x2F;config Router</p>
+<p>然后，用 ls -l 看一下并确认：</p>
+<p>:~&#x2F;Configuration&#x2F; $ ls -l<br>Router -&gt; &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;NetgearRL5000&#x2F;config<br>NAS -&gt; &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;NFSBox&#x2F;config<br>…</p>
+<p>这样做的好处是，当对这个设备进行维护时，我只需进入 ~&#x2F;Configuration&#x2F;Router。</p>
+<p>如果我决定用一个新的型号替换这个路由器，使用符号链接的第二个好处就很明显了。我可能会把旧的路由器改成一个接入点。因此，它的目录并没有被删除。相反，我有一个新的目录，对应于新的路由器，也许是华硕 DF-3760。我创建这个目录并确认它的存在：</p>
+<p>$ mkdir -p <del>&#x2F;Documents&#x2F;network&#x2F;device&#x2F;ASUSDF-3760&#x2F;config<br>:</del>&#x2F;Documents&#x2F;network&#x2F;device&#x2F; $ ls<br>NetgearRL5000<br>ASUSDF-3760<br>NFSBox<br>…</p>
+<p>另一个例子是，如果你的办公室里有几个接入点。你可以使用符号链接在逻辑上代表每一个，用一个通用的名字，如 ap1，ap2，等等，或者你可以使用描述性的词语，如 ap_floor2，ap_floor3，等等。这样，当物理设备随时间变化时，你不必持续更新任何可能管理它们的进程，因为它们是在处理链接而不是实际的设备目录。</p>
+<h3 id="更新一个链接"><a href="#更新一个链接" class="headerlink" title="更新一个链接"></a>更新一个链接</h3><hr>
+<p>由于我的主路由器已经改变，我想让路由器的符号链接指向它的目录。我可以使用 rm 和 ln 命令来删除和创建一个新的符号链接，但是有一种方法可以只用 ln 命令和几个选项就可以一步完成：</p>
+<p>:<del>&#x2F;Configuration&#x2F; $ ln -vfns ~&#x2F;Documents&#x2F;network&#x2F;device&#x2F;ASUSDF-3760&#x2F;config&#x2F; Router<br>‘Router’ -&gt; ‘&#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;ASUSDF-3760&#x2F;config&#x2F;‘<br>:</del>&#x2F;Configuration&#x2F; $ ls -l<br>Router -&gt; &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;ASUSDF-3760&#x2F;config<br>NAS -&gt; &#x2F;home&#x2F;alan&#x2F;Documents&#x2F;network&#x2F;device&#x2F;NFSBox&#x2F;config</p>
+<p>根据手册页，这些选项如下：</p>
+<p>◈ -v、–verbose：打印每个链接文件的名称<br>◈ -f、–force：删除目标文件（有必要，因为已经存在一个链接）<br>◈ -n、–no-dereference：如果链接名是一个目录的符号链接，就把它当作一个正常的文件<br>◈ -s、–symbolic：制作符号链接而不是硬链接</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><hr>
+<p>链接是 UNIX 和 Linux 文件系统中最强大的功能之一。其他操作系统也曾试图模仿这种能力，但由于他们的文件系统缺乏基本的链接设计，这些系统从来没有工作得那么好，也没有那么可用。</p>
+<p>上面的演示只是利用链接在生活生产环境中无缝浏览不断变化的目录结构的众多可能性中的一种。链接提供了一个永远不会长期静态的组织所需的灵活性。</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>运维</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+        <tag>symlink</tag>
+        <tag>更新</tag>
+        <tag>符号链接</tag>
       </tags>
   </entry>
   <entry>
@@ -15463,8 +15463,8 @@ Serial Number: Not Specified
         <category>Fastdfs</category>
       </categories>
       <tags>
-        <tag>FastDFS</tag>
         <tag>fastdfs-nginx-module</tag>
+        <tag>FastDFS</tag>
         <tag>cannot find -lfdfsclient</tag>
       </tags>
   </entry>
@@ -15774,6 +15774,80 @@ Serial Number: Not Specified
       </tags>
   </entry>
   <entry>
+    <title>普通用户安装配置haproxy</title>
+    <url>/2021/12/09/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEhaproxy/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-5.png"></p>
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
+<p>HAProxy提供高可用性、负载均衡以及基于TCP和HTTP应用的代理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案。<br>HAProxy特别适用于那些负载特大的web站点，这些站点通常又需要会话保持或七层处理。<br>HAProxy运行在当前的硬件上，完全可以支持数以万计的并发连接。并且它的运行模式使得它可以很简单安全的整合进您当前的架构中， 同时可以保护你的web服务器不被暴露到网络上。</p>
+<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><hr>
+<p>下载包<br>下载地址：<a href="http://download.openpkg.org/components/cache/haproxy/haproxy-2.5.0.tar.gz">http://download.openpkg.org/components/cache/haproxy/haproxy-2.5.0.tar.gz</a></p>
+<p>[code404@NEWCWS-AS06 data]$ tar -xvf haproxy-2.5.0.tar.gz<br>[code404@NEWCWS-AS06 haproxy-2.5.0]$ cd haproxy-2.5.0<br>[code404@NEWCWS-AS06 haproxy-2.5.0]$ uname -r<br>3.10.0-1062.el7.x86_64</p>
+<p>系统版本 3.10.0-1062.el7.x86_64</p>
+<h3 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h3><hr>
+<h4 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h4><hr>
+<ul>
+<li>TARGET&#x3D;linux26 #内核版本，使用uname -r查看内核，如：2.6.18-371.el5，此时该参数就为linux26；kernel 大于2.6.28的用： TARGET&#x3D;linux2628</li>
+<li>ARCH&#x3D;x86_64 #系统位数</li>
+<li>PREFIX&#x3D;&#x2F;data&#x2F;haprpxy #&#x2F;usr&#x2F;local&#x2F;haprpxy为haprpxy安装路径</li>
+</ul>
+<p>[code404@NEWCWS-AS06 haproxy-2.5.0]$ make TARGET&#x3D;3100 ARCH&#x3D;x86_64 PREFIX&#x3D;&#x2F;data&#x2F;haproxy<br>[code404@NEWCWS-AS06 haproxy-2.5.0]$ make install TARGET&#x3D;3100 ARCH&#x3D;x86_64 PREFIX&#x3D;&#x2F;data&#x2F;haproxy<br>install: creating directory ‘&#x2F;data&#x2F;haproxy’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;sbin’<br>‘haproxy’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;share’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;share&#x2F;man’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;share&#x2F;man&#x2F;man1’<br>‘doc&#x2F;haproxy.1’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;share&#x2F;man&#x2F;man1&#x2F;haproxy.1’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;doc’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy’<br>‘doc&#x2F;configuration.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;configuration.txt’<br>‘doc&#x2F;management.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;management.txt’<br>‘doc&#x2F;seamless_reload.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;seamless_reload.txt’<br>‘doc&#x2F;architecture.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;architecture.txt’<br>‘doc&#x2F;peers-v2.0.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;peers-v2.0.txt’<br>‘doc&#x2F;regression-testing.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;regression-testing.txt’<br>‘doc&#x2F;cookie-options.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;cookie-options.txt’<br>‘doc&#x2F;lua.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;lua.txt’<br>‘doc&#x2F;WURFL-device-detection.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;WURFL-device-detection.txt’<br>‘doc&#x2F;proxy-protocol.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;proxy-protocol.txt’<br>‘doc&#x2F;linux-syn-cookies.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;linux-syn-cookies.txt’<br>‘doc&#x2F;SOCKS4.protocol.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;SOCKS4.protocol.txt’<br>‘doc&#x2F;network-namespaces.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;network-namespaces.txt’<br>‘doc&#x2F;DeviceAtlas-device-detection.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;DeviceAtlas-device-detection.txt’<br>‘doc&#x2F;51Degrees-device-detection.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;51Degrees-device-detection.txt’<br>‘doc&#x2F;netscaler-client-ip-insertion-protocol.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;netscaler-client-ip-insertion-protocol.txt’<br>‘doc&#x2F;peers.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;peers.txt’<br>‘doc&#x2F;close-options.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;close-options.txt’<br>‘doc&#x2F;SPOE.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;SPOE.txt’<br>‘doc&#x2F;intro.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;intro.txt’</p>
+<h3 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h3><hr>
+<p>[code404@NEWCWS-AS06 haproxy-2.5.0]$ cd &#x2F;data&#x2F;haproxy<br>[code404@NEWCWS-AS06 haproxy]$ mkdir etc<br>[code404@NEWCWS-AS06 haproxy]$ vim etc&#x2F;haproxy.cfg</p>
+<p>&#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg 配置</p>
+<p>#———————————————————————</p>
+<h1 id="Global-settings"><a href="#Global-settings" class="headerlink" title="Global settings"></a>Global settings</h1><p>#———————————————————————<br>global<br>    # to have these messages end up in &#x2F;var&#x2F;log&#x2F;haproxy.log you will<br>    log         127.0.0.1 local2</p>
+<pre><code>#chroot      /data/haproxy/chroot
+pidfile     /data/haproxy.pid
+maxconn     4000
+uid0
+gid 0
+daemon
+
+# turn on stats unix socket
+stats socket /data/haproxy/stats
+</code></pre>
+<p>#———————————————————————</p>
+<h1 id="common-defaults-that-all-the-‘listen’-and-‘backend’-sections-will"><a href="#common-defaults-that-all-the-‘listen’-and-‘backend’-sections-will" class="headerlink" title="common defaults that all the ‘listen’ and ‘backend’ sections will"></a>common defaults that all the ‘listen’ and ‘backend’ sections will</h1><h1 id="use-if-not-designated-in-their-block"><a href="#use-if-not-designated-in-their-block" class="headerlink" title="use if not designated in their block"></a>use if not designated in their block</h1><p>#———————————————————————<br>defaults<br>    mode                    http<br>    log                     global<br>    option                  httplog<br>    option                  dontlognull<br>    option http-server-close</p>
+<h1 id="option-forwardfor-except-127-0-0-0-x2F-8"><a href="#option-forwardfor-except-127-0-0-0-x2F-8" class="headerlink" title="option forwardfor       except 127.0.0.0&#x2F;8"></a>option forwardfor       except 127.0.0.0&#x2F;8</h1><pre><code>option                  redispatch
+retries                 3
+timeout http-request    10s
+timeout queue           1m
+timeout connect         10s
+timeout client          1m
+timeout server          1m
+timeout http-keep-alive 10s
+timeout check           10s
+maxconn                 3000
+</code></pre>
+<p>listen oa_rabbitmq_cluster<br>    bind *:5672<br>    #配置TCP模式<br>    mode tcp<br>    option tcplog<br>    #简单的轮询<br>    balance roundrobin<br>    #rabbitmq集群节点配置 server 每个节点的hostname ip:5672<br>    server OA-MQ1 10.3.152.68:5672 check inter 5000 rise 2 fall 2<br>    server OA-MQ2 10.3.152.69:5672 check inter 5000 rise 2 fall 2<br>    server OA-MQ3 10.3.153.69:5672 check inter 5000 rise 2 fall 2</p>
+<p>listen stats<br>    bind *:15672<br>    mode http<br>    option httplog<br>    stats enable<br>    #简单的轮询<br>    balance roundrobin<br>    #rabbitmq集群节点配置 server 每个节点的hostname ip:5672<br>    server OA-MQ1 10.3.152.68:15672 check inter 5000 rise 2 fall 2<br>    server OA-MQ2 10.3.152.69:15672 check inter 5000 rise 2 fall 2<br>    server OA-MQ3 10.3.153.69:15672 check inter 5000 rise 2 fall 2</p>
+<h3 id="启动-haproxy"><a href="#启动-haproxy" class="headerlink" title="启动 haproxy"></a>启动 haproxy</h3><hr>
+<p>&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy -f &#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg</p>
+<h3 id="报错了-x2F-data-x2F-haproxy-x2F-sbin-x2F-haproxy-main-Cannot-raise-FD-limit-to-8032-limit-is-1024"><a href="#报错了-x2F-data-x2F-haproxy-x2F-sbin-x2F-haproxy-main-Cannot-raise-FD-limit-to-8032-limit-is-1024" class="headerlink" title="报错了[&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy.main()] Cannot raise FD limit to 8032, limit is 1024."></a>报错了[&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy.main()] Cannot raise FD limit to 8032, limit is 1024.</h3><hr>
+<p>[code404@NEWCWS-AS06 haproxy]$ &#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy -f &#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg<br>[NOTICE]   (22699) : haproxy version is 2.5.0-f2e0833<br>[NOTICE]   (22699) : path to executable is &#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy<br>[ALERT]    (22699) : [&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy.main()] Cannot raise FD limit to 8032, limit is 1024.<br>[code404@NEWCWS-AS06 haproxy]$</p>
+<p>这个报错说明，系统没有优化，下面优化一下</p>
+<p>vim &#x2F;etc&#x2F;security&#x2F;limits.conf<br>*        soft    nofile        65535<br>*        hard    nofile        65535</p>
+<p>优化完成后，要重启一下服务器</p>
+<p>reboot</p>
+<h3 id="再次启动Haproxy"><a href="#再次启动Haproxy" class="headerlink" title="再次启动Haproxy"></a>再次启动Haproxy</h3><hr>
+<p>[code404@NEWCWS-AS06 haproxy]$ &#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy -f &#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg<br>[code404@NEWCWS-AS06 haproxy]$ netstat -nptl<br>(Not all processes could be identified, non-owned process info<br> will not be shown, you would have to be root to see it all.)<br>Active Internet connections (only servers)<br>Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID&#x2F;Program name<br>tcp        0      0 0.0.0.0:15672           0.0.0.0:*               LISTEN      1887&#x2F;haproxy<br>tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      -<br>tcp        0      0 0.0.0.0:5672            0.0.0.0:*               LISTEN      1887&#x2F;haproxy<br>tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -<br>tcp6       0      0 ::1:25                  :::*                    LISTEN      -<br>tcp6       0      0 :::22                   :::*                    LISTEN      -       </p>
+<h3 id="检查haproxy状态，能访问了"><a href="#检查haproxy状态，能访问了" class="headerlink" title="检查haproxy状态，能访问了"></a>检查haproxy状态，能访问了</h3><hr>
+<p>[code404@NEWCWS-AS06 haproxy]$ curl localhost:15672 -I<br>HTTP&#x2F;1.1 200 OK<br>content-length: 2884<br>content-security-policy: script-src ‘self’ ‘unsafe-eval’ ‘unsafe-inline’; object-src ‘self’<br>content-type: text&#x2F;html<br>date: Mon, 06 Dec 2021 06:59:07 GMT<br>etag: “3417244139”<br>last-modified: Thu, 02 Dec 2021 07:12:23 GMT<br>server: Cowboy<br>vary: origin</p>
+<h3 id="外面访问，要开防火墙端口"><a href="#外面访问，要开防火墙端口" class="headerlink" title="外面访问，要开防火墙端口"></a>外面访问，要开防火墙端口</h3><hr>
+<p>切换到root账号，开放端口</p>
+<p>[code404@NEWCWS-AS06 haproxy]$ firewall-cmd –add-port&#x3D;15672&#x2F;tcp –add-port&#x3D;5672&#x2F;tcp –zone&#x3D;public –perman<br>success<br>[code404@NEWCWS-AS06 haproxy]$ firewall-cmd –reload<br>success<br>[code404@NEWCWS-AS06 haproxy]$</p>
+]]></content>
+      <categories>
+        <category>haproxy</category>
+      </categories>
+      <tags>
+        <tag>安装</tag>
+        <tag>普通用户</tag>
+        <tag>配置</tag>
+        <tag>haproxy</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>既然有http 请求，为什么还要用rpc调用？</title>
     <url>/2021/05/05/%E6%97%A2%E7%84%B6%E6%9C%89http-%E8%AF%B7%E6%B1%82%EF%BC%8C%E4%B8%BA%E4%BB%80%E4%B9%88%E8%BF%98%E8%A6%81%E7%94%A8rpc%E8%B0%83%E7%94%A8%EF%BC%9F/</url>
     <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/05/image.png"></p>
@@ -15863,80 +15937,6 @@ Serial Number: Not Specified
         <tag>普通用户</tag>
         <tag>haproxy</tag>
         <tag>keepalived</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>普通用户安装配置haproxy</title>
-    <url>/2021/12/09/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AEhaproxy/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-5.png"></p>
-<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><hr>
-<p>HAProxy提供高可用性、负载均衡以及基于TCP和HTTP应用的代理，支持虚拟主机，它是免费、快速并且可靠的一种解决方案。<br>HAProxy特别适用于那些负载特大的web站点，这些站点通常又需要会话保持或七层处理。<br>HAProxy运行在当前的硬件上，完全可以支持数以万计的并发连接。并且它的运行模式使得它可以很简单安全的整合进您当前的架构中， 同时可以保护你的web服务器不被暴露到网络上。</p>
-<h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><hr>
-<p>下载包<br>下载地址：<a href="http://download.openpkg.org/components/cache/haproxy/haproxy-2.5.0.tar.gz">http://download.openpkg.org/components/cache/haproxy/haproxy-2.5.0.tar.gz</a></p>
-<p>[code404@NEWCWS-AS06 data]$ tar -xvf haproxy-2.5.0.tar.gz<br>[code404@NEWCWS-AS06 haproxy-2.5.0]$ cd haproxy-2.5.0<br>[code404@NEWCWS-AS06 haproxy-2.5.0]$ uname -r<br>3.10.0-1062.el7.x86_64</p>
-<p>系统版本 3.10.0-1062.el7.x86_64</p>
-<h3 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h3><hr>
-<h4 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h4><hr>
-<ul>
-<li>TARGET&#x3D;linux26 #内核版本，使用uname -r查看内核，如：2.6.18-371.el5，此时该参数就为linux26；kernel 大于2.6.28的用： TARGET&#x3D;linux2628</li>
-<li>ARCH&#x3D;x86_64 #系统位数</li>
-<li>PREFIX&#x3D;&#x2F;data&#x2F;haprpxy #&#x2F;usr&#x2F;local&#x2F;haprpxy为haprpxy安装路径</li>
-</ul>
-<p>[code404@NEWCWS-AS06 haproxy-2.5.0]$ make TARGET&#x3D;3100 ARCH&#x3D;x86_64 PREFIX&#x3D;&#x2F;data&#x2F;haproxy<br>[code404@NEWCWS-AS06 haproxy-2.5.0]$ make install TARGET&#x3D;3100 ARCH&#x3D;x86_64 PREFIX&#x3D;&#x2F;data&#x2F;haproxy<br>install: creating directory ‘&#x2F;data&#x2F;haproxy’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;sbin’<br>‘haproxy’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;share’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;share&#x2F;man’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;share&#x2F;man&#x2F;man1’<br>‘doc&#x2F;haproxy.1’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;share&#x2F;man&#x2F;man1&#x2F;haproxy.1’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;doc’<br>install: creating directory ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy’<br>‘doc&#x2F;configuration.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;configuration.txt’<br>‘doc&#x2F;management.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;management.txt’<br>‘doc&#x2F;seamless_reload.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;seamless_reload.txt’<br>‘doc&#x2F;architecture.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;architecture.txt’<br>‘doc&#x2F;peers-v2.0.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;peers-v2.0.txt’<br>‘doc&#x2F;regression-testing.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;regression-testing.txt’<br>‘doc&#x2F;cookie-options.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;cookie-options.txt’<br>‘doc&#x2F;lua.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;lua.txt’<br>‘doc&#x2F;WURFL-device-detection.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;WURFL-device-detection.txt’<br>‘doc&#x2F;proxy-protocol.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;proxy-protocol.txt’<br>‘doc&#x2F;linux-syn-cookies.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;linux-syn-cookies.txt’<br>‘doc&#x2F;SOCKS4.protocol.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;SOCKS4.protocol.txt’<br>‘doc&#x2F;network-namespaces.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;network-namespaces.txt’<br>‘doc&#x2F;DeviceAtlas-device-detection.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;DeviceAtlas-device-detection.txt’<br>‘doc&#x2F;51Degrees-device-detection.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;51Degrees-device-detection.txt’<br>‘doc&#x2F;netscaler-client-ip-insertion-protocol.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;netscaler-client-ip-insertion-protocol.txt’<br>‘doc&#x2F;peers.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;peers.txt’<br>‘doc&#x2F;close-options.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;close-options.txt’<br>‘doc&#x2F;SPOE.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;SPOE.txt’<br>‘doc&#x2F;intro.txt’ -&gt; ‘&#x2F;data&#x2F;haproxy&#x2F;doc&#x2F;haproxy&#x2F;intro.txt’</p>
-<h3 id="修改配置文件"><a href="#修改配置文件" class="headerlink" title="修改配置文件"></a>修改配置文件</h3><hr>
-<p>[code404@NEWCWS-AS06 haproxy-2.5.0]$ cd &#x2F;data&#x2F;haproxy<br>[code404@NEWCWS-AS06 haproxy]$ mkdir etc<br>[code404@NEWCWS-AS06 haproxy]$ vim etc&#x2F;haproxy.cfg</p>
-<p>&#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg 配置</p>
-<p>#———————————————————————</p>
-<h1 id="Global-settings"><a href="#Global-settings" class="headerlink" title="Global settings"></a>Global settings</h1><p>#———————————————————————<br>global<br>    # to have these messages end up in &#x2F;var&#x2F;log&#x2F;haproxy.log you will<br>    log         127.0.0.1 local2</p>
-<pre><code>#chroot      /data/haproxy/chroot
-pidfile     /data/haproxy.pid
-maxconn     4000
-uid0
-gid 0
-daemon
-
-# turn on stats unix socket
-stats socket /data/haproxy/stats
-</code></pre>
-<p>#———————————————————————</p>
-<h1 id="common-defaults-that-all-the-‘listen’-and-‘backend’-sections-will"><a href="#common-defaults-that-all-the-‘listen’-and-‘backend’-sections-will" class="headerlink" title="common defaults that all the ‘listen’ and ‘backend’ sections will"></a>common defaults that all the ‘listen’ and ‘backend’ sections will</h1><h1 id="use-if-not-designated-in-their-block"><a href="#use-if-not-designated-in-their-block" class="headerlink" title="use if not designated in their block"></a>use if not designated in their block</h1><p>#———————————————————————<br>defaults<br>    mode                    http<br>    log                     global<br>    option                  httplog<br>    option                  dontlognull<br>    option http-server-close</p>
-<h1 id="option-forwardfor-except-127-0-0-0-x2F-8"><a href="#option-forwardfor-except-127-0-0-0-x2F-8" class="headerlink" title="option forwardfor       except 127.0.0.0&#x2F;8"></a>option forwardfor       except 127.0.0.0&#x2F;8</h1><pre><code>option                  redispatch
-retries                 3
-timeout http-request    10s
-timeout queue           1m
-timeout connect         10s
-timeout client          1m
-timeout server          1m
-timeout http-keep-alive 10s
-timeout check           10s
-maxconn                 3000
-</code></pre>
-<p>listen oa_rabbitmq_cluster<br>    bind *:5672<br>    #配置TCP模式<br>    mode tcp<br>    option tcplog<br>    #简单的轮询<br>    balance roundrobin<br>    #rabbitmq集群节点配置 server 每个节点的hostname ip:5672<br>    server OA-MQ1 10.3.152.68:5672 check inter 5000 rise 2 fall 2<br>    server OA-MQ2 10.3.152.69:5672 check inter 5000 rise 2 fall 2<br>    server OA-MQ3 10.3.153.69:5672 check inter 5000 rise 2 fall 2</p>
-<p>listen stats<br>    bind *:15672<br>    mode http<br>    option httplog<br>    stats enable<br>    #简单的轮询<br>    balance roundrobin<br>    #rabbitmq集群节点配置 server 每个节点的hostname ip:5672<br>    server OA-MQ1 10.3.152.68:15672 check inter 5000 rise 2 fall 2<br>    server OA-MQ2 10.3.152.69:15672 check inter 5000 rise 2 fall 2<br>    server OA-MQ3 10.3.153.69:15672 check inter 5000 rise 2 fall 2</p>
-<h3 id="启动-haproxy"><a href="#启动-haproxy" class="headerlink" title="启动 haproxy"></a>启动 haproxy</h3><hr>
-<p>&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy -f &#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg</p>
-<h3 id="报错了-x2F-data-x2F-haproxy-x2F-sbin-x2F-haproxy-main-Cannot-raise-FD-limit-to-8032-limit-is-1024"><a href="#报错了-x2F-data-x2F-haproxy-x2F-sbin-x2F-haproxy-main-Cannot-raise-FD-limit-to-8032-limit-is-1024" class="headerlink" title="报错了[&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy.main()] Cannot raise FD limit to 8032, limit is 1024."></a>报错了[&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy.main()] Cannot raise FD limit to 8032, limit is 1024.</h3><hr>
-<p>[code404@NEWCWS-AS06 haproxy]$ &#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy -f &#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg<br>[NOTICE]   (22699) : haproxy version is 2.5.0-f2e0833<br>[NOTICE]   (22699) : path to executable is &#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy<br>[ALERT]    (22699) : [&#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy.main()] Cannot raise FD limit to 8032, limit is 1024.<br>[code404@NEWCWS-AS06 haproxy]$</p>
-<p>这个报错说明，系统没有优化，下面优化一下</p>
-<p>vim &#x2F;etc&#x2F;security&#x2F;limits.conf<br>*        soft    nofile        65535<br>*        hard    nofile        65535</p>
-<p>优化完成后，要重启一下服务器</p>
-<p>reboot</p>
-<h3 id="再次启动Haproxy"><a href="#再次启动Haproxy" class="headerlink" title="再次启动Haproxy"></a>再次启动Haproxy</h3><hr>
-<p>[code404@NEWCWS-AS06 haproxy]$ &#x2F;data&#x2F;haproxy&#x2F;sbin&#x2F;haproxy -f &#x2F;data&#x2F;haproxy&#x2F;etc&#x2F;haproxy.cfg<br>[code404@NEWCWS-AS06 haproxy]$ netstat -nptl<br>(Not all processes could be identified, non-owned process info<br> will not be shown, you would have to be root to see it all.)<br>Active Internet connections (only servers)<br>Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID&#x2F;Program name<br>tcp        0      0 0.0.0.0:15672           0.0.0.0:*               LISTEN      1887&#x2F;haproxy<br>tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      -<br>tcp        0      0 0.0.0.0:5672            0.0.0.0:*               LISTEN      1887&#x2F;haproxy<br>tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      -<br>tcp6       0      0 ::1:25                  :::*                    LISTEN      -<br>tcp6       0      0 :::22                   :::*                    LISTEN      -       </p>
-<h3 id="检查haproxy状态，能访问了"><a href="#检查haproxy状态，能访问了" class="headerlink" title="检查haproxy状态，能访问了"></a>检查haproxy状态，能访问了</h3><hr>
-<p>[code404@NEWCWS-AS06 haproxy]$ curl localhost:15672 -I<br>HTTP&#x2F;1.1 200 OK<br>content-length: 2884<br>content-security-policy: script-src ‘self’ ‘unsafe-eval’ ‘unsafe-inline’; object-src ‘self’<br>content-type: text&#x2F;html<br>date: Mon, 06 Dec 2021 06:59:07 GMT<br>etag: “3417244139”<br>last-modified: Thu, 02 Dec 2021 07:12:23 GMT<br>server: Cowboy<br>vary: origin</p>
-<h3 id="外面访问，要开防火墙端口"><a href="#外面访问，要开防火墙端口" class="headerlink" title="外面访问，要开防火墙端口"></a>外面访问，要开防火墙端口</h3><hr>
-<p>切换到root账号，开放端口</p>
-<p>[code404@NEWCWS-AS06 haproxy]$ firewall-cmd –add-port&#x3D;15672&#x2F;tcp –add-port&#x3D;5672&#x2F;tcp –zone&#x3D;public –perman<br>success<br>[code404@NEWCWS-AS06 haproxy]$ firewall-cmd –reload<br>success<br>[code404@NEWCWS-AS06 haproxy]$</p>
-]]></content>
-      <categories>
-        <category>haproxy</category>
-      </categories>
-      <tags>
-        <tag>安装</tag>
-        <tag>普通用户</tag>
-        <tag>配置</tag>
-        <tag>haproxy</tag>
       </tags>
   </entry>
   <entry>
@@ -16038,6 +16038,40 @@ maxconn                 3000
       </tags>
   </entry>
   <entry>
+    <title>百度云下载不限速_获取下载链接_突破会员限制</title>
+    <url>/2021/08/03/%E7%99%BE%E5%BA%A6%E4%BA%91%E4%B8%8B%E8%BD%BD%E4%B8%8D%E9%99%90%E9%80%9F-%E8%8E%B7%E5%8F%96%E4%B8%8B%E8%BD%BD%E9%93%BE%E6%8E%A5-%E7%AA%81%E7%A0%B4%E4%BC%9A%E5%91%98%E9%99%90%E5%88%B6/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/08/image-2.png"></p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><hr>
+<p>百度网盘现在有一家独大趋势，无论文件大小统统包容，特别是大体积的影视文件</p>
+<p>普通会员的容量是没有问题的，关键是下载速度和超级会员相差巨大</p>
+<p>只要你的账号没有充值，百度网盘限速处理，这也是很多朋友充百度网盘超级会员的缘故</p>
+<p>我个人不提倡使用第三方破解加速软件，官方严格把控检测，发现定会封号处理</p>
+<h3 id="解析百度云下载地址"><a href="#解析百度云下载地址" class="headerlink" title="解析百度云下载地址"></a>解析百度云下载地址</h3><hr>
+<p>打开地址：<a href="https://www.kinh.cc/">https://www.kinh.cc/</a><br><img src="https://img-blog.csdnimg.cn/662bfc5999c143c5ae3204c2551b6777.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>选择<strong>百度网盘在线解析</strong><br>这里百度网盘有一个比较大的文件，需要下载，如果在百度网盘下载就太慢了<br><img src="https://img-blog.csdnimg.cn/0acaf9ccca2443b1aee0fdd09e3bbfc1.png" alt="在这里插入图片描述"></p>
+<p>地址：<a href="https://pan.baidu.com/s/1axsju9of5orZiy5uFfSRmA">https://pan.baidu.com/s/1axsju9of5orZiy5uFfSRmA</a><br>提取码：fu76</p>
+<p><img src="https://img-blog.csdnimg.cn/f9ba3755f13a43eebbb363138fd1cb53.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h3 id="获取文件下载链接"><a href="#获取文件下载链接" class="headerlink" title="获取文件下载链接"></a>获取文件下载链接</h3><hr>
+<p>![<img src="https://img-blog.csdnimg.cn/5a0aec8ba7b446329f8de74f48de7a70.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在"></p>
+<h3 id="输入接收邮箱"><a href="#输入接收邮箱" class="headerlink" title="输入接收邮箱"></a>输入接收邮箱</h3><hr>
+<p><img src="https://img-blog.csdnimg.cn/e57942fe7029436581256d8d78ae401f.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/ab9fa8d2a4574679af5056bf4827f2bb.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="###"></p>
+<h3 id="静静的等待几分钟"><a href="#静静的等待几分钟" class="headerlink" title="静静的等待几分钟"></a>静静的等待几分钟</h3><hr>
+<p>查看邮箱<br>已经收到下载地址了<img src="https://img-blog.csdnimg.cn/b327901aa1b249e0b6c946c5979932d5.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h3 id="下载文件"><a href="#下载文件" class="headerlink" title="下载文件"></a>下载文件</h3><hr>
+<p>点击下载链接<br><img src="https://img-blog.csdnimg.cn/036dca9dee8147c49e2db130777acd05.png" alt="在这里插入图片描述"><br>这样就可以原速下载百度网盘的文件了</p>
+]]></content>
+      <categories>
+        <category>IT杂谈</category>
+        <category>百度云</category>
+      </categories>
+      <tags>
+        <tag>会员</tag>
+        <tag>百度云</tag>
+        <tag>百度网盘</tag>
+        <tag>限速</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>清理k8s_docker磁盘空间</title>
     <url>/2021/12/23/%E6%B8%85%E7%90%86k8s-docker%E7%A3%81%E7%9B%98%E7%A9%BA%E9%97%B4/</url>
     <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/12/image-15.png"></p>
@@ -16110,40 +16144,6 @@ maxconn                 3000
       </tags>
   </entry>
   <entry>
-    <title>百度云下载不限速_获取下载链接_突破会员限制</title>
-    <url>/2021/08/03/%E7%99%BE%E5%BA%A6%E4%BA%91%E4%B8%8B%E8%BD%BD%E4%B8%8D%E9%99%90%E9%80%9F-%E8%8E%B7%E5%8F%96%E4%B8%8B%E8%BD%BD%E9%93%BE%E6%8E%A5-%E7%AA%81%E7%A0%B4%E4%BC%9A%E5%91%98%E9%99%90%E5%88%B6/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/08/image-2.png"></p>
-<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><hr>
-<p>百度网盘现在有一家独大趋势，无论文件大小统统包容，特别是大体积的影视文件</p>
-<p>普通会员的容量是没有问题的，关键是下载速度和超级会员相差巨大</p>
-<p>只要你的账号没有充值，百度网盘限速处理，这也是很多朋友充百度网盘超级会员的缘故</p>
-<p>我个人不提倡使用第三方破解加速软件，官方严格把控检测，发现定会封号处理</p>
-<h3 id="解析百度云下载地址"><a href="#解析百度云下载地址" class="headerlink" title="解析百度云下载地址"></a>解析百度云下载地址</h3><hr>
-<p>打开地址：<a href="https://www.kinh.cc/">https://www.kinh.cc/</a><br><img src="https://img-blog.csdnimg.cn/662bfc5999c143c5ae3204c2551b6777.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>选择<strong>百度网盘在线解析</strong><br>这里百度网盘有一个比较大的文件，需要下载，如果在百度网盘下载就太慢了<br><img src="https://img-blog.csdnimg.cn/0acaf9ccca2443b1aee0fdd09e3bbfc1.png" alt="在这里插入图片描述"></p>
-<p>地址：<a href="https://pan.baidu.com/s/1axsju9of5orZiy5uFfSRmA">https://pan.baidu.com/s/1axsju9of5orZiy5uFfSRmA</a><br>提取码：fu76</p>
-<p><img src="https://img-blog.csdnimg.cn/f9ba3755f13a43eebbb363138fd1cb53.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<h3 id="获取文件下载链接"><a href="#获取文件下载链接" class="headerlink" title="获取文件下载链接"></a>获取文件下载链接</h3><hr>
-<p>![<img src="https://img-blog.csdnimg.cn/5a0aec8ba7b446329f8de74f48de7a70.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在"></p>
-<h3 id="输入接收邮箱"><a href="#输入接收邮箱" class="headerlink" title="输入接收邮箱"></a>输入接收邮箱</h3><hr>
-<p><img src="https://img-blog.csdnimg.cn/e57942fe7029436581256d8d78ae401f.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<p><img src="https://img-blog.csdnimg.cn/ab9fa8d2a4574679af5056bf4827f2bb.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="###"></p>
-<h3 id="静静的等待几分钟"><a href="#静静的等待几分钟" class="headerlink" title="静静的等待几分钟"></a>静静的等待几分钟</h3><hr>
-<p>查看邮箱<br>已经收到下载地址了<img src="https://img-blog.csdnimg.cn/b327901aa1b249e0b6c946c5979932d5.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2xlZW5oZW0=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
-<h3 id="下载文件"><a href="#下载文件" class="headerlink" title="下载文件"></a>下载文件</h3><hr>
-<p>点击下载链接<br><img src="https://img-blog.csdnimg.cn/036dca9dee8147c49e2db130777acd05.png" alt="在这里插入图片描述"><br>这样就可以原速下载百度网盘的文件了</p>
-]]></content>
-      <categories>
-        <category>IT杂谈</category>
-        <category>百度云</category>
-      </categories>
-      <tags>
-        <tag>会员</tag>
-        <tag>百度云</tag>
-        <tag>百度网盘</tag>
-        <tag>限速</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>盘点常用语言http请求客户端的惊艳框架</title>
     <url>/2021/05/23/%E7%9B%98%E7%82%B9%E5%B8%B8%E7%94%A8%E8%AF%AD%E8%A8%80http%E8%AF%B7%E6%B1%82%E5%AE%A2%E6%88%B7%E7%AB%AF%E7%9A%84%E6%83%8A%E8%89%B3%E6%A1%86%E6%9E%B6/</url>
     <content><![CDATA[<p>对于前后端交互的应用，http请求可以说是最重要的功能，而庆幸地是各个语言对于客户端请求都有非常好用的库来使用，今天我们就来盘点一下各个语言中那些惊艳的http请求库。</p>
@@ -16169,6 +16169,27 @@ maxconn                 3000
       </categories>
       <tags>
         <tag>http客户端</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>程序包无效：“CRX_HEADER_INVALID“</title>
+    <url>/2021/05/10/%E7%A8%8B%E5%BA%8F%E5%8C%85%E6%97%A0%E6%95%88%EF%BC%9Acrx-header-invalid/</url>
+    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/05/image-13.png"></p>
+<h1 id="之前在安装谷歌插件的时候遇到的问题，解决方法小技巧"><a href="#之前在安装谷歌插件的时候遇到的问题，解决方法小技巧" class="headerlink" title="之前在安装谷歌插件的时候遇到的问题，解决方法小技巧"></a>之前在安装谷歌插件的时候遇到的问题，解决方法小技巧</h1><h2 id="1、报错：程序包无效：“CRX-HEADER-INVALID”"><a href="#1、报错：程序包无效：“CRX-HEADER-INVALID”" class="headerlink" title="1、报错：程序包无效：“CRX_HEADER_INVALID”"></a>1、报错：程序包无效：“CRX_HEADER_INVALID”</h2><p>如图：</p>
+<p><img src="https://code404.icu/img/moveypu/2021/05/image-14.png"></p>
+<p>原因是插件格式不对，谷歌无法进行解析。需要手动解压文件。</p>
+<p>2、解决方法<br>将下载的<code>crx</code>文件后缀名改为<code>.zip</code> 或者后缀名 <code>.rar</code>。如果<code>zip</code>不行就改为<code>rar</code> 。然后对文件进行解压到指定文件夹，点击加载已解压的扩展程序，选定所解压的指定文件夹。</p>
+<p>再次把安装zip包拖放到<code>chrome://extensions/</code>扩展程序窗口就可以了</p>
+<p>上图中 谷歌访问助手 下载地址：<a href="https://www.code404.icu/programmer-box">https://www.code404.icu/programmer-box</a></p>
+]]></content>
+      <categories>
+        <category>IT杂谈</category>
+      </categories>
+      <tags>
+        <tag>报错</tag>
+        <tag>CRX_HEADER_INVALID</tag>
+        <tag>程序包无效</tag>
+        <tag>谷歌插件</tag>
       </tags>
   </entry>
   <entry>
@@ -16233,27 +16254,6 @@ maxconn                 3000
         <tag>k8s集群</tag>
         <tag>一键安装</tag>
         <tag>离线安装</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>程序包无效：“CRX_HEADER_INVALID“</title>
-    <url>/2021/05/10/%E7%A8%8B%E5%BA%8F%E5%8C%85%E6%97%A0%E6%95%88%EF%BC%9Acrx-header-invalid/</url>
-    <content><![CDATA[<p><img src="https://code404.icu/img/moveypu/2021/05/image-13.png"></p>
-<h1 id="之前在安装谷歌插件的时候遇到的问题，解决方法小技巧"><a href="#之前在安装谷歌插件的时候遇到的问题，解决方法小技巧" class="headerlink" title="之前在安装谷歌插件的时候遇到的问题，解决方法小技巧"></a>之前在安装谷歌插件的时候遇到的问题，解决方法小技巧</h1><h2 id="1、报错：程序包无效：“CRX-HEADER-INVALID”"><a href="#1、报错：程序包无效：“CRX-HEADER-INVALID”" class="headerlink" title="1、报错：程序包无效：“CRX_HEADER_INVALID”"></a>1、报错：程序包无效：“CRX_HEADER_INVALID”</h2><p>如图：</p>
-<p><img src="https://code404.icu/img/moveypu/2021/05/image-14.png"></p>
-<p>原因是插件格式不对，谷歌无法进行解析。需要手动解压文件。</p>
-<p>2、解决方法<br>将下载的<code>crx</code>文件后缀名改为<code>.zip</code> 或者后缀名 <code>.rar</code>。如果<code>zip</code>不行就改为<code>rar</code> 。然后对文件进行解压到指定文件夹，点击加载已解压的扩展程序，选定所解压的指定文件夹。</p>
-<p>再次把安装zip包拖放到<code>chrome://extensions/</code>扩展程序窗口就可以了</p>
-<p>上图中 谷歌访问助手 下载地址：<a href="https://www.code404.icu/programmer-box">https://www.code404.icu/programmer-box</a></p>
-]]></content>
-      <categories>
-        <category>IT杂谈</category>
-      </categories>
-      <tags>
-        <tag>报错</tag>
-        <tag>CRX_HEADER_INVALID</tag>
-        <tag>程序包无效</tag>
-        <tag>谷歌插件</tag>
       </tags>
   </entry>
   <entry>
