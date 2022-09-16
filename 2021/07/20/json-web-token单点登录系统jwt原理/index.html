@@ -157,7 +157,7 @@
 <p>一个JWT实际上就是一个字符串，它由三部分组成，头部、载荷与签名。</p>
 <h3 id="载荷（Payload）"><a href="#载荷（Payload）" class="headerlink" title="载荷（Payload）"></a>载荷（Payload）</h3><hr>
 <p>我们先将上面的添加好友的操作描述成一个JSON对象。其中添加了一些其他的信息，帮助今后收到这个JWT的服务器理解这个JWT。</p>
-<p>{<br>    “iss”: “John Wu JWT”,<br>    “iat”: 1441593502,<br>    “exp”: 1441594722,<br>    “aud”: “<a target="_blank" rel="noopener" href="http://www.example.com&quot;/">www.example.com&quot;</a>,<br>    “sub”: “<a href="mailto:&#x6a;&#114;&#x6f;&#99;&#x6b;&#101;&#116;&#x40;&#101;&#120;&#x61;&#x6d;&#x70;&#x6c;&#101;&#x2e;&#x63;&#x6f;&#x6d;">&#x6a;&#114;&#x6f;&#99;&#x6b;&#101;&#116;&#x40;&#101;&#120;&#x61;&#x6d;&#x70;&#x6c;&#101;&#x2e;&#x63;&#x6f;&#x6d;</a>“,<br>    “from_user”: “B”,<br>    “target_user”: “A”<br>}</p>
+<p>{<br>    “iss”: “John Wu JWT”,<br>    “iat”: 1441593502,<br>    “exp”: 1441594722,<br>    “aud”: “<a target="_blank" rel="noopener" href="http://www.example.com&quot;/">www.example.com&quot;</a>,<br>    “sub”: “<a href="mailto:&#106;&#114;&#111;&#99;&#x6b;&#101;&#116;&#64;&#101;&#120;&#97;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#99;&#111;&#109;">&#106;&#114;&#111;&#99;&#x6b;&#101;&#116;&#64;&#101;&#120;&#97;&#x6d;&#x70;&#x6c;&#x65;&#x2e;&#99;&#111;&#109;</a>“,<br>    “from_user”: “B”,<br>    “target_user”: “A”<br>}</p>
 <p>这里面的前五个字段都是由JWT的标准所定义的。</p>
 <ul>
 <li>iss: 该JWT的签发者</li>
