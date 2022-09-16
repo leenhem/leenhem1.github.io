@@ -179,7 +179,7 @@
 <h3 id="生成二维码"><a href="#生成二维码" class="headerlink" title="生成二维码"></a>生成二维码</h3><hr>
 <p>使用 python 模块 qrcode</p>
 <p>pip install qrcode</p>
-<p>url&#x3D;pyotp.totp.TOTP(secretKey).provisioning_uri(“<a href="mailto:&#x6c;&#105;&#x68;&#x65;&#64;&#x63;&#111;&#100;&#101;&#52;&#48;&#x34;&#x2e;&#x69;&#99;&#x75;">&#x6c;&#105;&#x68;&#x65;&#64;&#x63;&#111;&#100;&#101;&#52;&#48;&#x34;&#x2e;&#x69;&#99;&#x75;</a>“,issuer_name&#x3D;’码404’)<br>img&#x3D;qrcode.make(url)<br>print(url)<br>with open(‘code404_qrcode.png’,’wb’) as f:<br>    img.save(f)</p>
+<p>url&#x3D;pyotp.totp.TOTP(secretKey).provisioning_uri(“<a href="mailto:&#108;&#105;&#x68;&#101;&#x40;&#99;&#111;&#x64;&#x65;&#x34;&#x30;&#x34;&#x2e;&#105;&#99;&#x75;">&#108;&#105;&#x68;&#101;&#x40;&#99;&#111;&#x64;&#x65;&#x34;&#x30;&#x34;&#x2e;&#105;&#99;&#x75;</a>“,issuer_name&#x3D;’码404’)<br>img&#x3D;qrcode.make(url)<br>print(url)<br>with open(‘code404_qrcode.png’,’wb’) as f:<br>    img.save(f)</p>
 <p>绑定手机APP Google身份验证器<br>使用APP扫 刚才生成的二维码<br><img src="https://img-blog.csdnimg.cn/60dd5fb1030f4ee28925cd09eaae461c.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBAbGVlbmhlbQ==,size_20,color_FFFFFF,t_70,g_se,x_16" alt="在这里插入图片描述"></p>
 <h3 id="验证口令"><a href="#验证口令" class="headerlink" title="验证口令"></a>验证口令</h3><hr>
 <p>import base64<br>import pyotp<br>string&#x3D;’<a target="_blank" rel="noopener" href="http://www.code404&/#39;">www.code404&#39;</a><br>secretKey&#x3D;base64.b32encode(string.encode(encoding&#x3D;’utf-8’))<br>print(secretKey)<br>totp&#x3D;pyotp.TOTP(secretKey)<br>print(totp.verify(276269))<br>True</p>

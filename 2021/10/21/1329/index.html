@@ -223,7 +223,7 @@
 <li>broker参数表示用来连接broker的URL，rabbitmq采用的是一种称为’amqp’的协议，如果rabbitmq运行在默认设置下，celery不需要其他信息，只要amqp:&#x2F;&#x2F;即可。</li>
 <li>backend参数是可选的，如果想要查询任务状态或者任务执行结果时必填, Celery中的后端用于存储任务结果。<br>rpc意味着将结果作为AMQP消息发送回去。</li>
 </ul>
-<p>#   RabbitMQ配置BROKER_URL 和backend<br>BROKER_URL &#x3D; ‘amqp:&#x2F;&#x2F;admin:<a href="mailto:&#x31;&#x32;&#51;&#x34;&#x35;&#54;&#x40;&#x31;&#x39;&#x32;&#46;&#49;&#54;&#56;&#x2e;&#x31;&#x2e;&#49;&#49;">&#x31;&#x32;&#51;&#x34;&#x35;&#54;&#x40;&#x31;&#x39;&#x32;&#46;&#49;&#54;&#56;&#x2e;&#x31;&#x2e;&#49;&#49;</a>:5672&#x2F;&#x2F;‘<br>CELERY_RESULT_BACKEND &#x3D; ‘rpc:&#x2F;&#x2F;‘</p>
+<p>#   RabbitMQ配置BROKER_URL 和backend<br>BROKER_URL &#x3D; ‘amqp:&#x2F;&#x2F;admin:<a href="mailto:&#49;&#50;&#51;&#x34;&#x35;&#54;&#64;&#49;&#57;&#x32;&#x2e;&#49;&#54;&#56;&#46;&#x31;&#x2e;&#x31;&#49;">&#49;&#50;&#51;&#x34;&#x35;&#54;&#64;&#49;&#57;&#x32;&#x2e;&#49;&#54;&#56;&#46;&#x31;&#x2e;&#x31;&#49;</a>:5672&#x2F;&#x2F;‘<br>CELERY_RESULT_BACKEND &#x3D; ‘rpc:&#x2F;&#x2F;‘</p>
 <p>CELERY_TASK_SERIALIZER &#x3D; ‘json’<br>CELERY_RESULT_SERIALIZER &#x3D; ‘json’<br>CELERY_ACCEPT_CONTENT&#x3D;[‘json’]<br>CELERY_TIMEZONE &#x3D; ‘Asia&#x2F;Shanghai’<br>CELERY_ENABLE_UTC &#x3D; True</p>
 <h3 id="创建视图"><a href="#创建视图" class="headerlink" title="创建视图"></a>创建视图</h3><hr>
 <p>views.py创建视图</p>
